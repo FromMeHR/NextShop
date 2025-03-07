@@ -10,3 +10,7 @@
   pk: 3
   fields:
     name: Clothing
+- model: products.category
+  pk: 4
+  fields:
+    name: Other Products
