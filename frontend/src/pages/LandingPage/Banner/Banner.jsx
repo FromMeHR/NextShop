@@ -1,4 +1,3 @@
-import React from 'react'
 import css from './Banner.module.css';
 import { Button } from 'antd';
 

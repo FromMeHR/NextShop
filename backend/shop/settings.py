@@ -42,12 +42,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'debug_toolbar',
     'authentication',
     'products',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -62,23 +64,23 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ORIGIN_WHITELIST = [
-    "http://localhost:3000",
-    "http://127.0.0.1",
-    "http://0.0.0.0",
-    config("CORS_ORIGIN_WHITELIST"),
+    'http://localhost:3000',
+    'http://127.0.0.1',
+    'http://0.0.0.0',
+    config('CORS_ORIGIN_WHITELIST'),
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1",
-    "http://0.0.0.0",
+    'http://localhost:3000',
+    'http://127.0.0.1',
+    'http://0.0.0.0',
 ]
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
-    "Access-Control-Expose-Headers",
-    "Access-Control-Allow-Headers",
-    "Access-Control-Allow-Origin",
-    "Content-Type",
+    'Access-Control-Expose-Headers',
+    'Access-Control-Allow-Headers',
+    'Access-Control-Allow-Origin',
+    'Content-Type',
 ]
 
 ROOT_URLCONF = 'shop.urls'
@@ -163,3 +165,10 @@ MEDIA_ROOT = BASE_DIR / 'public' / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'authentication.CustomUser'
+
+def show_toolbar(request):
+    return DEBUG
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+}

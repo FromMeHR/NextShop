@@ -1,0 +1,11 @@
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+}
+
+.scroll-container::-webkit-scrollbar {
+    display: none;
+}

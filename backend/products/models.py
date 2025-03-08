@@ -15,6 +15,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products_images/')
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    quantity = models.PositiveIntegerField(default=0)
     categories = models.ManyToManyField("Category")
     
     def __str__(self):

@@ -4,11 +4,14 @@ from rest_framework.generics import (
 )
 
 from .models import Product
-from .serializers import ProductSerializer
+from .serializers import (
+    ProductListSerializer,
+    ProductDetailSerializer,
+)
 
 
 class ProductList(ListAPIView):
-    serializer_class = ProductSerializer
+    serializer_class = ProductListSerializer
     queryset = (
         Product.objects.all()
         .prefetch_related('categories')
@@ -16,7 +19,8 @@ class ProductList(ListAPIView):
     
 
 class ProductDetail(RetrieveAPIView):
-    serializer_class = ProductSerializer
+    serializer_class = ProductDetailSerializer
+    lookup_field = 'slug'
     queryset = (
         Product.objects.all()
         .prefetch_related('categories')

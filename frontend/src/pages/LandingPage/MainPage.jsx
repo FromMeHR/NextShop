@@ -1,4 +1,3 @@
-import React from 'react';
 import MainBanner from './Banner/Banner';
 import Products from './Products/Products';
 
