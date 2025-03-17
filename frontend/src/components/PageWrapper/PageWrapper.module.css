@@ -1,9 +1,15 @@
 .pageContent {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 165px);
 }
 
 .pageContent > * {
   flex-grow: 1;
+}
+
+@media only screen and (min-width: 1200px) {
+  .pageContent {
+    min-height: calc(100vh - 60px);
+  }
 }

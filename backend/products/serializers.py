@@ -51,4 +51,4 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         products = Product.objects.filter(categories__in=obj.categories.all()) \
                 .exclude(id=obj.id).prefetch_related('categories')
         serializer = ProductListSerializer(products, many=True, context=self.context)
-        return serializer.data
+        return serializer.data[:30]

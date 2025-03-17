@@ -19,11 +19,11 @@ const ProductDetailPage = () => {
   	return (error) ? (
             <ErrorPage404 />
         ) : (
-        <div>
+        <>
             {isLoading ? (
                 <Loader />
                 ) : (
-                <div>
+                <>
                     <section className="py-3">
                         <div className="container px-4 px-lg-5 my-5">
                             <div className="row gx-4 gx-lg-5 align-items-center">
@@ -50,9 +50,9 @@ const ProductDetailPage = () => {
                         </div>
                     </section>
                     <RelatedProducts relatedProducts={product.similar_products} />
-                </div>
+                </>
             )}
-        </div>
+        </>
     );
 };
 
