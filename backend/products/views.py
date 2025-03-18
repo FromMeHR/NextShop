@@ -3,6 +3,7 @@ from rest_framework.generics import (
     RetrieveAPIView,
 )
 
+from shop.pagination import ShopPagination
 from .models import Product
 from .serializers import (
     ProductListSerializer,
@@ -12,6 +13,7 @@ from .serializers import (
 
 class ProductList(ListAPIView):
     serializer_class = ProductListSerializer
+    pagination_class = ShopPagination
     queryset = (
         Product.objects.all()
         .prefetch_related('categories')

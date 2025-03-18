@@ -7,7 +7,7 @@ function Navbar() {
   return (
     <nav className={`navbar navbar-expand-lg navbar-dark fixed-top ${css['navbar-wrapper']}`}>
         <div className="container">
-            <Link className="navbar-brand fw-bold text-uppercase" to="/">Shop</Link>
+            <a href="/" className="navbar-brand fw-bold text-uppercase">Shop</a>
             <button
                 className="navbar-toggler"
                 type="button"
