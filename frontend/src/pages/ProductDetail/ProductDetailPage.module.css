@@ -1,0 +1,19 @@
+.buy-now-button {
+    width: 200px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.buy-now-button span {
+    position: relative;
+    padding-left: 30px;
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.buy-now-button span img {
+    position: absolute;
+    left: 0;
+}

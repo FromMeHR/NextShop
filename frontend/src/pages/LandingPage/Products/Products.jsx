@@ -11,7 +11,6 @@ import useWindowWidth from "../../../hooks/useWindowWidth";
 import { DEFAULT_PAGE_SIZE } from "../../../constants/constants";
 import css from "./Products.module.css";
 
-
 const fetcher = async (url) => {
   const response = await axios.get(url);
   return response.data;
@@ -20,12 +19,11 @@ const fetcher = async (url) => {
 const Products = () => {
   const [queryParams, setQueryParams] = useSearchParams();
   const pageNumber = Number(queryParams.get("page")) || 1;
-  const pageSizeFromUrl = Number(queryParams.get("page_size")) || DEFAULT_PAGE_SIZE;
   const [currentPage, setCurrentPage] = useState(pageNumber);
-  const [pageSize, setPageSize] = useState(pageSizeFromUrl);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   
   const baseUrl = process.env.REACT_APP_BASE_API_URL;
-  const url = `${baseUrl}/products/?page=${currentPage}&page_size=${pageSize}`;
+  const url = `${baseUrl}/api/products/?page=${currentPage}&page_size=${pageSize}`;
   
   const { data, error, isLoading } = useSWR(url, fetcher);
   const products = data ? data.results : [];
@@ -36,7 +34,7 @@ const Products = () => {
 
   useEffect(() => {
     definePageSize(windowWidth, setPageSize);
-  }, []);
+  }, [windowWidth]);
 
   const updateQueryParams = (newPage) => {
     if (newPage === 1) {
