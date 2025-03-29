@@ -1,14 +1,20 @@
+import { useEffect, useState } from "react";
 import { useCart } from "../../context/CartContext";
 import Modal from "react-bootstrap/Modal";
 import css from "./CartModal.module.css";
 
 const CartModal = ({ show, handleClose }) => {
   const { cart } = useCart();
+  const [isVisible, setIsVisible] = useState(false);
   const outOfStockItems = cart.filter(item => item.product_quantity === 0);
   const inStockItems = cart.filter(item => item.product_quantity > 0);
   const totalPrice = inStockItems.reduce((sum, item) => sum + item.product_price * item.quantity, 0);
 
-  if (!show || cart.length === 0) {
+  useEffect(() => {
+    setIsVisible(show);
+  }, [show]);
+
+  if (cart.length === 0) {
     return null;
   }
 
@@ -16,12 +22,13 @@ const CartModal = ({ show, handleClose }) => {
     <Modal
       show={show}
       onHide={handleClose}
-      dialogClassName={`${show ? css["show"] : ""} ${css["modal-dialog"]}`}
+      className={`${css["side-modal"]} ${css["fade"]} ${ isVisible ? css["show"] : ""}`}
+      dialogClassName={`${css["modal-dialog"]}`} 
       contentClassName={css["modal-content"]}
     >
       <Modal.Header className={css["modal-header"]}>
         <Modal.Title className={css["modal-title"]}>
-          Cart{" "}
+          Cart
           <span className={css["cart-products-count"]}>
             {cart.length} products
           </span>

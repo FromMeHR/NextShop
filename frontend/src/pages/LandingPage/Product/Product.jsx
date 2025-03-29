@@ -14,7 +14,7 @@ const Product = ({ product }) => {
             />
           </div>
           <div className={css["product-card-body"]}>
-            <h5 className={css["product-card-title"]}>{product.name.length > 25 ? product.name.slice(0, 25) + '...' : product.name}</h5>
+            <h5 className={css["product-card-title"]}>{product.name}</h5>
             <h6 className={css["product-card-price"]}>${product.price}</h6>
           </div>
         </div>

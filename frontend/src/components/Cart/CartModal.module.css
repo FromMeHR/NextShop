@@ -1,10 +1,23 @@
+.side-modal .modal-dialog {
+    right: -820px !important;
+    transition: opacity 0.5s linear, right 0.5s ease-out !important;
+    margin-top: 25px !important;
+}
+
+.side-modal.show .modal-dialog {
+    right: 30px !important;
+}
+
+.fade {
+    transition: opacity 0.5s linear !important;
+}
+
 .modal-dialog {
     position: fixed !important;
     max-width: 840px !important;
-}
-
-.modal-dialog.show {
-    right: 30px !important;
+    margin: auto !important;
+    height: 100% !important;
+    transform: translate3d(0%, 0, 0) !important;
 }
 
 .modal-content {
@@ -37,12 +50,12 @@
     line-height: 135%;
     color: #707070;
     position: relative;
-    padding: 0 0 0 15px;
+    padding: 0 0 0 20px;
 }
 
 .cart-products-count:before {
     content: '•';
-    left: 4px;
+    left: 8px;
     top: 0;
     position: absolute;
 }
@@ -231,9 +244,13 @@
 }
 
 @media only screen and (max-width: 768px) {
-    .show.modal-dialog {
+    .side-modal .modal-dialog {
+        margin-top: 0 !important;
+    }
+
+    .side-modal.show .modal-dialog {
         right: 0 !important;
-        margin: auto;
+        margin: 0 !important;
         max-height: 100% !important;
         max-width: 100% !important;
     }

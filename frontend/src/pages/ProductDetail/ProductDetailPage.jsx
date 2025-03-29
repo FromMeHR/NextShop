@@ -29,7 +29,7 @@ const ProductDetailPage = () => {
                 <Loader />
                 ) : (
                 <>
-                    <section className="py-3">
+                    <section className="py-2 mt-4">
                         <div className="container px-4 px-lg-5 my-5">
                             <div className="row gx-4 gx-lg-5 align-items-center">
                                 <div className="col-md-4">
