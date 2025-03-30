@@ -1,0 +1,40 @@
+.btn_back-to-top {
+    position: fixed;
+    box-shadow: 0 14px 25px rgba(0, 0, 0, 0.05);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1px solid #e3e3e3;
+    right: 20px;
+    bottom: 20px;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.btn_back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+  
+.btn_back-to-top img {
+    width: 32px;
+    height: 20px;
+    margin-top: -6px;
+}
+
+@media only screen and (max-width: 768px) {
+    .btn_back-to-top {
+        width: 30px;
+        height: 30px;
+        bottom: 170px;
+    }
+
+    .btn_back-to-top img {
+        width: 16px;
+        height: 10px;
+    }
+}

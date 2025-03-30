@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import { useCart } from "../../context/CartContext";
+import { useCart } from "../../hooks/useCart";
 import Modal from "react-bootstrap/Modal";
 import css from "./CartModal.module.css";
 
 const CartModal = ({ show, handleClose }) => {
-  const { cart } = useCart();
+  const { cart, outOfStockItems, inStockItems, totalPrice, 
+    updateCartItem, deleteCartItem } = useCart();
   const [isVisible, setIsVisible] = useState(false);
-  const outOfStockItems = cart.filter(item => item.product_quantity === 0);
-  const inStockItems = cart.filter(item => item.product_quantity > 0);
-  const totalPrice = inStockItems.reduce((sum, item) => sum + item.product_price * item.quantity, 0);
 
   useEffect(() => {
     setIsVisible(show);
@@ -79,6 +77,9 @@ const CartModal = ({ show, handleClose }) => {
                       src={`${process.env.REACT_APP_PUBLIC_URL}/svg/minus.svg`}
                       className={css["product-counter__btn_subtract"]}
                       alt="Minus"
+                      onClick={() => {
+                        updateCartItem(item.id, Math.max(item.quantity - 1, 1), item.quantity);
+                      }}
                     />
                     <input
                       className="form-control text-center" type="text" readOnly
@@ -88,6 +89,9 @@ const CartModal = ({ show, handleClose }) => {
                       src={`${process.env.REACT_APP_PUBLIC_URL}/svg/plus.svg`}
                       className={css["product-counter__btn_add"]}
                       alt="Plus"
+                      onClick={() => {
+                        updateCartItem(item.id, item.quantity + 1);
+                      }}
                     />
                   </div>
                   <div className={css["cart-page__product-price"]}>
@@ -101,6 +105,7 @@ const CartModal = ({ show, handleClose }) => {
                     src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
                     className={css["cart-page__product-btn_delete"]}
                     alt="Delete"
+                    onClick={() => deleteCartItem(item.id)}
                   />
                 </div>
               </div>

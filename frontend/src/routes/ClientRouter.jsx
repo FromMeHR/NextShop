@@ -8,7 +8,7 @@ import Footer from '../components/Footer/Footer';
 import MainPage from '../pages/LandingPage/MainPage';
 import ProductDetailPage from '../pages/ProductDetail/ProductDetailPage';
 import PageWrapper from '../components/PageWrapper/PageWrapper';
-import { CartProvider } from '../context/CartContext';
+import { CartProvider } from '../context/CartContextProvider';
 import ErrorPage404 from '../pages/ErrorPage/ErrorPage404';
 
 

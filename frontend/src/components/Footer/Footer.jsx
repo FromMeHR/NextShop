@@ -1,3 +1,4 @@
+import ScrollToTopButton from './FooterComponents/ScrollToTopButton';
 import css from './Footer.module.css';
 
 const Footer = () => {
@@ -24,6 +25,7 @@ const Footer = () => {
                 <p className="text-white small mb-0">Copyright &copy; 2025 Shop. All rights reserved.</p>
             </div>
         </div>
+        <ScrollToTopButton />
     </footer>
   )
 }

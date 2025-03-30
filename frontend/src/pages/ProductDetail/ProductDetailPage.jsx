@@ -5,7 +5,7 @@ import axios from 'axios'
 import Loader from '../../components/Loader/Loader'
 import ErrorPage404 from '../ErrorPage/ErrorPage404'
 import RelatedProducts from './RelatedProducts/RelatedProducts'
-import { useCart } from '../../context/CartContext'
+import { useCart } from '../../hooks/useCart'
 import CartModal from '../../components/Cart/CartModal'
 import css from './ProductDetailPage.module.css'
 
@@ -16,7 +16,7 @@ const fetcher = async (url) => {
 
 const ProductDetailPage = () => {
     const { slug } = useParams();
-    const { addToCart } = useCart();
+    const { cart, addToCart } = useCart();
     const [showCart, setShowCart] = useState(false);
     const baseUrl = process.env.REACT_APP_BASE_API_URL;
     const { data: product, error, isLoading } = useSWR(`${baseUrl}/api/products/${slug}/`, fetcher);
@@ -51,7 +51,8 @@ const ProductDetailPage = () => {
                                     </div>
                                     {product.quantity === 0 ? (
                                         <span className="text-danger">Out of stock</span> ) : (
-                                        <button className={`btn btn-dark btn-lg ${css['buy-now-button']}`} onClick={() => { addToCart(product.id); setShowCart(true); }}>
+                                        <button className={`btn btn-dark btn-lg ${css['buy-now-button']}`} 
+                                            onClick={() => { addToCart(product.id); cart.length > 0 && setShowCart(true); }}>
                                             <span><img src={`${process.env.REACT_APP_PUBLIC_URL}/svg/cart.svg`} alt="Cart icon link" />Buy Now</span>
                                         </button>
                                     )}

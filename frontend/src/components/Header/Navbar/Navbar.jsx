@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Navlink from './Navlink';
 import CartModal from "../../Cart/CartModal";
-import { useCart } from '../../../context/CartContext';
+import { useCart } from "../../../hooks/useCart";
 import css from './Navbar.module.css';
 
 function Navbar() {
@@ -27,11 +27,13 @@ function Navbar() {
               </button>
               <div className="collapse navbar-collapse" id="navbarContent">
                   <Navlink/>
-                  <div className={`btn btn-dark ms-2 rounded-pill position-relative ${css['navbar-cart-button']}`} onClick={() => setShowCart(true)}>
+                  <div className={`btn btn-dark ms-2 rounded-pill position-relative ${css['navbar-cart-button']}`} 
+                    onClick={() => cart.length > 0 && setShowCart(true)}>
                     <img src={`${process.env.REACT_APP_PUBLIC_URL}/svg/cart.svg`} alt="Cart icon link" />
+                    {totalItems > 0 && (
                     <span className={`position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ${css['navbar-cart-badge']}`}>
                       {totalItems}
-                    </span>
+                    </span>)}
                   </div>
               </div>
           </div>
