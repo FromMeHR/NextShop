@@ -11,7 +11,7 @@ const ScrollToTopButton = () => {
       } else {
         setIsVisible(false);
       }
-   };
+    };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);

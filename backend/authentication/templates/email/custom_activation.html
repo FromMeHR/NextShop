@@ -1,0 +1,16 @@
+{% load i18n %}
+
+{% block subject %}
+{% blocktrans %}Account activation for Shop{% endblocktrans %}
+{% endblock subject %}
+
+{% block html_body %}
+<p>Dear {{user.surname}} {{user.name}},</p>
+<p>You have requested to create an account on the Shop website.
+    To complete the activation process, please confirm your email address by clicking on the following link:</p>
+<a href="{{ protocol }}://{{ domain }}/{{ url|safe }}">{{ protocol }}://{{ domain }}/{{ url|safe }}</a>
+<p>If you did not register on our site or received this email in error, please ignore it.</p>
+<p>Thank you for using our site!</p>
+<p>Sincerely,<br/>
+    Shop</p>
+{% endblock html_body %}

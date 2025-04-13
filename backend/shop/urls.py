@@ -21,14 +21,15 @@ from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
-    path('api/admin/', admin.site.urls),
-    path('api/', include('products.urls', namespace='products')),
-    path('api/', include('carts.urls', namespace='carts')),
+    path("api/admin/", admin.site.urls),
+    path("api/", include("authentication.urls", namespace="authentication")),
+    path("api/", include("products.urls", namespace="products")),
+    path("api/", include("carts.urls", namespace="carts")),
 ]
 
 if settings.DEBUG:
     urlpatterns += [
-        path('__debug__/', include('debug_toolbar.urls'))
+        path("__debug__/", include("debug_toolbar.urls"))
     ]
     urlpatterns += staticfiles_urlpatterns()
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
