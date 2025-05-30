@@ -1,7 +1,7 @@
-import MainBanner from './Banner/Banner';
-import Products from './Products/Products';
+import { MainBanner } from "./Banner/Banner";
+import { Products } from "./Products/Products";
 
-function MainPage() {
+export function MainPage() {
   return (
     <>
       <MainBanner />
@@ -9,5 +9,3 @@ function MainPage() {
     </>
   );
 }
-
-export default MainPage;

@@ -1,16 +1,19 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import css from './Loader.module.css';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import css from "./Loader.module.css";
 
-export default function Loader() {
-  const [message, setMessage] = useState('');
+export function Loader() {
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const shortWait = setTimeout(() => setMessage('Please wait, loading...'), 3000);
-    const longWait = setTimeout(() => setMessage('Still loading... '), 10000);
+    const shortWait = setTimeout(
+      () => setMessage("Please wait, loading..."),
+      3000
+    );
+    const longWait = setTimeout(() => setMessage("Still loading... "), 10000);
     const timeoutError = setTimeout(() => {
-      navigate('/404');
+      navigate("/404");
     }, 30000);
 
     return () => {

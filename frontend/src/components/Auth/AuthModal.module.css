@@ -1,0 +1,275 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.5s linear;
+    pointer-events: none;
+    z-index: 998;
+}
+
+.overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    padding: 25px 0;
+    transform: translate(-50%, calc(-50% - 20px));
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 999;
+    pointer-events: none;
+}
+
+.modal.show {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+    pointer-events: auto;
+}
+
+
+.modal-dialog {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+    max-width: 350px;
+    width: 100%;
+    margin: auto;
+}
+
+.modal-content {
+    position: relative;
+    width: 100%;
+    border: none;
+    background: #fff;
+    border-radius: 10px;
+    display: block;
+    margin: auto;
+    padding: 1rem;
+}
+
+.modal-body {
+    padding: 0;
+}
+
+.modal-close-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: #ffffff;
+    border: 1px solid #e3e3e3;
+    right: -20px;
+    top: -20px;
+    cursor: pointer;
+    position: absolute;
+}
+
+.choose-tabs {
+    overflow: auto;
+    margin: 0 0 30px;
+}
+
+.choose-tabs__wrap {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    border-radius: 50px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    box-shadow: inset 0 0 2px 2px #f1f1f1;
+}
+
+.choose-tabs__wrap .nav-item {
+    flex-grow: 1;
+}
+
+.choose-tabs__wrap .choose-tabs__item {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50px;
+    padding: 13px 18px;
+    background: none;
+}
+
+.nav-item:hover .choose-tabs__item,
+.choose-tabs__item.active {
+    box-shadow: inset 0 0 2px #94B80A;
+    background: rgba(148, 184, 10, 0.1);
+    border-radius: 50px;
+    border: none;
+}
+
+.choose-tabs__title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.tab-content {
+    position: relative;
+    overflow: hidden;
+    padding-top: 5px;
+}
+
+.tab-content > .tab-pane {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.modal.show .tab-content > .tab-pane.active {
+    pointer-events: auto;
+}
+
+.tab-content > .tab-pane.active {
+    opacity: 1;
+    position: relative;
+}
+
+.forms__item {
+    margin: 0 0 15px 0;
+}
+
+.form-floating {
+    position: relative;
+}
+
+.form-floating input {
+    height: 44px;
+    padding: 0 18px;
+    border: 1px solid #CACACA;
+    border-radius: 10px;
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+}
+
+.has-error input {
+    border: 1px solid red;
+}
+
+.form-floating input:focus {
+    border: 1px solid #94B80A;
+}
+
+.form-floating:not(.has-error) input:hover:not(:focus) {
+    border: 1px solid #000
+}
+
+.form-floating label {
+    position: absolute;
+    display: flex;
+    pointer-events: none;
+    align-items: center;
+    justify-content: center;
+    height: 14px;
+    top: -7px;
+    background: #fff;
+    color: #707070;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 0 5px;
+    left: 13px;
+}
+
+.forgot-password {
+    border: none;
+    background: none;
+}
+
+.error-message {
+    color: red;
+    margin: 0;
+    padding: 5px 19px 0 19px;
+    font-size: 80%;
+}
+
+.forgot-password-wrap {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.forgot-password-wrap .forgot-password {
+    font-size: 14px;
+    border-bottom: 1px dashed #000;
+}
+
+.signin-form__btn {
+    width: 100%;
+    background-color: #94B80A;
+    transition: background-color 0.3s ease;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 25px 11px;
+    border-radius: 500px;
+    font-size: 16px;
+}
+
+.signin-form__btn:disabled,
+.signup-form__btn:disabled {
+    background-color: #CACACA;
+}
+
+.signin-form__btn:hover:not(:disabled) {
+    background-color: #7a9b0a;
+    cursor: pointer;
+}
+
+.signup-form__btn {
+    width: 100%;
+    background-color: #000;
+    transition: background-color 0.3s ease;
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 25px 11px;
+    border-radius: 500px;
+    font-size: 16px;
+}
+
+.signup-form__btn:hover:not(:disabled) {
+    background-color: #333;
+    cursor: pointer;
+}
+
+
+@media only screen and (max-width: 768px) {
+    .modal-close-button {
+        right: 10px;
+        top: 10px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .modal-dialog {
+        width: 90%;
+    }
+
+    .choose-tabs {
+        margin-top: 30px;
+    }
+
+    .forgot-password-wrap .forgot-password {
+        font-size: 12px;
+        height: 20px;
+    }
+}

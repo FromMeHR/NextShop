@@ -61,6 +61,27 @@
   line-height: 1.5;
 }
 
+.ErrorPage404__button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  width: 100%;
+  max-width: 150px;
+  height: 40px;
+  background-color: #000;
+  transition: background-color 0.3s ease-in-out;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.ErrorPage404__button:hover {
+  background-color: #333;
+  cursor: pointer;
+}
 
 @media only screen and (min-width: 768px) {
   .ErrorPage404__page {
@@ -109,7 +130,6 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    height: 178px;
     max-width: 500px;
   }
 

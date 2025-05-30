@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import css from "./Product.module.css";
 
-const Product = ({ product }) => {
+export function Product({ product }) {
   return (
     <div className={`col-6 col-md-3 ${css["product-col"]}`}>
-      <Link to={`/product-detail/${product.slug}`} className={css["product-link"]}>
+      <Link
+        to={`/product-detail/${product.slug}`}
+        className={css["product-link"]}
+      >
         <div className={css["product-card"]}>
           <div className={css["product-card-image-wrapper"]}>
             <img
@@ -21,6 +24,4 @@ const Product = ({ product }) => {
       </Link>
     </div>
   );
-};
-
-export default Product;
+}

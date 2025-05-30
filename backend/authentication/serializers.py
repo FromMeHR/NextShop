@@ -77,6 +77,6 @@ class UserListSerializer(UserSerializer):
 
 class CustomTokenCreateSerializer(TokenCreateSerializer):
     def validate(self, attrs):
-        email = attrs.get(djoser_settings.LOGIN_FIELD).lower()
+        email = attrs.get(djoser_settings.LOGIN_FIELD)
         new_attr = {"email": email, "password": attrs.get("password")}
         return super().validate(new_attr)

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import css from './ScrollToTopButton.module.css';
+import { useState, useEffect } from "react";
+import css from "./ScrollToTopButton.module.css";
 
-const ScrollToTopButton = () => {
+export function ScrollToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -13,20 +13,23 @@ const ScrollToTopButton = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <button className={`${css['btn_back-to-top']} ${isVisible ? css.visible : ""}`} 
-      onClick={scrollToTop}>
-      <img src={`${process.env.REACT_APP_PUBLIC_URL}/svg/up.svg`} alt="Back to top" />
+    <button
+      className={`${css["btn_back-to-top"]} ${isVisible ? css.visible : ""}`}
+      onClick={scrollToTop}
+    >
+      <img
+        src={`${process.env.REACT_APP_PUBLIC_URL}/svg/up.svg`}
+        alt="Back to top"
+      />
     </button>
   );
-};
-
-export default ScrollToTopButton;
+}

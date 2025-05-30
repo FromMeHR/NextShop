@@ -1,11 +1,10 @@
-import Navbar from './Navbar/Navbar';
+import { Navbar } from "./Navbar/Navbar";
+import css from "./Header.module.css";
 
-function Header() {
+export function Header(props) {
   return (
-    <header>
-      <Navbar></Navbar>
+    <header className={css["header"]}>
+      <Navbar isAuthorized={props.isAuthorized}></Navbar>
     </header>
   );
 }
-
-export default Header;

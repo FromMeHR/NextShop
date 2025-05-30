@@ -1,46 +1,120 @@
-import { useState } from "react";
-import Navlink from './Navlink';
-import CartModal from "../../Cart/CartModal";
+import { useState, useEffect } from "react";
+import { CartModal } from "../../Cart/CartModal";
+import { AuthModal } from "../../Auth/AuthModal";
 import { useCart } from "../../../hooks/useCart";
-import css from './Navbar.module.css';
+import { Link, useNavigate } from "react-router-dom";
+import css from "./Navbar.module.css";
 
-function Navbar() {
+export function Navbar(props) {
   const { cart } = useCart();
-  const [showCart, setShowCart] = useState(false);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const navigate = useNavigate();
+  const [showCart, setShowCart] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768 && menuOpen) {
+        setMenuOpen(false);
+        document.body.classList.remove(css.noScroll);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.classList.add(css.noScroll);
+    } else {
+      document.body.classList.remove(css.noScroll);
+    }
+  }, [menuOpen]);
 
   return (
     <>
-      <nav className={`navbar navbar-expand-lg navbar-dark fixed-top ${css['navbar-wrapper']}`}>
-          <div className="container">
-              <a href="/" className="navbar-brand fw-bold text-uppercase">Shop</a>
-              <button
-                  className="navbar-toggler"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#navbarContent"
-                  aria-controls="navbarContent"
-                  aria-expanded="false"
-                  aria-label="Toggle navigation"
-              > 
-                <span className="navbar-toggler-icon"></span>
-              </button>
-              <div className="collapse navbar-collapse" id="navbarContent">
-                  <Navlink/>
-                  <div className={`btn btn-dark ms-2 rounded-pill position-relative ${css['navbar-cart-button']}`} 
-                    onClick={() => cart.length > 0 && setShowCart(true)}>
-                    <img src={`${process.env.REACT_APP_PUBLIC_URL}/svg/cart.svg`} alt="Cart icon link" />
-                    {totalItems > 0 && (
-                    <span className={`position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger ${css['navbar-cart-badge']}`}>
-                      {totalItems}
-                    </span>)}
-                  </div>
-              </div>
+      <nav className={css["navbar-wrapper"]}>
+        <div className={css["navbar-content"]}>
+          <div className={css["navbar-logo"]}>
+            <Link to="/" reloadDocument>
+              Shop
+            </Link>
           </div>
+          <div
+            className={`${css["navbar-utility-bar"]} ${
+              menuOpen ? css.open : ""
+            }`}
+          >
+            <div
+              className={css["navbar-user-button"]}
+              onClick={() =>
+                props.isAuthorized
+                  ? (() => {
+                      setMenuOpen(false);
+                      navigate("/profile/user-info");
+                    })()
+                  : setShowAuth(true)
+              }
+            >
+              <div className={css["user-icon-wrapper"]}>
+                <img
+                  src={`${process.env.REACT_APP_PUBLIC_URL}/svg/user.svg`}
+                  alt="User icon"
+                />
+                {props.isAuthorized && (
+                  <img
+                    src={`${process.env.REACT_APP_PUBLIC_URL}/svg/check-circle.svg`}
+                    alt="Authorized check icon"
+                    className={css["authorized-check-icon"]}
+                  />
+                )}
+              </div>
+              <span className={css["show-info-on-mobile"]}>
+                {props.isAuthorized ? "Profile" : "Sign in/up"}
+              </span>
+            </div>
+            <div
+              className={css["navbar-cart-button"]}
+              onClick={() => cart.length > 0 && setShowCart(true)}
+            >
+              <div className={css["cart-icon-wrapper"]}>
+                <img
+                  src={`${process.env.REACT_APP_PUBLIC_URL}/svg/cart.svg`}
+                  alt="Cart icon"
+                />
+                {totalItems > 0 && (
+                  <span className={css["navbar-cart-badge"]}>{totalItems}</span>
+                )}
+              </div>
+              <span className={css["show-info-on-mobile"]}>Cart</span>
+            </div>
+          </div>
+          <div
+            className={`${css["overlay"]} ${menuOpen ? css["open"] : ""}`}
+            onClick={toggleMenu}
+          ></div>
+          <div
+            className={`${css["burger-menu"]} ${menuOpen ? css["active"] : ""}`}
+            onClick={toggleMenu}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
       </nav>
+      <AuthModal
+        show={showAuth}
+        handleClose={() => setShowAuth(false)}
+        successAuth={() => setMenuOpen(false)}
+      />
       <CartModal show={showCart} handleClose={() => setShowCart(false)} />
     </>
   );
 }
-
-export default Navbar;
