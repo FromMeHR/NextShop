@@ -2,12 +2,24 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { ErrorMessage } from "@hookform/error-message";
 import validator from "validator";
 import classnames from "classnames";
 import axios from "axios";
+import {
+  EMAIL_PATTERN,
+  PASSWORD_PATTERN,
+  ALLOWED_NAME_SURNAME_SYMBOLS_PATTERN,
+} from "../../constants/constants";
 import css from "./AuthModal.module.css";
 
-export function AuthModal({ show, handleClose, successAuth }) {
+export function AuthModal({
+  show,
+  handleClose,
+  successAuth,
+  handleOpenCompleteSignUp,
+}) {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
@@ -45,31 +57,119 @@ export function AuthModal({ show, handleClose, successAuth }) {
   }, [watchedEmail, watchedPassword, clearErrors]);
 
   const onSubmit = async (value) => {
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_BASE_API_URL}/api/auth/token/login/`,
-        {
-          email: value.email,
-          password: value.password,
+    await axios({
+      method: "post",
+      url: `${process.env.REACT_APP_BASE_API_URL}/api/auth/token/login/`,
+      data: { email: value.email, password: value.password },
+    })
+      .then((resp) => {
+        const authToken = resp.data.auth_token;
+        login(authToken);
+        handleClose();
+        successAuth();
+        navigate("/profile/user-info");
+      })
+      .catch((error) => {
+        if (error.response.status === 400) {
+          const resp = error.response.data;
+          if (
+            resp.email_not_verified &&
+            resp.email_not_verified[0] === "E-mail verification required"
+          ) {
+            handleClose();
+            handleOpenCompleteSignUp();
+          }
+          if (
+            resp.non_field_errors &&
+            resp.non_field_errors[0] ===
+              "Unable to log in with provided credentials."
+          ) {
+            setError("unspecifiedError", {
+              type: "manual",
+              message: errorMessageTemplates.unspecifiedError,
+            });
+          }
         }
-      );
-      const authToken = response.data.auth_token;
-      login(authToken);
-      handleClose();
-      successAuth();
-      navigate("/profile/user-info");
-    } catch (error) {
-      console.error(error);
-      if (error.response.status === 400) {
-        const resp = error.response.data.non_field_errors[0];
-        if (resp === "Unable to log in with provided credentials.") {
-          setError("unspecifiedError", {
-            type: "manual",
-            message: errorMessageTemplates.unspecifiedError,
-          });
-        }
-      }
+      });
+  };
+
+  const errorSignUpMessageTemplates = {
+    required: "Field is required",
+    nameSurnameFieldLength: "Enter from 2 to 50 characters",
+    email: "Enter E-mail in format name@example.com",
+    password: "Password must be 8+ characters, contain at least one uppercase letter, lowercase letter and digit",
+    confirmPassword: "Passwords do not match",
+    notAllowedSymbols: "Field contains invalid characters and/or numbers",
+    maxLength: "Field must be 128 characters or less",
+  };
+
+  const {
+    register: registerSignUp,
+    handleSubmit: handleSubmitSignUp,
+    watch: watchSignUp,
+    setError: setErrorSignUp,
+    trigger: triggerSignUp,
+    formState: { errors: errorsSignUp, isValid: isValidSignUp },
+  } = useForm({ mode: "all", criteriaMode: "all" });
+
+  const validateNameSurname = (value) => {
+    const letterCount = (value.match(/[a-zA-Zа-щюяьА-ЩЮЯЬїЇіІєЄґҐ]/g) || [])
+      .length;
+    if (!ALLOWED_NAME_SURNAME_SYMBOLS_PATTERN.test(value)) {
+      return errorSignUpMessageTemplates.notAllowedSymbols;
     }
+    if (letterCount < 2) {
+      return errorSignUpMessageTemplates.nameSurnameFieldLength;
+    }
+    return true;
+  };
+
+  const watchedSignUpPassword = watchSignUp("password");
+  const watchedSignUpConfirmPassword = watchSignUp("confirmPassword");
+  const disabledSignUp = !isValidSignUp;
+
+  useEffect(() => {
+    const handleValidation = async () => {
+      await triggerSignUp(["password", "confirmPassword"]);
+    };
+
+    if (watchedSignUpPassword && watchedSignUpConfirmPassword) {
+      handleValidation();
+    }
+  }, [watchedSignUpPassword, watchedSignUpConfirmPassword, triggerSignUp]);
+
+  const onSubmitSignUp = async (value) => {
+    const dataToSend = {
+      surname: value.surname,
+      name: value.name,
+      email: value.email,
+      password: value.password,
+      re_password: value.confirmPassword,
+    };
+
+    await axios({
+      method: "post",
+      url: `${process.env.REACT_APP_BASE_API_URL}/api/auth/users/`,
+      data: dataToSend,
+    })
+      .then(() => {
+        handleClose();
+        handleOpenCompleteSignUp();
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 400) {
+          if (error.response.data.email) {
+            setErrorSignUp("email", {
+              type: "manual",
+              message: "E-mail already exists",
+            });
+          } else {
+            toast.error(
+              "An error occurred during sign up. Please try again later."
+            );
+          }
+        }
+      });
   };
 
   return (
@@ -130,7 +230,7 @@ export function AuthModal({ show, handleClose, successAuth }) {
                     <div className={css["forms__item"]}>
                       <div
                         className={classnames(css["form-floating"], {
-                          [css["has-error"]]: errors.email || errors.required,
+                          [css["has-error"]]: errors.email,
                         })}
                       >
                         <input
@@ -147,15 +247,13 @@ export function AuthModal({ show, handleClose, successAuth }) {
                         <label htmlFor="loginform-email">E-mail</label>
                         <p className={css["error-message"]}>
                           {errors.email && errors.email.message}
-                          {errors.required && errors.required.message}
                         </p>
                       </div>
                     </div>
                     <div className={css["forms__item"]}>
                       <div
                         className={classnames(css["form-floating"], {
-                          [css["has-error"]]:
-                            errors.password || errors.required,
+                          [css["has-error"]]: errors.password,
                         })}
                       >
                         <input
@@ -169,7 +267,6 @@ export function AuthModal({ show, handleClose, successAuth }) {
                         <label htmlFor="loginform-password">Password</label>
                         <p className={css["error-message"]}>
                           {errors.password && errors.password.message}
-                          {errors.required && errors.required.message}
                           {errors.unspecifiedError &&
                             errors.unspecifiedError.message}
                         </p>
@@ -182,7 +279,11 @@ export function AuthModal({ show, handleClose, successAuth }) {
                         Forgot password
                       </button>
                     </div>
-                    <button disabled={disabled} className={css["signin-form__btn"]} type="submit">
+                    <button
+                      type="submit"
+                      disabled={disabled}
+                      className={css["signin-form__btn"]}
+                    >
                       Sign in
                     </button>
                   </form>
@@ -192,43 +293,154 @@ export function AuthModal({ show, handleClose, successAuth }) {
                     activeForm === "signUp" ? css["active"] : ""
                   }`}
                 >
-                  <form noValidate>
+                  <form
+                    onSubmit={handleSubmitSignUp(onSubmitSignUp)}
+                    noValidate
+                  >
                     <div className={css["forms__item"]}>
-                      <div className={css["form-floating"]}>
-                        <input type="text" id="signupform-surname" />
-                        <label htmlFor="signupform-surname">Last name</label>
-                      </div>
-                    </div>
-                    <div className={css["forms__item"]}>
-                      <div className={css["form-floating"]}>
-                        <input type="text" id="signupform-name" />
-                        <label htmlFor="signupform-name">First name</label>
-                      </div>
-                    </div>
-                    <div className={css["forms__item"]}>
-                      <div className={css["form-floating"]}>
-                        <input type="text" id="signupform-email" />
-                        <label htmlFor="signupform-email">E-mail</label>
-                      </div>
-                    </div>
-                    <div className={css["forms__item"]}>
-                      <div className={css["form-floating"]}>
-                        <input type="password" id="signupform-password" />
-                        <label htmlFor="signupform-password">Password</label>
-                      </div>
-                    </div>
-                    <div className={css["forms__item"]}>
-                      <div className={css["form-floating"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errorsSignUp.surname,
+                        })}
+                      >
                         <input
+                          id="signupform-surname"
+                          type="text"
+                          {...registerSignUp("surname", {
+                            required: errorSignUpMessageTemplates.required,
+                            validate: validateNameSurname,
+                          })}
+                          maxLength={50}
+                        />
+                        <label htmlFor="signupform-surname">Surname</label>
+                        <p className={css["error-message"]}>
+                          {errorsSignUp.surname && errorsSignUp.surname.message}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errorsSignUp.name,
+                        })}
+                      >
+                        <input
+                          id="signupform-name"
+                          type="text"
+                          {...registerSignUp("name", {
+                            required: errorSignUpMessageTemplates.required,
+                            validate: validateNameSurname,
+                          })}
+                          maxLength={50}
+                        />
+                        <label htmlFor="signupform-name">Name</label>
+                        <p className={css["error-message"]}>
+                          {errorsSignUp.name && errorsSignUp.name.message}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errorsSignUp.email,
+                        })}
+                      >
+                        <input
+                          id="signupform-email"
+                          type="email"
+                          {...registerSignUp("email", {
+                            required: errorSignUpMessageTemplates.required,
+                            pattern: {
+                              value: EMAIL_PATTERN,
+                              message: errorSignUpMessageTemplates.email,
+                            },
+                          })}
+                        />
+                        <label htmlFor="signupform-email">E-mail</label>
+                        <p className={css["error-message"]}>
+                          {errorsSignUp.email && errorsSignUp.email.message}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errorsSignUp.password,
+                        })}
+                      >
+                        <input
+                          id="signupform-password"
                           type="password"
+                          {...registerSignUp("password", {
+                            required: errorSignUpMessageTemplates.required,
+                            pattern: {
+                              value: PASSWORD_PATTERN,
+                              message: errorSignUpMessageTemplates.password,
+                            },
+                            maxLength: {
+                              value: 128,
+                              message: errorSignUpMessageTemplates.maxLength,
+                            },
+                          })}
+                        />
+                        <label htmlFor="signupform-password">Password</label>
+                        <div className={css["error-message"]}>
+                          <ErrorMessage
+                            errors={errorsSignUp}
+                            name={"password"}
+                            render={({ messages }) =>
+                              messages &&
+                              Object.entries(messages).map(
+                                ([type, message]) => <p key={type}>{message}</p>
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errorsSignUp.confirmPassword,
+                        })}
+                      >
+                        <input
                           id="signupform-password_confirm"
+                          type="password"
+                          {...registerSignUp("confirmPassword", {
+                            required: errorSignUpMessageTemplates.required,
+                            maxLength: {
+                              value: 128,
+                              message: errorSignUpMessageTemplates.maxLength,
+                            },
+                            validate: (value) =>
+                              watchSignUp("password") !== value
+                                ? errorSignUpMessageTemplates.confirmPassword
+                                : null,
+                          })}
                         />
                         <label htmlFor="signupform-password_confirm">
                           Repeat password
                         </label>
+                        <div className={css["error-message"]}>
+                          <ErrorMessage
+                            errors={errorsSignUp}
+                            name={"confirmPassword"}
+                            render={({ messages }) =>
+                              messages &&
+                              Object.entries(messages).map(
+                                ([type, message]) => <p key={type}>{message}</p>
+                              )
+                            }
+                          />
+                        </div>
                       </div>
                     </div>
-                    <button className={css["signup-form__btn"]} type="submit">
+                    <button
+                      type="submit"
+                      disabled={disabledSignUp}
+                      className={css["signup-form__btn"]}
+                    >
                       Sign up
                     </button>
                   </form>

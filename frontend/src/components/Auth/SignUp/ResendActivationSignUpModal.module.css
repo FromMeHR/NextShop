@@ -43,7 +43,7 @@
     display: flex;
     align-items: center;
     min-height: calc(100% - 1rem);
-    max-width: 350px;
+    max-width: 500px;
     width: 100%;
     margin: auto;
 }
@@ -59,8 +59,8 @@
     padding: 1rem;
 }
 
-.modal-body {
-    padding: 0;
+.modal-header {
+    display: block;
 }
 
 .modal-close-button {
@@ -75,72 +75,19 @@
     position: absolute;
 }
 
-.choose-tabs {
-    overflow: auto;
-    margin: 0 0 30px;
-}
-
-.choose-tabs__wrap {
-    display: flex;
-    justify-content: flex-start;
-    width: 100%;
-    border-radius: 50px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    box-shadow: inset 0 0 2px 2px #f1f1f1;
-}
-
-.choose-tabs__wrap .nav-item {
-    flex-grow: 1;
-}
-
-.choose-tabs__wrap .choose-tabs__item {
-    width: 100%;
-    text-align: center;
-    justify-content: center;
-    border: none;
-    border-radius: 50px;
-    padding: 13px 18px;
-    background: none;
-}
-
-.nav-item:hover .choose-tabs__item,
-.choose-tabs__item.active {
-    box-shadow: inset 0 0 2px #94B80A;
-    background: rgba(148, 184, 10, 0.1);
-    border-radius: 50px;
-    border: none;
-}
-
-.choose-tabs__title {
-    font-size: 14px;
+.modal-title {
     font-weight: 600;
+    font-size: 16px;
 }
 
-.tab-content {
-    position: relative;
-    overflow: hidden;
-    padding-top: 5px;
+.modal-body {
+    padding: 0;
 }
 
-.tab-content>.tab-pane {
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    position: absolute;
-    width: 100%;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-}
-
-.modal.show .tab-content>.tab-pane.active {
-    pointer-events: auto;
-}
-
-.tab-content>.tab-pane.active {
-    opacity: 1;
-    position: relative;
+.modal-body-text {
+    font-weight: 500;
+    font-size: 14px;
+    color: #707070;
 }
 
 .forms__item {
@@ -200,41 +147,7 @@
     margin: 0;
 }
 
-.forgot-password-wrap {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.forgot-password-wrap .forgot-password {
-    border: none;
-    background: none;
-    font-size: 14px;
-    border-bottom: 1px dashed #000;
-}
-
-.signin-form__btn {
-    width: 100%;
-    background-color: #94B80A;
-    transition: background-color 0.3s ease;
-    border: none;
-    color: #fff;
-    font-weight: 600;
-    padding: 10px 25px 11px;
-    border-radius: 500px;
-    font-size: 16px;
-}
-
-.signin-form__btn:disabled,
-.signup-form__btn:disabled {
-    background-color: #CACACA;
-}
-
-.signin-form__btn:hover:not(:disabled) {
-    background-color: #7a9b0a;
-    cursor: pointer;
-}
-
-.signup-form__btn {
+.resend-form__btn {
     width: 100%;
     background-color: #000;
     transition: background-color 0.3s ease;
@@ -246,7 +159,11 @@
     font-size: 16px;
 }
 
-.signup-form__btn:hover:not(:disabled) {
+.resend-form__btn:disabled {
+    background-color: #CACACA;
+}
+
+.resend-form__btn:hover:not(:disabled) {
     background-color: #333;
     cursor: pointer;
 }
@@ -261,14 +178,5 @@
 
     .modal-dialog {
         width: 90%;
-    }
-
-    .choose-tabs {
-        margin-top: 30px;
-    }
-
-    .forgot-password-wrap .forgot-password {
-        font-size: 12px;
-        height: 20px;
     }
 }

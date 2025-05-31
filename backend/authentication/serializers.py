@@ -78,5 +78,15 @@ class UserListSerializer(UserSerializer):
 class CustomTokenCreateSerializer(TokenCreateSerializer):
     def validate(self, attrs):
         email = attrs.get(djoser_settings.LOGIN_FIELD)
-        new_attr = {"email": email, "password": attrs.get("password")}
-        return super().validate(new_attr)
+        password = attrs.get("password")
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return super().validate({"email": email, "password": password })
+
+        if not user.is_active and user.check_password(password):
+            raise serializers.ValidationError({
+                "email_not_verified": "E-mail verification required"
+            }, code=400)
+        return super().validate({"email": email, "password": password })

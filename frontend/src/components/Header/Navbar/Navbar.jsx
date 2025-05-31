@@ -3,6 +3,8 @@ import { CartModal } from "../../Cart/CartModal";
 import { AuthModal } from "../../Auth/AuthModal";
 import { useCart } from "../../../hooks/useCart";
 import { Link, useNavigate } from "react-router-dom";
+import { CompleteSignUpModal } from "../../Auth/SignUp/CompleteSignUpModal";
+import { ResendActivationSignUpModal } from "../../Auth/SignUp/ResendActivationSignUpModal";
 import css from "./Navbar.module.css";
 
 export function Navbar(props) {
@@ -11,6 +13,8 @@ export function Navbar(props) {
   const navigate = useNavigate();
   const [showCart, setShowCart] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
+  const [showCompleteSignUp, setShowCompleteSignUp] = useState(false);
+  const [showResendActivationSignUp, setShowResendActivationSignUp] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -52,6 +56,7 @@ export function Navbar(props) {
             }`}
           >
             <div
+              id="user-button"
               className={css["navbar-user-button"]}
               onClick={() =>
                 props.isAuthorized
@@ -113,6 +118,20 @@ export function Navbar(props) {
         show={showAuth}
         handleClose={() => setShowAuth(false)}
         successAuth={() => setMenuOpen(false)}
+        handleOpenCompleteSignUp={() => setShowCompleteSignUp(true)}
+      />
+      <CompleteSignUpModal
+        show={showCompleteSignUp}
+        handleClose={() => setShowCompleteSignUp(false)}
+        handleOpenAuth={() => setShowAuth(true)}
+        handleOpenResendActivationSignUp={() => {
+          setShowResendActivationSignUp(true);
+        }}
+      />
+      <ResendActivationSignUpModal
+        show={showResendActivationSignUp}
+        handleClose={() => setShowResendActivationSignUp(false)}
+        handleOpenAuth={() => setShowAuth(true)}
       />
       <CartModal show={showCart} handleClose={() => setShowCart(false)} />
     </>
