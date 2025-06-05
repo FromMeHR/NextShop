@@ -1,18 +1,16 @@
 import { useEffect, useState } from "react";
-import css from "./CompleteSignUpModal.module.css";
+import css from "./RestorePasswordCompletionModal.module.css";
 
-export function CompleteSignUpModal({
+export function RestorePasswordCompletionModal({
   show,
   handleClose,
   handleOpenAuth,
-  handleOpenResendActivationSignUp,
 }) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
   }, [show]);
-
   return (
     <>
       <div
@@ -29,7 +27,7 @@ export function CompleteSignUpModal({
             onClick={(e) => e.stopPropagation()}
           >
             <div className={css["modal-header"]}>
-              <p className={css["modal-title"]}>Authorization</p>
+              <p className={css["modal-title"]}>Restore password</p>
               <img
                 src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
                 className={css["modal-close-button"]}
@@ -39,9 +37,8 @@ export function CompleteSignUpModal({
             </div>
             <div className={css["modal-body"]}>
               <p className={css["modal-body-text"]}>
-                A letter has been sent to the email address you provided. <br />
-                Please follow the link in the letter to confirm your email
-                address.
+                Instructions for changing your password have been sent to the
+                email address you provided.
               </p>
               <button
                 type="button"
@@ -53,18 +50,6 @@ export function CompleteSignUpModal({
               >
                 Return to sign in
               </button>
-              <div className={css["resend-line"]}>
-                <button
-                  type="button"
-                  className={css["resend-line-btn"]}
-                  onClick={() => {
-                    handleClose();
-                    handleOpenResendActivationSignUp();
-                  }}
-                >
-                  Resend activation link
-                </button>
-              </div>
             </div>
           </div>
         </div>

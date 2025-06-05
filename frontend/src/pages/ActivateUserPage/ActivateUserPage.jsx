@@ -39,15 +39,13 @@ export function ActivateUserPage() {
               ? "An error occurred during activation. Try again or contact support."
               : "You have successfully confirmed your email address. You can now sign in to your account."}
           </p>
-          <div className={css["return-btn-wrapper"]}>
-            <button
-              type="button"
-              className={css["return-to-sign-in-btn"]}
-              onClick={() => document.getElementById("user-button").click()}
-            >
-              Return to sign in
-            </button>
-          </div>
+          <button
+            type="button"
+            className={css["return-to-sign-in-btn"]}
+            onClick={() => document.getElementById("user-button").click()}
+          >
+            Return to sign in
+          </button>
         </div>
       </div>
     </div>

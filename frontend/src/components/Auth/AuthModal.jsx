@@ -18,7 +18,8 @@ export function AuthModal({
   show,
   handleClose,
   successAuth,
-  handleOpenCompleteSignUp,
+  handleOpenSignUpCompletion,
+  handleOpenRestorePasswordSendEmail,
 }) {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -77,7 +78,7 @@ export function AuthModal({
             resp.email_not_verified[0] === "E-mail verification required"
           ) {
             handleClose();
-            handleOpenCompleteSignUp();
+            handleOpenSignUpCompletion();
           }
           if (
             resp.non_field_errors &&
@@ -154,7 +155,7 @@ export function AuthModal({
     })
       .then(() => {
         handleClose();
-        handleOpenCompleteSignUp();
+        handleOpenSignUpCompletion();
       })
       .catch((error) => {
         if (error.response && error.response.status === 400) {
@@ -275,7 +276,14 @@ export function AuthModal({
                     <div
                       className={`${css["forms__item"]} ${css["forgot-password-wrap"]}`}
                     >
-                      <button className={css["forgot-password"]} type="button">
+                      <button
+                        type="button"
+                        className={css["forgot-password"]}
+                        onClick={() => {
+                          handleClose();
+                          handleOpenRestorePasswordSendEmail();
+                        }}
+                      >
                         Forgot password
                       </button>
                     </div>

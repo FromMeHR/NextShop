@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useCart } from "../../../hooks/useCart";
 import { CartModal } from "../../Cart/CartModal";
 import { AuthModal } from "../../Auth/AuthModal";
-import { useCart } from "../../../hooks/useCart";
-import { Link, useNavigate } from "react-router-dom";
-import { CompleteSignUpModal } from "../../Auth/SignUp/CompleteSignUpModal";
-import { ResendActivationSignUpModal } from "../../Auth/SignUp/ResendActivationSignUpModal";
+import { SignUpCompletionModal } from "../../Auth/SignUp/SignUpCompletionModal";
+import { SignUpResendActivationModal } from "../../Auth/SignUp/SignUpResendActivationModal";
+import { RestorePasswordSendEmailModal } from "../../Auth/RestorePassword/RestorePasswordSendEmailModal";
+import { RestorePasswordCompletionModal } from "../../Auth/RestorePassword/RestorePasswordCompletionModal";
 import css from "./Navbar.module.css";
 
 export function Navbar(props) {
@@ -13,8 +15,10 @@ export function Navbar(props) {
   const navigate = useNavigate();
   const [showCart, setShowCart] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const [showCompleteSignUp, setShowCompleteSignUp] = useState(false);
-  const [showResendActivationSignUp, setShowResendActivationSignUp] = useState(false);
+  const [showSignUpCompletion, setShowSignUpCompletion] = useState(false);
+  const [showSignUpResendActivation, setShowSignUpResendActivation] = useState(false);
+  const [showRestorePasswordSendEmail, setShowRestorePasswordSendEmail] = useState(false);
+  const [showRestorePasswordCompletion, setShowRestorePasswordCompletion] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -118,19 +122,28 @@ export function Navbar(props) {
         show={showAuth}
         handleClose={() => setShowAuth(false)}
         successAuth={() => setMenuOpen(false)}
-        handleOpenCompleteSignUp={() => setShowCompleteSignUp(true)}
+        handleOpenSignUpCompletion={() => setShowSignUpCompletion(true)}
+        handleOpenRestorePasswordSendEmail={() => setShowRestorePasswordSendEmail(true)}
       />
-      <CompleteSignUpModal
-        show={showCompleteSignUp}
-        handleClose={() => setShowCompleteSignUp(false)}
+      <SignUpCompletionModal
+        show={showSignUpCompletion}
+        handleClose={() => setShowSignUpCompletion(false)}
         handleOpenAuth={() => setShowAuth(true)}
-        handleOpenResendActivationSignUp={() => {
-          setShowResendActivationSignUp(true);
-        }}
+        handleOpenSignUpResendActivation={() => setShowSignUpResendActivation(true)}
       />
-      <ResendActivationSignUpModal
-        show={showResendActivationSignUp}
-        handleClose={() => setShowResendActivationSignUp(false)}
+      <SignUpResendActivationModal
+        show={showSignUpResendActivation}
+        handleClose={() => setShowSignUpResendActivation(false)}
+        handleOpenAuth={() => setShowAuth(true)}
+      />
+      <RestorePasswordSendEmailModal
+        show={showRestorePasswordSendEmail}
+        handleClose={() => setShowRestorePasswordSendEmail(false)}
+        handleOpenRestorePasswordCompletion={() => setShowRestorePasswordCompletion(true)}
+      />
+      <RestorePasswordCompletionModal
+        show={showRestorePasswordCompletion}
+        handleClose={() => setShowRestorePasswordCompletion(false)}
         handleOpenAuth={() => setShowAuth(true)}
       />
       <CartModal show={showCart} handleClose={() => setShowCart(false)} />

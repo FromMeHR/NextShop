@@ -14,6 +14,7 @@ import { ProfilePage } from "../pages/ProfilePage/ProfilePage";
 import { useAuth } from "../hooks/useAuth";
 import { Loader } from "../components/Loader/Loader";
 import { ActivateUserPage } from "../pages/ActivateUserPage/ActivateUserPage";
+import { RestorePasswordPage } from "../pages/RestorePasswordPage/RestorePasswordPage";
 import { ErrorPage404 } from "../pages/ErrorPage/ErrorPage404";
 
 export function ClientRouter() {
@@ -40,6 +41,10 @@ export function ClientRouter() {
               <Route
                 path="/activate/:uid/:token"
                 element={<ActivateUserPage />}
+              />
+              <Route
+                path="/password/reset/confirm/:uid/:token"
+                element={<RestorePasswordPage />}
               />
               <Route path="*" element={<ErrorPage404 />} />
             </Routes>

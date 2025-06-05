@@ -4,9 +4,9 @@ import { toast } from "react-toastify";
 import classnames from "classnames";
 import axios from "axios";
 import { EMAIL_PATTERN } from "../../../constants/constants";
-import css from "./ResendActivationSignUpModal.module.css";
+import css from "./SignUpResendActivationModal.module.css";
 
-export function ResendActivationSignUpModal({
+export function SignUpResendActivationModal({
   show,
   handleClose,
   handleOpenAuth,
