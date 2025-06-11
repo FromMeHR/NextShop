@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { SearchBox } from "./SearchBox";
 import { useCart } from "../../../hooks/useCart";
+import { useBurgerMenu } from "../../../hooks/useBurgerMenu";
 import { CartModal } from "../../Cart/CartModal";
 import { AuthModal } from "../../Auth/AuthModal";
 import { SignUpCompletionModal } from "../../Auth/SignUp/SignUpCompletionModal";
@@ -11,6 +13,7 @@ import css from "./Navbar.module.css";
 
 export function Navbar(props) {
   const { cart } = useCart();
+  const { setIsOpen } = useBurgerMenu();
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const navigate = useNavigate();
   const [showCart, setShowCart] = useState(false);
@@ -19,31 +22,6 @@ export function Navbar(props) {
   const [showSignUpResendActivation, setShowSignUpResendActivation] = useState(false);
   const [showRestorePasswordSendEmail, setShowRestorePasswordSendEmail] = useState(false);
   const [showRestorePasswordCompletion, setShowRestorePasswordCompletion] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 768 && menuOpen) {
-        setMenuOpen(false);
-        document.body.classList.remove(css.noScroll);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [menuOpen]);
-
-  useEffect(() => {
-    if (menuOpen) {
-      document.body.classList.add(css.noScroll);
-    } else {
-      document.body.classList.remove(css.noScroll);
-    }
-  }, [menuOpen]);
 
   return (
     <>
@@ -54,10 +32,11 @@ export function Navbar(props) {
               Shop
             </Link>
           </div>
+          <div className={`${css["search-wrapper"]}`}>
+            <SearchBox />
+          </div>
           <div
-            className={`${css["navbar-utility-bar"]} ${
-              menuOpen ? css.open : ""
-            }`}
+            className={`${css["navbar-utility-bar"]}`}
           >
             <div
               id="user-button"
@@ -65,7 +44,7 @@ export function Navbar(props) {
               onClick={() =>
                 props.isAuthorized
                   ? (() => {
-                      setMenuOpen(false);
+                      setIsOpen(false);
                       navigate("/profile/user-info");
                     })()
                   : setShowAuth(true)
@@ -84,11 +63,9 @@ export function Navbar(props) {
                   />
                 )}
               </div>
-              <span className={css["show-info-on-mobile"]}>
-                {props.isAuthorized ? "Profile" : "Sign in/up"}
-              </span>
             </div>
             <div
+              id="cart-button"
               className={css["navbar-cart-button"]}
               onClick={() => cart.length > 0 && setShowCart(true)}
             >
@@ -101,27 +78,13 @@ export function Navbar(props) {
                   <span className={css["navbar-cart-badge"]}>{totalItems}</span>
                 )}
               </div>
-              <span className={css["show-info-on-mobile"]}>Cart</span>
             </div>
-          </div>
-          <div
-            className={`${css["overlay"]} ${menuOpen ? css["open"] : ""}`}
-            onClick={toggleMenu}
-          ></div>
-          <div
-            className={`${css["burger-menu"]} ${menuOpen ? css["active"] : ""}`}
-            onClick={toggleMenu}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
           </div>
         </div>
       </nav>
       <AuthModal
         show={showAuth}
         handleClose={() => setShowAuth(false)}
-        successAuth={() => setMenuOpen(false)}
         handleOpenSignUpCompletion={() => setShowSignUpCompletion(true)}
         handleOpenRestorePasswordSendEmail={() => setShowRestorePasswordSendEmail(true)}
       />

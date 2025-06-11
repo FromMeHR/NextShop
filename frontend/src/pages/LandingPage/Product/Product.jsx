@@ -3,25 +3,20 @@ import css from "./Product.module.css";
 
 export function Product({ product }) {
   return (
-    <div className={`col-6 col-md-3 ${css["product-col"]}`}>
-      <Link
-        to={`/product-detail/${product.slug}`}
-        className={css["product-link"]}
-      >
-        <div className={css["product-card"]}>
-          <div className={css["product-card-image-wrapper"]}>
-            <img
-              src={product.image}
-              className={css["product-card-image-top"]}
-              alt={product.name}
-            />
-          </div>
-          <div className={css["product-card-body"]}>
-            <h5 className={css["product-card-title"]}>{product.name}</h5>
-            <h6 className={css["product-card-price"]}>${product.price}</h6>
-          </div>
+    <Link to={`/product-detail/${product.slug}`}>
+      <div className={css["product-card"]}>
+        <div className={css["product-card-image-wrapper"]}>
+          <img
+            src={product.image}
+            className={css["product-card-image"]}
+            alt={product.name}
+          />
         </div>
-      </Link>
-    </div>
+        <div className={css["product-card-body"]}>
+          <p className={css["product-card-title"]}>{product.name}</p>
+          <p className={css["product-card-price"]}>${product.price}</p>
+        </div>
+      </div>
+    </Link>
   );
 }

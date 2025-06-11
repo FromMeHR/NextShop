@@ -1,6 +1,6 @@
 import { PAGE_SIZE, SCREEN_WIDTH } from "../constants/constants";
 
-const definePageSize = (windowWidth, setPageSize) => {
+export const definePageSize = (windowWidth, setPageSize) => {
   if (windowWidth < SCREEN_WIDTH.tablet) {
     return setPageSize(PAGE_SIZE.mobile);
   }
@@ -11,6 +11,4 @@ const definePageSize = (windowWidth, setPageSize) => {
     return setPageSize(PAGE_SIZE.smallDesktop);
   }
   return setPageSize(PAGE_SIZE.desktop);
-}
-
-export default definePageSize;
+};

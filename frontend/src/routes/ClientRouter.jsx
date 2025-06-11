@@ -10,11 +10,13 @@ import { MainPage } from "../pages/LandingPage/MainPage";
 import { ProductDetailPage } from "../pages/ProductDetail/ProductDetailPage";
 import { PageWrapper } from "../components/PageWrapper/PageWrapper";
 import { CartProvider } from "../context/CartContext";
+import { BurgerMenuProvider } from "../context/BurgerMenuContext";
 import { ProfilePage } from "../pages/ProfilePage/ProfilePage";
 import { useAuth } from "../hooks/useAuth";
 import { Loader } from "../components/Loader/Loader";
 import { ActivateUserPage } from "../pages/ActivateUserPage/ActivateUserPage";
 import { RestorePasswordPage } from "../pages/RestorePasswordPage/RestorePasswordPage";
+import { SearchPage } from "../pages/SearchPage/SearchPage";
 import { ErrorPage404 } from "../pages/ErrorPage/ErrorPage404";
 
 export function ClientRouter() {
@@ -26,30 +28,33 @@ export function ClientRouter() {
         <Loader />
       ) : (
         <CartProvider>
-          <Header isAuthorized={isAuth} />
-          <PageWrapper>
-            <Routes>
-              <Route path="/" element={<MainPage />} />
-              <Route
-                path="/product-detail/:slug"
-                element={<ProductDetailPage />}
-              />
-              <Route
-                path="/profile/user-info"
-                element={isAuth ? <ProfilePage /> : <Navigate to="/" />}
-              />
-              <Route
-                path="/activate/:uid/:token"
-                element={<ActivateUserPage />}
-              />
-              <Route
-                path="/password/reset/confirm/:uid/:token"
-                element={<RestorePasswordPage />}
-              />
-              <Route path="*" element={<ErrorPage404 />} />
-            </Routes>
-          </PageWrapper>
-          <Footer />
+          <BurgerMenuProvider>
+            <Header isAuthorized={isAuth} />
+            <PageWrapper>
+              <Routes>
+                <Route path="/" element={<MainPage />} />
+                <Route
+                  path="/product-detail/:slug"
+                  element={<ProductDetailPage />}
+                />
+                <Route
+                  path="/profile/user-info"
+                  element={isAuth ? <ProfilePage /> : <Navigate to="/" />}
+                />
+                <Route
+                  path="/activate/:uid/:token"
+                  element={<ActivateUserPage />}
+                />
+                <Route
+                  path="/password/reset/confirm/:uid/:token"
+                  element={<RestorePasswordPage />}
+                />
+                <Route path="/search/:query" element={<SearchPage />} />
+                <Route path="*" element={<ErrorPage404 />} />
+              </Routes>
+            </PageWrapper>
+            <Footer />
+          </BurgerMenuProvider>
           <ToastContainer
             position="top-right"
             autoClose={3000}

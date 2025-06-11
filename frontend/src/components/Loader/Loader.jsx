@@ -24,14 +24,14 @@ export function Loader() {
   }, [navigate]);
 
   return (
-    <div className={css.loader__container}>
-      <div className={css.loader__bar}>
+    <div className={css["loader__container"]}>
+      <div className={css["loader__bar"]}>
         <span></span>
         <span></span>
         <span></span>
         <span></span>
       </div>
-      {message && <p className={css.loader__message}>{message}</p>}
+      {message && <p className={css["loader__message"]}>{message}</p>}
     </div>
   );
 }

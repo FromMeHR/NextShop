@@ -3,16 +3,32 @@
   padding: 0;
 }
 
-h1 {
-  display: none;
-}
-
 a {
   text-decoration: none;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+img {
+  vertical-align: middle;
+}
+
+input {
+  box-sizing: border-box;
+}
+
+button {
+  font-family: inherit;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
 }
 
 :root {
   display: flex;
   scroll-behavior: smooth;
-  font-family: 'Geologica', sans-serif;
+  font-family: system-ui, sans-serif, 'Geologica';
 }

@@ -23,7 +23,7 @@ export function ScrollToTopButton() {
 
   return (
     <button
-      className={`${css["btn_back-to-top"]} ${isVisible ? css.visible : ""}`}
+      className={`${css["btn_back-to-top"]} ${isVisible ? css["visible"] : ""}`}
       onClick={scrollToTop}
     >
       <img

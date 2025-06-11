@@ -6,7 +6,6 @@
       url('/public/fonts/Geologica-VariableFont.ttf') format('truetype');
 }
 
-
 :root {
-  --font-main: 'Geologica', sans-serif;
+  --font-main: system-ui, sans-serif, 'Geologica';
 }

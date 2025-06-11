@@ -21,11 +21,11 @@ export function RelatedProducts({ relatedProducts }) {
   }, [pathname]);
 
   return (
-    <section className="py-3 bg-light">
-      <div className="container px-4 px-lg-5 mt-3">
-        <h2 className="fw-bolder mb-4">Related products</h2>
+    <div className={css["related-products__main"]}>
+      <div className={css["related-products__content"]}>
+        <h2 className={css["related-products__title"]}>Related products</h2>
         <div
-          className={`d-flex gap-3 ${css["scroll-container"]}`}
+          className={css["scroll-container"]}
           ref={scrollContainer}
         >
           {relatedProducts && relatedProducts.length > 0 ? (
@@ -33,10 +33,10 @@ export function RelatedProducts({ relatedProducts }) {
               <Product key={product.id} product={product} />
             ))
           ) : (
-            <p className="text-center">No related products</p>
+            <p>No related products</p>
           )}
         </div>
       </div>
-    </section>
+    </div>
   );
 }

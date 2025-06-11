@@ -3,7 +3,7 @@ import css from "./PageWrapper.module.css";
 
 export function PageWrapper({ children }) {
   return (
-    <div className={`${css.pageContent}`}>
+    <div className={css["page-wrapper"]}>
       {children}
     </div>
   );

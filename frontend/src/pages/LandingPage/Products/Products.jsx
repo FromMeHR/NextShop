@@ -5,8 +5,8 @@ import useSWR from "swr";
 import axios from "axios";
 import { Product } from "../Product/Product";
 import { Loader } from "../../../components/Loader/Loader";
-import definePageSize from "../../../utils/definePageSize";
-import useWindowWidth from "../../../hooks/useWindowWidth";
+import { definePageSize } from "../../../utils/definePageSize";
+import { useWindowWidth } from "../../../hooks/useWindowWidth";
 import { DEFAULT_PAGE_SIZE } from "../../../constants/constants";
 import css from "./Products.module.css";
 
@@ -50,19 +50,18 @@ export function Products() {
   };
 
   return (
-    <section className="py-5" id="shop">
-      <h4 className="text-center">Our Products</h4>
+    <div className={css["products__main"]} id="shop">
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="container px-4 px-lg-5 mt-5">
-          <div className="row justify-content-center">
+        <div className={css["products__content"]}>
+          <div className={css["products-grid"]}>
             {products && products.length > 0 ? (
               products.map((product) => (
                 <Product key={product.id} product={product} />
               ))
             ) : (
-              <p className="text-center">No products found</p>
+              <p>No products found</p>
             )}
           </div>
           {totalPages > 1 && (
@@ -78,6 +77,6 @@ export function Products() {
           )}
         </div>
       )}
-    </section>
+    </div>
   );
 }

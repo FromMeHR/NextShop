@@ -7,7 +7,7 @@
   width: 100%;
   min-height: calc(100vh - 342px );
   background-color: #767676;
-  box-shadow: 0px 0px 100px 0px #000000 inset;
+  box-shadow: 0px 0px 50px 0px #000000 inset;
 }
 
 .ErrorPage404__container {

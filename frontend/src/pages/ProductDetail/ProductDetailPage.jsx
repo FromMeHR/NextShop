@@ -1,4 +1,3 @@
-import { useState } from "react";
 import axios from "axios";
 import useSWR from "swr";
 import { useParams } from "react-router-dom";
@@ -6,7 +5,6 @@ import { Loader } from "../../components/Loader/Loader";
 import { ErrorPage404 } from "../ErrorPage/ErrorPage404";
 import { RelatedProducts } from "./RelatedProducts/RelatedProducts";
 import { useCart } from "../../hooks/useCart";
-import { CartModal } from "../../components/Cart/CartModal";
 import css from "./ProductDetailPage.module.css";
 
 const fetcher = async (url) => {
@@ -17,7 +15,6 @@ const fetcher = async (url) => {
 export function ProductDetailPage() {
   const { slug } = useParams();
   const { cart, addToCart } = useCart();
-  const [showCart, setShowCart] = useState(false);
   const baseUrl = process.env.REACT_APP_BASE_API_URL;
   const {
     data: product,
@@ -33,39 +30,44 @@ export function ProductDetailPage() {
         <Loader />
       ) : (
         <>
-          <section className="py-2 mt-4">
-            <div className="container px-4 px-lg-5 my-5">
-              <div className="row gx-4 gx-lg-5 align-items-center">
-                <div className="col-md-4">
+          <div className={css["product-detail__main"]}>
+            <div className={css["product-detail__content"]}>
+              <div className={css["product-detail__row"]}>
+                <div className={css["product-detail__image-wrapper"]}>
                   <img
-                    className="card-img-top mb-5 mb-md-0"
+                    className={css["product-detail__image"]}
                     src={product.image}
                     alt={product.name}
                   />
                 </div>
-                <div className="col-md-8">
-                  <div className="small mb-1">
+                <div className={css["product-detail__info"]}>
+                  <div className={css["product-detail__categories"]}>
                     Categories:{" "}
                     {product.categories.map((cat) => cat.name).join(", ")}
                   </div>
-                  <h2 className="display-5 fw-bolder">{product.name}</h2>
-                  <p className="lead fw-normal text-muted mb-0">
+                  <h2 className={css["product-detail__title"]}>
+                    {product.name}
+                  </h2>
+                  <p className={css["product-detail__description"]}>
                     {product.description}
                   </p>
-                  <div className="fs-5 mb-3">
+                  <div className={css["product-detail__price"]}>
                     <span>${product.price}</span>
                   </div>
-                  <div className="fs-6 mb-3">
+                  <div className={css["product-detail__availability"]}>
                     <span>Available: {product.quantity}</span>
                   </div>
                   {product.quantity === 0 ? (
-                    <span className="text-danger">Out of stock</span>
+                    <span className={css["product-detail__out-of-stock"]}>
+                      Out of stock
+                    </span>
                   ) : (
                     <button
                       className={css["buy-now-button"]}
                       onClick={() => {
                         addToCart(product.id);
-                        cart.length > 0 && setShowCart(true);
+                        cart.length > 0 &&
+                          document.getElementById("cart-button").click();
                       }}
                     >
                       <span>
@@ -80,9 +82,8 @@ export function ProductDetailPage() {
                 </div>
               </div>
             </div>
-          </section>
+          </div>
           <RelatedProducts relatedProducts={product.similar_products} />
-          <CartModal show={showCart} handleClose={() => setShowCart(false)} />
         </>
       )}
     </>
