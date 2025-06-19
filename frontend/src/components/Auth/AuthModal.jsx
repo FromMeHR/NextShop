@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
+import { useCart } from "../../hooks/useCart";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -22,6 +23,7 @@ export function AuthModal({
   handleOpenRestorePasswordSendEmail,
 }) {
   const { login } = useAuth();
+  const { setCart } = useCart();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [activeForm, setActiveForm] = useState("signIn");
@@ -63,8 +65,20 @@ export function AuthModal({
       url: `${process.env.REACT_APP_BASE_API_URL}/api/auth/token/login/`,
       data: { email: value.email, password: value.password },
     })
-      .then((resp) => {
+      .then(async (resp) => {
         const authToken = resp.data.auth_token;
+        await axios({
+          method: "post",
+          url: `${process.env.REACT_APP_BASE_API_URL}/api/cart/sync/`,
+          headers: { Authorization: `Token ${authToken}` },
+          withCredentials: true,
+        })
+          .then((syncResp) => {
+            setCart(syncResp.data.items || []);
+          })
+          .catch((error) => {
+            console.error("Cart sync failed:", error);
+          });
         login(authToken);
         handleClose();
         navigate("/profile/user-info");
@@ -97,7 +111,8 @@ export function AuthModal({
     required: "Field is required",
     nameSurnameFieldLength: "Enter from 2 to 50 characters",
     email: "Enter E-mail in format name@example.com",
-    password: "Password must be 8+ characters, contain at least one uppercase letter, lowercase letter and digit",
+    password:
+      "Password must be 8+ characters, contain at least one uppercase letter, lowercase letter and digit",
     confirmPassword: "Passwords do not match",
     notAllowedSymbols: "Field contains invalid characters and/or numbers",
     maxLength: "Field must be 128 characters or less",

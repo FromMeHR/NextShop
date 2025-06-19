@@ -4,6 +4,7 @@ from rest_framework.generics import (
 )
 import django_filters
 from rest_framework import filters
+from django.db.models import Case, When, Value, IntegerField
 
 from shop.pagination import ShopPagination
 from .models import Product
@@ -18,7 +19,14 @@ class ProductList(ListAPIView):
     serializer_class = ProductListSerializer
     pagination_class = ShopPagination
     queryset = (
-        Product.objects.all()
+        Product.objects.annotate(
+            custom_order=Case(
+                When(quantity=0, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by("custom_order", "id")
         .prefetch_related("categories")
     )
     
@@ -33,11 +41,18 @@ class ProductDetail(RetrieveAPIView):
     
 
 class SearchProductView(ListAPIView):
-    queryset = (    
-        Product.objects.all()
+    queryset = (
+        Product.objects.annotate(
+            custom_order=Case(
+                When(quantity=0, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by("custom_order", "id")
         .prefetch_related("categories")
-        .order_by("id")
     )
+
     serializer_class = ProductListSerializer
     pagination_class = ShopPagination
     filter_backends = [
@@ -45,4 +60,4 @@ class SearchProductView(ListAPIView):
         filters.OrderingFilter,
     ]
     filterset_class = ProductFilter
-    ordering_fields = ["name"]
+    ordering_fields = ["custom_order"]

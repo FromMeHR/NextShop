@@ -24,7 +24,7 @@ export function SearchPage() {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
   const baseUrl = process.env.REACT_APP_BASE_API_URL;
-  const url = `${baseUrl}/api/search/?name=${query}&ordering=name&page=${currentPage}&page_size=${pageSize}`;
+  const url = `${baseUrl}/api/search/?name=${query}&ordering=custom_order&page=${currentPage}&page_size=${pageSize}`;
   const { data, isLoading } = useSWR(url, fetcher);
   const products = data ? data.results : [];
   const totalItems = data ? data.total_items : 0;

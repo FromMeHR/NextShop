@@ -81,6 +81,7 @@ export const CartProvider = ({ children }) => {
     outOfStockItems,
     inStockItems,
     totalPrice,
+    setCart,
     addToCart,
     updateCartItem,
     deleteCartItem,

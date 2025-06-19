@@ -1,6 +1,7 @@
 .banner__main {
     display: flex;
     justify-content: center;
+    flex-grow: 0 !important;
     text-align: center;
     width: 100%;
     background-color: #767676;

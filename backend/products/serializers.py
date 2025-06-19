@@ -1,5 +1,5 @@
-from django.conf import settings
 from rest_framework import serializers
+
 from .models import (
     Category,
     Product
@@ -46,9 +46,13 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "categories",
             "similar_products",
         )
-        
+
     def get_similar_products(self, obj):
-        products = Product.objects.filter(categories__in=obj.categories.all()) \
-                .exclude(id=obj.id).prefetch_related('categories')
+        products = (
+            Product.objects.filter(categories__in=obj.categories.all())
+            .filter(quantity__gt=0)
+            .exclude(id=obj.id)
+            .prefetch_related("categories")
+        )
         serializer = ProductListSerializer(products, many=True, context=self.context)
         return serializer.data[:30]

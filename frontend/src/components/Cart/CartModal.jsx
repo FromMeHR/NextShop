@@ -98,7 +98,8 @@ export function CartModal({ show, handleClose }) {
                               onClick={() => {
                                 updateCartItem(
                                   item.id,
-                                  Math.max(item.quantity - 1, 1)
+                                  Math.max(item.quantity - 1, 1),
+                                  item.quantity
                                 );
                               }}
                             />
