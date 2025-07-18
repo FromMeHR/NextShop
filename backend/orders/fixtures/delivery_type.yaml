@@ -1,0 +1,8 @@
+- model: orders.deliverytype
+  pk: 1
+  fields:
+    name: Доставка у відділення/поштомат
+- model: orders.deliverytype
+  pk: 2
+  fields:
+    name: Кур'єрська доставка

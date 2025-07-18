@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useModal } from "../../../hooks/useModal";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { EMAIL_PATTERN } from "../../../constants/constants";
@@ -12,15 +13,17 @@ export function RestorePasswordSendEmailModal({
   handleClose,
   handleOpenRestorePasswordCompletion,
 }) {
+  const { setOverlayVisible } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-  }, [show]);
+    setOverlayVisible(show);
+  }, [show, setOverlayVisible]);
 
   const errorMessageTemplates = {
-    required: "Field is required",
-    email: "Enter E-mail in format name@example.com",
+    required: "Обов'язкове поле",
+    email: "Введіть E-mail у форматі name@example.com",
   };
 
   const {
@@ -39,10 +42,12 @@ export function RestorePasswordSendEmailModal({
     })
       .then(() => {
         handleClose();
-        handleOpenRestorePasswordCompletion();
+        setTimeout(() => handleOpenRestorePasswordCompletion(), 1);
       })
       .catch(() => {
-        toast.error("Failed to send email. Please try again later.");
+        toast.error(
+          "Не вдалося відправити електронний лист. Спробуйте пізніше."
+        );
       });
   };
 
@@ -51,17 +56,13 @@ export function RestorePasswordSendEmailModal({
       className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
       onClick={handleClose}
     >
-      <div
-        className={`${css["overlay"]} ${isVisible ? css["show"] : ""}`}
-        onClick={handleClose}
-      ></div>
       <div className={css["modal-dialog"]}>
         <div
           className={css["modal-content"]}
           onClick={(e) => e.stopPropagation()}
         >
           <div className={css["modal-header"]}>
-            <p className={css["modal-title"]}>Forgot password</p>
+            <p className={css["modal-title"]}>Відновити пароль</p>
             <img
               src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
               className={css["modal-close-button"]}
@@ -71,8 +72,9 @@ export function RestorePasswordSendEmailModal({
           </div>
           <div className={css["modal-body"]}>
             <p className={css["modal-body-text"]}>
-              Enter the email address you provided during sign-up to restore
-              your password. <br /> A link will be sent to this email address.
+              Введіть електронну адресу вказану при реєстрації для відновлення
+              паролю. <br /> Лист з посиланням для відновлення паролю буде
+              надiслано на цю електронну адресу.
             </p>
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
               <div className={css["forms__item"]}>
@@ -92,7 +94,7 @@ export function RestorePasswordSendEmailModal({
                       },
                     })}
                   />
-                  <label htmlFor="email">E-mail</label>
+                  <label htmlFor="restore-email">E-mail</label>
                   <p className={css["error-message"]}>
                     {errors.email && errors.email.message}
                   </p>
@@ -103,7 +105,7 @@ export function RestorePasswordSendEmailModal({
                 disabled={disabled}
                 className={css["restore-form__btn"]}
               >
-                Restore password
+                Відновити пароль
               </button>
             </form>
           </div>

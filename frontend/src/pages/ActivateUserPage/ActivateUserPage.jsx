@@ -30,21 +30,21 @@ export function ActivateUserPage() {
       <div className={css["container__body"]}>
         <p className={css["title"]}>
           {activationStatus === "Activation error"
-            ? "Activation error"
-            : "Sign-up completed"}
+            ? "Помилка активації"
+            : "Реєстрація завершена"}
         </p>
         <div className={css["content"]}>
           <p className={css["content__text"]}>
             {activationStatus === "Activation error"
-              ? "An error occurred during activation. Try again or contact support."
-              : "You have successfully confirmed your email address. You can now sign in to your account."}
+              ? "Під час активації сталася помилка. Спробуйте ще раз або зв'яжіться з підтримкою."
+              : "Ви успішно підтвердили вашу електронну адресу. Тепер Ви можете увійти в свій аккаунт."}
           </p>
           <button
             type="button"
             className={css["return-to-sign-in-btn"]}
             onClick={() => document.getElementById("user-button").click()}
           >
-            Return to sign in
+            Перейти до входу
           </button>
         </div>
       </div>

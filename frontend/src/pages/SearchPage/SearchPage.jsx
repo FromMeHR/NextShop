@@ -61,7 +61,7 @@ export function SearchPage() {
               {totalItems > 0 ? (
                 <>
                   <h1 className={css["search-results__header"]}>
-                    Search results for «{query}»
+                    Результати за пошуком «{query}»
                     <span className={css["search-results__count"]}>
                       {totalItems}
                     </span>
@@ -98,16 +98,16 @@ export function SearchPage() {
                   </div>
                   <div className={css["search-no-results__content"]}>
                     <div className={css["search-no-results__title"]}>
-                      No results found for «{query}»
+                      Результати на запит «{query}» відсутні
                     </div>
                     <ul className={css["search-no-results__list"]}>
-                      <li>Check your spelling</li>
-                      <li>Try more general keywords</li>
+                      <li>Перевірте написання запиту</li>
+                      <li>Спробуйте більш загальні ключові слова</li>
                     </ul>
                     <Link to="/" reloadDocument>
                       <div className={css["search-no-results__btn-wrapper"]}>
                         <button className={css["search-no-results__btn-back"]}>
-                          Back to main
+                          Перейти на головну
                         </button>
                       </div>
                     </Link>

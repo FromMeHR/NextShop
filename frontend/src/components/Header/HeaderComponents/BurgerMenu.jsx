@@ -13,7 +13,7 @@ export function BurgerMenu(props) {
           <span></span>
           <span></span>
         </div>
-        <span className={css["burger-menu-text"]}>More</span>
+        <span className={css["burger-menu-text"]}>Ще</span>
       </div>
       <div
         className={`${css["overlay"]} ${isOpen ? css["open"] : ""}`}
@@ -21,7 +21,7 @@ export function BurgerMenu(props) {
       ></div>
       <div className={`${css["burger-utility-bar"]} ${isOpen ? css["open"] : ""}`}>
         <div className={css["burger-header"]}>
-          <Link to="" reloadDocument>
+          <Link to="/" reloadDocument>
             Shop
           </Link>
         </div>
@@ -45,12 +45,12 @@ export function BurgerMenu(props) {
               )}
             </div>
             <span className={css["menu-element__text"]}>
-              {props.isAuthorized ? "Profile" : "Sign in/up"}
+              {props.isAuthorized ? "Мій профіль" : "Вхід/Реєстрація"}
             </span>
           </div>
         </div>
         <div className={css["burger-phones"]}>
-          <p>Contacts</p>
+          <p>Контакти</p>
           <Link to="tel:+3803456789">+3803456789</Link>
           <Link to="tel:+3809876543">+3809876543</Link>
         </div>

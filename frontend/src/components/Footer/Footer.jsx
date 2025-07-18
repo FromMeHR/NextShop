@@ -6,9 +6,8 @@ export function Footer() {
     <footer className={css["footer-main"]}>
       <div className={css["footer-content"]}>
         <div className={css["footer-links"]}>
-          <a href="/">Shop</a>
-          <a href="#!">About</a>
-          <a href="#!">Contact</a>
+          <a href="#!">Про нас</a>
+          <a href="#!">Контакти</a>
         </div>
         <div className={css["footer-social"]}>
           <a href="#!">
@@ -32,7 +31,7 @@ export function Footer() {
         </div>
         <div className={css["footer-credits"]}>
           <p className={css["footer-text"]}>
-            Copyright &copy; 2025 Shop. All rights reserved.
+            &copy; Shop 2025
           </p>
         </div>
       </div>

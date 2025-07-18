@@ -4,8 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import css from "./MobileNavbar.module.css";
 
 export function MobileNavbar(props) {
-  const { cart } = useCart();
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const { cart, totalQuantity } = useCart();
   const location = useLocation();
 
   return (
@@ -22,7 +21,7 @@ export function MobileNavbar(props) {
               className={css["icon"]}
               alt="Home icon"
             />
-            <span className={css["navbar-element__text"]}>Main</span>
+            <span className={css["navbar-element__text"]}>Головна</span>
           </div>
         </Link>
         <div
@@ -36,10 +35,10 @@ export function MobileNavbar(props) {
             className={css["icon"]}
             alt="Cart icon"
           />
-          {totalItems > 0 && (
-            <span className={css["navbar-cart-badge"]}>{totalItems}</span>
+          {totalQuantity > 0 && (
+            <span className={css["navbar-cart-badge"]}>{totalQuantity}</span>
           )}
-          <span className={css["navbar-element__text"]}>Cart</span>
+          <span className={css["navbar-element__text"]}>Кошик</span>
         </div>
         <BurgerMenu isAuthorized={props.isAuthorized} />
       </div>

@@ -1,8 +1,8 @@
 .navbar-wrapper {
     display: flex;
     justify-content: center;
-    background-color: #000;
-    box-shadow: 0px 0px 14px 5px #000000;
+    background-color: var(--header-background-color);
+    box-shadow: 0px 0px 14px 5px var(--main-shadow-color);
 }
 
 .navbar-content {
@@ -15,7 +15,7 @@
 }
 
 .navbar-logo a {
-    color: #fff;
+    color: var(--light-text-color);
     text-decoration: none;
     font-size: 1.5rem;
     font-weight: bold;
@@ -69,9 +69,9 @@
     transform: translate(50%, -50%);
     font-size: 0.65rem;
     padding: 0.35em 0.75em;
-    background-color: #dc3545;
-    color: #fff;
-    border-radius: 999px;
+    background-color: var(--cart-badge-background-color);
+    color: var(--light-text-color);
+    border-radius: 50px;
     font-weight: bold;
     line-height: 1;
 }

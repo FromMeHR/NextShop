@@ -21,22 +21,19 @@ export function RelatedProducts({ relatedProducts }) {
   }, [pathname]);
 
   return (
-    <div className={css["related-products__main"]}>
-      <div className={css["related-products__content"]}>
-        <h2 className={css["related-products__title"]}>Related products</h2>
-        <div
-          className={css["scroll-container"]}
-          ref={scrollContainer}
-        >
-          {relatedProducts && relatedProducts.length > 0 ? (
-            relatedProducts.map((product) => (
-              <Product key={product.id} product={product} />
-            ))
-          ) : (
-            <p>No related products</p>
-          )}
+    <>
+      {relatedProducts && relatedProducts.length > 0 && (
+        <div className={css["related-products__main"]}>
+          <div className={css["related-products__content"]}>
+            <h2 className={css["related-products__title"]}>Аналоги</h2>
+            <div className={css["scroll-container"]} ref={scrollContainer}>
+              {relatedProducts.map((product) => (
+                <Product key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

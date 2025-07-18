@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useModal } from "../../../hooks/useModal";
 import ReactDOM from "react-dom";
 import css from "./RestorePasswordCompletionModal.module.css";
 
@@ -7,28 +8,26 @@ export function RestorePasswordCompletionModal({
   handleClose,
   handleOpenAuth,
 }) {
+  const { setOverlayVisible } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-  }, [show]);
-  
+    setOverlayVisible(show);
+  }, [show, setOverlayVisible]);
+
   return ReactDOM.createPortal(
     <div
       className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
       onClick={handleClose}
     >
-      <div
-        className={`${css["overlay"]} ${isVisible ? css["show"] : ""}`}
-        onClick={handleClose}
-      ></div>
       <div className={css["modal-dialog"]}>
         <div
           className={css["modal-content"]}
           onClick={(e) => e.stopPropagation()}
         >
           <div className={css["modal-header"]}>
-            <p className={css["modal-title"]}>Restore password</p>
+            <p className={css["modal-title"]}>Відновити пароль</p>
             <img
               src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
               className={css["modal-close-button"]}
@@ -38,18 +37,17 @@ export function RestorePasswordCompletionModal({
           </div>
           <div className={css["modal-body"]}>
             <p className={css["modal-body-text"]}>
-              Instructions for changing your password have been sent to the
-              email address you provided.
+              Інструкції щодо зміни пароля надіслано на email, який Ви вказали.
             </p>
             <button
               type="button"
               className={css["return-to-sign-in-btn"]}
               onClick={() => {
                 handleClose();
-                handleOpenAuth();
+                setTimeout(() => handleOpenAuth(), 1);
               }}
             >
-              Return to sign in
+              Перейти до входу
             </button>
           </div>
         </div>

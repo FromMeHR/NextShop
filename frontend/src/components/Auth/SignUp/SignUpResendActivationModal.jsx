@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useModal } from "../../../hooks/useModal";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { EMAIL_PATTERN } from "../../../constants/constants";
@@ -12,11 +13,13 @@ export function SignUpResendActivationModal({
   handleClose,
   handleOpenAuth,
 }) {
+  const { setOverlayVisible } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-  }, [show]);
+    setOverlayVisible(show);
+  }, [show, setOverlayVisible]);
 
   const errorMessageTemplates = {
     required: "Field is required",
@@ -39,7 +42,7 @@ export function SignUpResendActivationModal({
     })
       .then(() => {
         handleClose();
-        handleOpenAuth();
+        setTimeout(() => handleOpenAuth(), 1);
       })
       .catch(() => {
         toast.error(
@@ -53,10 +56,6 @@ export function SignUpResendActivationModal({
       className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
       onClick={handleClose}
     >
-      <div
-        className={`${css["overlay"]} ${isVisible ? css["show"] : ""}`}
-        onClick={handleClose}
-      ></div>
       <div className={css["modal-dialog"]}>
         <div
           className={css["modal-content"]}
@@ -95,7 +94,7 @@ export function SignUpResendActivationModal({
                       },
                     })}
                   />
-                  <label htmlFor="email">E-mail</label>
+                  <label htmlFor="resend-email">E-mail</label>
                   <p className={css["error-message"]}>
                     {errors.email && errors.email.message}
                   </p>

@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
             error.response.data.detail ===
             "Your session has expired. Please login again."
           ) {
-            toast.error("Your session has expired. Please login again.");
+            toast.error("Ваш сеанс завершився. Будь ласка, увійдіть ще раз.");
           }
           logout();
         }

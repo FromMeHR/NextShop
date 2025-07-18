@@ -26,7 +26,7 @@ export function SearchBox() {
           type="text"
           name="search"
           className={css["search__input"]}
-          placeholder="I want to find..."
+          placeholder="Я хочу знайти..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={keyDownHandler}

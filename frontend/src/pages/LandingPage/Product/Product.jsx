@@ -24,7 +24,9 @@ export function Product({ product }) {
         </div>
         {product.quantity > 0 ? (
           <div className={css["product-card-footer"]}>
-            <p className={css["product-card-price"]}>${product.price}</p>
+            <p className={css["product-card-price"]}>
+              {product.price} <span>₴</span>
+            </p>
             <button
               type="button"
               className={css["product-cart-button"]}
@@ -42,7 +44,7 @@ export function Product({ product }) {
             </button>
           </div>
         ) : (
-          <p className={css["product-card-out-of-stock-text"]}>Out of stock</p>
+          <p className={css["product-card-out-of-stock-text"]}>Відсутній в наявності</p>
         )}
       </div>
     </Link>

@@ -14,10 +14,10 @@ export function RestorePasswordPage() {
   const [showRestorePasswordResultModal, setShowRestorePasswordResultModal] = useState(false);
 
   const errorMessageTemplates = {
-    required: "Field is required",
-    password: "Password must be 8+ characters, contain at least one uppercase letter, lowercase letter and digit",
-    confirmPassword: "Passwords do not match",
-    maxLength: "Field must be 128 characters or less",
+    required: "Обов'язкове поле",
+    password: "Пароль повинен бути 8+ символів, містити хоча б одну велику, одну маленьку літеру та одну цифру",
+    confirmPassword: "Паролі не співпадають",
+    maxLength: "Кількість символів перевищує максимально допустиму (128 символів)",
   };
 
   const {
@@ -70,7 +70,7 @@ export function RestorePasswordPage() {
           if (newPasswordError === "This password is too common.") {
             setError("confirmPassword", {
               type: "manual",
-              message: "The password is too common.",
+              message: "Пароль занадто поширений.",
             });
           } else if (
             newPasswordError.startsWith("The password is too similar to the")
@@ -78,7 +78,7 @@ export function RestorePasswordPage() {
             setError("confirmPassword", {
               type: "manual",
               message:
-                "The password is too similar to the personal account information.",
+                "Пароль подібний до персональної інформації акаунту.",
             });
           }
         } else {
@@ -92,7 +92,7 @@ export function RestorePasswordPage() {
     <>
       <div className={css["container"]}>
         <div className={css["container__body"]}>
-          <p className={css["title"]}>Restore password</p>
+          <p className={css["title"]}>Відновлення паролю</p>
           <div className={css["content"]}>
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
               <div className={css["forms__item"]}>
@@ -116,7 +116,7 @@ export function RestorePasswordPage() {
                       },
                     })}
                   />
-                  <label htmlFor="form-password">New password</label>
+                  <label htmlFor="form-password">Новий пароль</label>
                   <div className={css["error-message"]}>
                     <ErrorMessage
                       errors={errors}
@@ -152,7 +152,7 @@ export function RestorePasswordPage() {
                           : null,
                     })}
                   />
-                  <label htmlFor="form-password_confirm">Repeat new password</label>
+                  <label htmlFor="form-password_confirm">Повторіть новий пароль</label>
                   <div className={css["error-message"]}>
                     <ErrorMessage
                       errors={errors}
@@ -172,7 +172,7 @@ export function RestorePasswordPage() {
                 disabled={disabled}
                 className={css["save-password-form__btn"]}
               >
-                Save password
+                Зберегти пароль
               </button>
             </form>
           </div>

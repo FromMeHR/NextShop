@@ -1,0 +1,28 @@
+- model: orders.warehousetype
+  pk: 1
+  fields:
+    name: НП склад
+    ref: 841339c7-591a-42e2-8233-7a0a00f0ed6f
+    delivery_type: 1
+    operator: 1
+- model: orders.warehousetype
+  pk: 2
+  fields:
+    name: НП вантажний склад
+    ref: 9a68df70-0267-42a8-bb5c-37f427e36ee4
+    delivery_type: 1
+    operator: 1
+- model: orders.warehousetype
+  pk: 3
+  fields:
+    name: НП поштомат
+    ref: f9316480-5f2d-425d-bc2c-ac7cd29decf0
+    delivery_type: 1
+    operator: 1
+- model: orders.warehousetype
+  pk: 4
+  fields:
+    name: НП кур'єр
+    ref:
+    delivery_type: 2
+    operator: 1

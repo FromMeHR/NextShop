@@ -25,6 +25,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             "description",
             "price",
             "quantity",
+            "weight",
             "categories",
         )
 

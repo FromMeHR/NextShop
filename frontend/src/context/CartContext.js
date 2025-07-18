@@ -5,10 +5,19 @@ export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const outOfStockItems = cart.filter((item) => item.product_quantity === 0);
   const inStockItems = cart.filter((item) => item.product_quantity > 0);
   const totalPrice = inStockItems.reduce(
     (sum, item) => sum + item.product_price * item.quantity,
+    0
+  );
+  const totalWeight = inStockItems.reduce(
+    (sum, item) => sum + item.product_weight * item.quantity,
+    0
+  );
+  const totalQuantity = inStockItems.reduce(
+    (sum, item) => sum + item.quantity,
     0
   );
 
@@ -23,6 +32,7 @@ export const CartProvider = ({ children }) => {
       } catch (error) {
         console.error("Error fetching cart:", error);
       }
+      setIsLoading(false);
     };
 
     fetchCart();
@@ -78,9 +88,12 @@ export const CartProvider = ({ children }) => {
 
   const value = {
     cart,
+    isLoading,
     outOfStockItems,
     inStockItems,
     totalPrice,
+    totalWeight,
+    totalQuantity,
     setCart,
     addToCart,
     updateCartItem,

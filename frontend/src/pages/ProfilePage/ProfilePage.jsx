@@ -34,8 +34,8 @@ export function ProfilePage() {
 
   return (
     <div className={css["profile-page"]}>
-      <p>Profile {user && user.email}</p>
-      <button onClick={handleLogout}>Logout</button>
+      <p>Профіль {user && user.email}</p>
+      <button onClick={handleLogout}>Вийти</button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useModal } from "../../../hooks/useModal";
 import ReactDOM from "react-dom";
 import css from "./SignUpCompletionModal.module.css";
 
@@ -8,21 +9,19 @@ export function SignUpCompletionModal({
   handleOpenAuth,
   handleOpenSignUpResendActivation,
 }) {
+  const { setOverlayVisible } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-  }, [show]);
+    setOverlayVisible(show);
+  }, [show, setOverlayVisible]);
 
   return ReactDOM.createPortal(
     <div
       className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
       onClick={handleClose}
     >
-      <div
-        className={`${css["overlay"]} ${isVisible ? css["show"] : ""}`}
-        onClick={handleClose}
-      ></div>
       <div className={css["modal-dialog"]}>
         <div
           className={css["modal-content"]}
@@ -48,7 +47,7 @@ export function SignUpCompletionModal({
               className={css["return-to-sign-in-btn"]}
               onClick={() => {
                 handleClose();
-                handleOpenAuth();
+                setTimeout(() => handleOpenAuth(), 1);
               }}
             >
               Return to sign in
@@ -59,7 +58,7 @@ export function SignUpCompletionModal({
                 className={css["resend-line-btn"]}
                 onClick={() => {
                   handleClose();
-                  handleOpenSignUpResendActivation();
+                  setTimeout(() => handleOpenSignUpResendActivation(), 1);
                 }}
               >
                 Resend activation link

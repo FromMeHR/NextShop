@@ -4,7 +4,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--overlay-background-color);
     opacity: 0;
     transition: opacity 0.5s linear;
     pointer-events: none;
@@ -13,10 +13,6 @@
 .overlay.open {
     opacity: 1;
     pointer-events: auto;
-}
-
-.noScroll {
-    overflow: hidden;
 }
 
 .burger-header {
@@ -28,7 +24,7 @@
 }
 
 .burger-header a {
-    color: #000;
+    color: var(--main-text-color);
     text-decoration: none;
     font-size: 1.5rem;
     font-weight: bold;
@@ -50,15 +46,15 @@
 .burger-phones a {
     display: flex;
     padding: 0 0 12px 0;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 500;
-    color: #212529;
+    color: var(--link-text-color);
     text-decoration: none;
     transition: color 0.3s ease-in-out;
 }
 
 .burger-phones a:hover {
-    color: #7a9b0a;
+    color: var(--main-dark-green-color);
 }
 
 .burger-menu-btn-wrapper {
@@ -71,8 +67,8 @@
 }
 
 .burger-menu-btn-wrapper span {
-    color: #fff;
-    font-size: 12px;
+    color: var(--light-text-color);
+    font-size: 0.75rem;
     font-weight: 500;
 }
 
@@ -92,7 +88,7 @@
     display: block;
     width: 100%;
     height: 3px;
-    background-color: #fff;
+    background-color: var(--burger-menu-span-background-color);
     border-radius: 2px;
     transition: all 0.3s ease-in-out;
 }
@@ -111,7 +107,7 @@
 }
 
 .burger-menu-btn.active span {
-    background-color: #000;
+    background-color: var(--burger-menu-span-active-background-color);
 }
 
 .icon {
@@ -142,7 +138,7 @@
 .menu-element__text {
     display: none;
     margin-left: 15px;
-    color: #212529;
+    color: var(--link-text-color);
     font-size: 1rem;
 }
 
@@ -154,8 +150,8 @@
     height: 2px;
     bottom: -5px;
     border-radius: 50px;
-    background: linear-gradient(to right, #afd809, #7a9b0a);
-    box-shadow: 5px 0 20px #7a9b0a, -5px 0 20px #afd809;
+    background: linear-gradient(to right, var(--main-light-green-color), var(--main-dark-green-color));
+    box-shadow: 5px 0 20px var(--main-dark-green-color), -5px 0 20px var(--main-light-green-color);
     transform-origin: left;
     transform: scaleX(0);
     transition: transform 0.3s ease-in-out;
@@ -174,7 +170,7 @@
         right: -100%;
         width: 100%;
         height: 100%;
-        background-color: #fff;
+        background-color: var(--burger-menu-background-color);
         gap: 2rem;
         overflow-y: auto;
         opacity: 0;

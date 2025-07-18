@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useCart } from "../../hooks/useCart";
+import { useModal } from "../../hooks/useModal";
 import ReactDOM from "react-dom";
 import css from "./CartModal.module.css";
 
@@ -11,12 +13,15 @@ export function CartModal({ show, handleClose }) {
     totalPrice,
     updateCartItem,
     deleteCartItem,
+    totalQuantity,
   } = useCart();
+  const { setOverlayVisible } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-  }, [show]);
+    setOverlayVisible(show);
+  }, [show, setOverlayVisible]);
 
   if (cart.length === 0) {
     return null;
@@ -27,10 +32,6 @@ export function CartModal({ show, handleClose }) {
       className={`${css["side-modal"]} ${isVisible ? css["show"] : ""}`}
       onClick={handleClose}
     >
-      <div
-        className={`${css["overlay"]} ${isVisible ? css["show"] : ""}`}
-        onClick={handleClose}
-      ></div>
       <div className={css["modal-dialog"]}>
         <div
           className={css["modal-content"]}
@@ -38,9 +39,11 @@ export function CartModal({ show, handleClose }) {
         >
           <div className={css["modal-header"]}>
             <div className={css["modal-title"]}>
-              Cart
+              Кошик
               <span className={css["cart-products-count"]}>
-                {cart.length} products
+                {totalQuantity > 1
+                  ? `${totalQuantity} товарів`
+                  : `${totalQuantity} товар`}
               </span>
               <img
                 src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
@@ -51,21 +54,21 @@ export function CartModal({ show, handleClose }) {
             </div>
           </div>
           <div className={css["modal-body"]}>
-            <div className={css["wrapper-cart"]}>
-              <div className={css["custom-scroll"]}>
+            <div className={css["cart-wrapper"]}>
+              <div className={css["cart-custom-scroll"]}>
                 {outOfStockItems.length > 0 && (
-                  <div className={css["checkout__delivery-msg_attention"]}>
+                  <div className={css["cart-page__msg-attention"]}>
                     <img
                       src={`${process.env.REACT_APP_PUBLIC_URL}/svg/warning.svg`}
                       alt="Warning icon"
                     />
                     <p>
-                      <strong>Pay attention!</strong>
+                      <strong>Зверніть увагу!</strong>
                     </p>
                     {outOfStockItems.map((item) => (
                       <p key={item.id}>
-                        Product <strong>{item.product_name}</strong> is out of
-                        stock.
+                        Товар <strong>{item.product_name}</strong> зараз
+                        відсутній в наявності.
                       </p>
                     ))}
                   </div>
@@ -121,8 +124,8 @@ export function CartModal({ show, handleClose }) {
                           <div className={css["cart-page__product-price"]}>
                             <span>
                               {item.product_quantity > 0
-                                ? `$${item.product_price * item.quantity}`
-                                : "$ -"}
+                                ? `${item.product_price * item.quantity} ₴`
+                                : "- ₴"}
                             </span>
                           </div>
                           <img
@@ -141,17 +144,19 @@ export function CartModal({ show, handleClose }) {
             <div className={css["cart-total"]}>
               <div className={css["cart-total__column"]}>
                 <div className={css["cart-total__row"]}>
-                  <span className={css["cart-total__label"]}>Total:</span>
+                  <span className={css["cart-total__label"]}>Разом:</span>
                   <span className={css["cart-total__value"]}>
-                    {totalPrice > 0 ? `$${totalPrice}` : "$ -"}
+                    {totalPrice > 0 ? `${totalPrice} ₴` : "- ₴"}
                   </span>
                 </div>
               </div>
               {inStockItems.length > 0 && (
                 <div className={css["cart-total__column"]}>
-                  <button className={css["cart-total__btn"]}>
-                    Complete the order
-                  </button>
+                  <Link to="/order" onClick={handleClose}>
+                    <button className={css["cart-total__btn"]}>
+                      Оформити замовлення
+                    </button>
+                  </Link>
                 </div>
               )}
             </div>

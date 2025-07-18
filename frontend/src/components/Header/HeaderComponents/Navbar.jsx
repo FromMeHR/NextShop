@@ -12,9 +12,8 @@ import { RestorePasswordCompletionModal } from "../../Auth/RestorePassword/Resto
 import css from "./Navbar.module.css";
 
 export function Navbar(props) {
-  const { cart } = useCart();
+  const { cart, totalQuantity } = useCart();
   const { setIsOpen } = useBurgerMenu();
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const navigate = useNavigate();
   const [showCart, setShowCart] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
@@ -74,8 +73,8 @@ export function Navbar(props) {
                   src={`${process.env.REACT_APP_PUBLIC_URL}/svg/cart.svg`}
                   alt="Cart icon"
                 />
-                {totalItems > 0 && (
-                  <span className={css["navbar-cart-badge"]}>{totalItems}</span>
+                {totalQuantity > 0 && (
+                  <span className={css["navbar-cart-badge"]}>{totalQuantity}</span>
                 )}
               </div>
             </div>

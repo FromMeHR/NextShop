@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
+import { useModal } from "../../hooks/useModal";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -24,22 +25,24 @@ export function AuthModal({
 }) {
   const { login } = useAuth();
   const { setCart } = useCart();
+  const { setOverlayVisible } = useModal();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [activeForm, setActiveForm] = useState("signIn");
 
   useEffect(() => {
     setIsVisible(show);
-  }, [show]);
+    setOverlayVisible(show);
+  }, [show, setOverlayVisible]);
 
   const toggleForm = (form) => {
     setActiveForm(form);
   };
 
   const errorMessageTemplates = {
-    required: "Field is required",
-    email: "Enter E-mail in format name@example.com",
-    unspecifiedError: "E-mail or password is incorrect",
+    required: "Обов'язкове поле",
+    email: "Введіть E-mail у форматі name@example.com",
+    unspecifiedError: "E-mail або пароль вказані некоректно",
   };
 
   const {
@@ -91,7 +94,7 @@ export function AuthModal({
             resp.email_not_verified[0] === "E-mail verification required"
           ) {
             handleClose();
-            handleOpenSignUpCompletion();
+            setTimeout(() => handleOpenSignUpCompletion(), 1);
           }
           if (
             resp.non_field_errors &&
@@ -108,14 +111,13 @@ export function AuthModal({
   };
 
   const errorSignUpMessageTemplates = {
-    required: "Field is required",
-    nameSurnameFieldLength: "Enter from 2 to 50 characters",
-    email: "Enter E-mail in format name@example.com",
-    password:
-      "Password must be 8+ characters, contain at least one uppercase letter, lowercase letter and digit",
-    confirmPassword: "Passwords do not match",
-    notAllowedSymbols: "Field contains invalid characters and/or numbers",
-    maxLength: "Field must be 128 characters or less",
+    required: "Обов'язкове поле",
+    nameSurnameFieldLength: "Введіть від 2 до 50 символів",
+    email: "Введіть E-mail у форматі name@example.com",
+    password: "Пароль повинен бути 8+ символів, містити хоча б одну велику, одну маленьку літеру та одну цифру",
+    confirmPassword: "Паролі не співпадають",
+    notAllowedSymbols: "Поле містить недопустимі символи та/або цифри",
+    maxLength: "Кількість символів перевищує максимально допустиму (128 символів)",
   };
 
   const {
@@ -169,7 +171,7 @@ export function AuthModal({
     })
       .then(() => {
         handleClose();
-        handleOpenSignUpCompletion();
+        setTimeout(() => handleOpenSignUpCompletion(), 1);
       })
       .catch((error) => {
         if (error.response && error.response.status === 400) {
@@ -180,7 +182,7 @@ export function AuthModal({
             });
           } else {
             toast.error(
-              "An error occurred during sign up. Please try again later."
+              "Під час реєстрації сталася помилка. Спробуйте пізніше."
             );
           }
         }
@@ -192,10 +194,6 @@ export function AuthModal({
       className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
       onClick={handleClose}
     >
-      <div
-        className={`${css["overlay"]} ${isVisible ? css["show"] : ""}`}
-        onClick={handleClose}
-      ></div>
       <div className={css["modal-dialog"]}>
         <div
           className={css["modal-content"]}
@@ -218,7 +216,7 @@ export function AuthModal({
                     onClick={() => toggleForm("signIn")}
                     type="button"
                   >
-                    <div className={css["choose-tabs__title"]}>Sign in</div>
+                    <div className={css["choose-tabs__title"]}>Вхід</div>
                   </button>
                 </li>
                 <li className={css["nav-item"]}>
@@ -229,7 +227,7 @@ export function AuthModal({
                     onClick={() => toggleForm("signUp")}
                     type="button"
                   >
-                    <div className={css["choose-tabs__title"]}>Sign up</div>
+                    <div className={css["choose-tabs__title"]}>Реєстрація</div>
                   </button>
                 </li>
               </ul>
@@ -278,7 +276,7 @@ export function AuthModal({
                           required: errorMessageTemplates.required,
                         })}
                       />
-                      <label htmlFor="loginform-password">Password</label>
+                      <label htmlFor="loginform-password">Пароль</label>
                       <p className={css["error-message"]}>
                         {errors.password && errors.password.message}
                         {errors.unspecifiedError &&
@@ -294,10 +292,10 @@ export function AuthModal({
                       className={css["forgot-password"]}
                       onClick={() => {
                         handleClose();
-                        handleOpenRestorePasswordSendEmail();
+                        setTimeout(() => handleOpenRestorePasswordSendEmail(), 1);
                       }}
                     >
-                      Forgot password
+                      Забув пароль
                     </button>
                   </div>
                   <button
@@ -305,7 +303,7 @@ export function AuthModal({
                     disabled={disabled}
                     className={css["signin-form__btn"]}
                   >
-                    Sign in
+                    Увійти
                   </button>
                 </form>
               </div>
@@ -330,7 +328,7 @@ export function AuthModal({
                         })}
                         maxLength={50}
                       />
-                      <label htmlFor="signupform-surname">Surname</label>
+                      <label htmlFor="signupform-surname">Прізвище</label>
                       <p className={css["error-message"]}>
                         {errorsSignUp.surname && errorsSignUp.surname.message}
                       </p>
@@ -351,7 +349,7 @@ export function AuthModal({
                         })}
                         maxLength={50}
                       />
-                      <label htmlFor="signupform-name">Name</label>
+                      <label htmlFor="signupform-name">Ім'я</label>
                       <p className={css["error-message"]}>
                         {errorsSignUp.name && errorsSignUp.name.message}
                       </p>
@@ -401,7 +399,7 @@ export function AuthModal({
                           },
                         })}
                       />
-                      <label htmlFor="signupform-password">Password</label>
+                      <label htmlFor="signupform-password">Пароль</label>
                       <div className={css["error-message"]}>
                         <ErrorMessage
                           errors={errorsSignUp}
@@ -438,7 +436,7 @@ export function AuthModal({
                         })}
                       />
                       <label htmlFor="signupform-password_confirm">
-                        Repeat password
+                        Підтвердження паролю
                       </label>
                       <div className={css["error-message"]}>
                         <ErrorMessage
@@ -459,7 +457,7 @@ export function AuthModal({
                     disabled={disabledSignUp}
                     className={css["signup-form__btn"]}
                   >
-                    Sign up
+                    Зареєструватися
                   </button>
                 </form>
               </div>

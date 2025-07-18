@@ -1,0 +1,12 @@
+- model: orders.operator
+  pk: 1
+  fields:
+    name: Нова Пошта
+- model: orders.operator
+  pk: 2
+  fields:
+    name: Укрпошта
+- model: orders.operator
+  pk: 3
+  fields:
+    name: Meest

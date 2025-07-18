@@ -42,7 +42,7 @@ export function ProductDetailPage() {
                 </div>
                 <div className={css["product-detail__info"]}>
                   <div className={css["product-detail__categories"]}>
-                    Categories:{" "}
+                    Категорії:{" "}
                     {product.categories.map((cat) => cat.name).join(", ")}
                   </div>
                   <h2 className={css["product-detail__title"]}>
@@ -52,32 +52,34 @@ export function ProductDetailPage() {
                     {product.description}
                   </p>
                   <div className={css["product-detail__price"]}>
-                    <span>${product.price}</span>
-                  </div>
-                  <div className={css["product-detail__availability"]}>
-                    <span>Available: {product.quantity}</span>
+                    <span>{product.price} ₴</span>
                   </div>
                   {product.quantity === 0 ? (
                     <span className={css["product-detail__out-of-stock"]}>
-                      Out of stock
+                      Відсутній в наявності
                     </span>
                   ) : (
-                    <button
-                      className={css["buy-now-button"]}
-                      onClick={() => {
-                        addToCart(product.id);
-                        cart.length > 0 &&
-                          document.getElementById("cart-button").click();
-                      }}
-                    >
-                      <span>
-                        <img
-                          src={`${process.env.REACT_APP_PUBLIC_URL}/svg/cart.svg`}
-                          alt="Cart icon link"
-                        />
-                        Buy Now
-                      </span>
-                    </button>
+                    <>
+                      <div className={css["product-detail__availability"]}>
+                        <span>В наявності: {product.quantity}</span>
+                      </div>
+                      <button
+                        className={css["buy-now-button"]}
+                        onClick={() => {
+                          addToCart(product.id);
+                          cart.length > 0 &&
+                            document.getElementById("cart-button").click();
+                        }}
+                      >
+                        <span>
+                          <img
+                            src={`${process.env.REACT_APP_PUBLIC_URL}/svg/cart.svg`}
+                            alt="Cart icon link"
+                          />
+                          Купити
+                        </span>
+                      </button>
+                    </>
                   )}
                 </div>
               </div>

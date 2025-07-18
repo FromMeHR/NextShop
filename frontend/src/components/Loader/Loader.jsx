@@ -8,10 +8,10 @@ export function Loader() {
 
   useEffect(() => {
     const shortWait = setTimeout(
-      () => setMessage("Please wait, loading..."),
+      () => setMessage("Зачекайте, йде завантаження..."),
       3000
     );
-    const longWait = setTimeout(() => setMessage("Still loading... "), 10000);
+    const longWait = setTimeout(() => setMessage("Все ще завантажується... "), 10000);
     const timeoutError = setTimeout(() => {
       navigate("/404");
     }, 30000);
@@ -30,8 +30,8 @@ export function Loader() {
         <span></span>
         <span></span>
         <span></span>
+        {message && <p className={css["loader__message"]}>{message}</p>}
       </div>
-      {message && <p className={css["loader__message"]}>{message}</p>}
     </div>
   );
 }

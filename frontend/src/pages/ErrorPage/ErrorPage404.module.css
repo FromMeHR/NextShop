@@ -5,9 +5,8 @@
   justify-content: center;
   box-sizing: border-box;
   width: 100%;
-  min-height: calc(100vh - 342px );
-  background-color: #767676;
-  box-shadow: 0px 0px 50px 0px #000000 inset;
+  background-color: var(--container-background-color);
+  box-shadow: 0px 0px 50px 0px var(--main-shadow-color) inset;
 }
 
 .ErrorPage404__container {
@@ -17,17 +16,16 @@
   justify-content: center;
   text-align: center;
   gap: 20px;
-  font-family: var(--font-main);
   max-width: 343px;
   padding: 40px 10px;
 }
 
 .ErrorPage404__text404 {
-  font-size: 84px;
+  font-size: 5.25rem;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.84px;
-  color: var(#25292c);
+  color: var(--main-text-color);
   margin: 0;
 }
 
@@ -46,16 +44,16 @@
 }
 
 .ErrorPage404__main-text {
-  font-size: 32px;
+  font-size: 2rem;
   font-weight: 700;
-  color: var(#25292c);
+  color: var(--main-text-color);
   margin: 0;
   line-height: 1.2;
 }
 
 .ErrorPage404__details {
-  font-size: 14px;
-  color: var(#25292c);
+  font-size: 0.875rem;
+  color: var(--main-text-color);
   margin: 0;
   font-weight: 400;
   line-height: 1.5;
@@ -67,19 +65,19 @@
   align-items: center;
   text-decoration: none;
   width: 100%;
-  max-width: 150px;
+  max-width: 220px;
   height: 40px;
-  background-color: #000;
+  background-color: var(--main-button-color);
   transition: background-color 0.3s ease-in-out;
   border: none;
-  color: #fff;
-  font-size: 16px;
+  color: var(--light-text-color);
+  font-size: 1rem;
   font-weight: 500;
   border-radius: 8px;
 }
 
 .ErrorPage404__button:hover {
-  background-color: #333;
+  background-color: var(--main-button-hover-color);
   cursor: pointer;
 }
 
@@ -90,19 +88,19 @@
 
   .ErrorPage404__container {
     max-width: 558px;
-    gap: 20px;;
+    gap: 20px;
   }
 
   .ErrorPage404__text404 {
-    font-size: 200px;
+    font-size: 12.5rem;
   }
 
   .ErrorPage404__main-text {
-    font-size: 48px;
+    font-size: 3rem;
   }
 
   .ErrorPage404__details {
-    font-size: 16px;
+    font-size: 1rem;
   }
 }
 
@@ -121,7 +119,7 @@
   }
 
   .ErrorPage404__text404 {
-    font-size: 200px;
+    font-size: 12.5rem;
     line-height: 1;
     margin-right: 80px;
   }
@@ -140,7 +138,7 @@
   }
 
   .ErrorPage404__main-text {
-    font-size: 48px;
+    font-size: 3rem;
     line-height: 1.2;
   }
 
@@ -148,6 +146,6 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    font-size: 16px;
+    font-size: 1rem;
   }
 }

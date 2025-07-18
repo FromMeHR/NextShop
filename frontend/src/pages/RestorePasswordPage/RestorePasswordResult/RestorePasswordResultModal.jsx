@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useModal } from "../../../hooks/useModal";
 import ReactDOM from "react-dom";
 import css from "./RestorePasswordResultModal.module.css";
 
@@ -7,21 +8,19 @@ export function RestorePasswordResultModal({
   restorePasswordStatus,
   handleClose,
 }) {
+  const { setOverlayVisible } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-  }, [show]);
+    setOverlayVisible(show);
+  }, [show, setOverlayVisible]);
 
   return ReactDOM.createPortal(
     <div
       className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
       onClick={handleClose}
     >
-      <div
-        className={`${css["overlay"]} ${isVisible ? css["show"] : ""}`}
-        onClick={handleClose}
-      ></div>
       <div className={css["modal-dialog"]}>
         <div
           className={css["modal-content"]}
@@ -30,8 +29,8 @@ export function RestorePasswordResultModal({
           <div className={css["modal-header"]}>
             <p className={css["modal-title"]}>
               {restorePasswordStatus === "Restore password error"
-                ? "The link is inactive"
-                : "Password changed"}
+                ? "Посилання неактивне"
+                : "Пароль змінено"}
             </p>
             <img
               src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
@@ -43,18 +42,18 @@ export function RestorePasswordResultModal({
           <div className={css["modal-body"]}>
             <p className={css["modal-body-text"]}>
               {restorePasswordStatus === "Restore password error"
-                ? "Changing the password is not possible."
-                : "Your new password has been successfully saved."}
+                ? "Зміна паролю неможлива."
+                : "Ваш новий пароль успішно збережено."}
             </p>
             <button
               type="button"
               className={css["return-to-sign-in-btn"]}
               onClick={() => {
                 handleClose();
-                document.getElementById("user-button").click();
+                setTimeout(() => document.getElementById("user-button").click(), 1);
               }}
             >
-              Return to sign in
+              Перейти до входу
             </button>
           </div>
         </div>

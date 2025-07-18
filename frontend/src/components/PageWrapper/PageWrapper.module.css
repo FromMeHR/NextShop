@@ -1,7 +1,8 @@
 .page-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: calc(86.4vh);
+  flex-grow: 1;
+  min-height: 80vh;
 }
 
 .page-wrapper > * {

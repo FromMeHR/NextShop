@@ -61,7 +61,7 @@ export function Products() {
                 <Product key={product.id} product={product} />
               ))
             ) : (
-              <p>No products found</p>
+              <p>Товари не знайдено</p>
             )}
           </div>
           {totalPages > 1 && (
