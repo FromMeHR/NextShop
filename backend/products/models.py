@@ -20,6 +20,7 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     quantity = models.PositiveIntegerField(default=0)
+    quantity_in_orders = models.PositiveIntegerField(default=0)
     weight = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     categories = models.ManyToManyField("Category")
 

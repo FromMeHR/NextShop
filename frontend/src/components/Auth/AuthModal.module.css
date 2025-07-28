@@ -140,6 +140,7 @@
     font-size: 0.875rem;
     width: 100%;
     outline: none;
+    transition: border 0.3s ease-in-out;
 }
 
 .has-error input {
@@ -191,6 +192,13 @@
     background: none;
     font-size: 0.875rem;
     border-bottom: 1px dashed #000;
+    color: var(--main-text-color);
+    transition: all 0.3s ease-in-out;
+}
+
+.forgot-password-wrap .forgot-password:hover {
+    color: var(--main-dark-green-color);
+    border-bottom: 1px dashed var(--main-dark-green-color);
 }
 
 .signin-form__btn {

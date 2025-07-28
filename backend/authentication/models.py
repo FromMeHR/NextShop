@@ -5,11 +5,6 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 
-from validation.validate_phone_number import (
-    validate_phone_number_len,
-    validate_phone_number_is_digit
-)
-
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -33,12 +28,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
     date_of_birth = models.DateField(blank=True, null=True)
-    phone = models.CharField(
-        max_length=12, 
-        validators=[validate_phone_number_is_digit, validate_phone_number_len],
-        blank=True, 
-        default=""
-    )
+    phone = models.CharField(max_length=30, blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)

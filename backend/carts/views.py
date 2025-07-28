@@ -35,7 +35,7 @@ class CartList(ListCreateAPIView):
         product_id = request.data.get("product_id")
         try:
             product = get_object_or_404(Product, id=int(product_id))
-        except ValueError:
+        except (ValueError, TypeError):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         if not product.quantity > 0:
@@ -43,7 +43,7 @@ class CartList(ListCreateAPIView):
 
         response = Response()
         if not cart_code or not Cart.objects.filter(cart_code=cart_code).exists():
-            cart_code = get_random_string(128)
+            cart_code = get_random_string(72)
             response.set_cookie(
                 "cart_code",
                 cart_code,
@@ -88,7 +88,7 @@ class CartDetail(RetrieveUpdateDestroyAPIView):
                 if new_quantity >= 1:
                     serializer.instance.quantity = new_quantity
                     serializer.save()
-            except ValueError:
+            except (ValueError, TypeError):
                 pass
 
     def perform_destroy(self, instance):
@@ -124,7 +124,7 @@ class CartSyncView(APIView):
                 current_cart.save()
                 final_cart_code = current_cart.cart_code
             else:
-                cart_code = get_random_string(128)
+                cart_code = get_random_string(72)
                 Cart.objects.create(user=user, cart_code=cart_code)
                 final_cart_code = cart_code
 
@@ -143,7 +143,7 @@ class CartSyncView(APIView):
         return response
 
     def delete(self, request, *args, **kwargs):
-        cart_code = get_random_string(128)
+        cart_code = get_random_string(72)
         Cart.objects.create(cart_code=cart_code)
         response = Response()
         response.set_cookie(

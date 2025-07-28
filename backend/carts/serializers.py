@@ -10,12 +10,28 @@ class CartItemSerializer(serializers.ModelSerializer):
     product_price = serializers.ReadOnlyField(source="product.price")
     product_quantity = serializers.ReadOnlyField(source="product.quantity")
     product_weight = serializers.ReadOnlyField(source="product.weight")
-    product_image = serializers.ReadOnlyField(source="product.image.url")
-    
+    product_image = serializers.SerializerMethodField()
+
     class Meta:
         model = CartItem
-        fields = ["id", "product_id", "product_name", "product_slug", "product_price", 
-                  "product_quantity", "product_weight", "product_image", "quantity"]
+        fields = [
+            "id",
+            "product_id",
+            "product_name",
+            "product_slug",
+            "product_price",
+            "product_quantity",
+            "product_weight",
+            "product_image",
+            "quantity",
+        ]
+    
+    def get_product_image(self, obj):
+        request = self.context.get("request")
+        img = obj.product.image
+        if img and hasattr(img, 'url'):
+            return request.build_absolute_uri(img.url) if request else img.url
+        return None
 
 
 class CartSerializer(serializers.ModelSerializer):

@@ -1,15 +1,38 @@
-from rest_framework.generics import ListAPIView
+import requests
+from decouple import config
+from datetime import timedelta
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+from django.db import transaction
+from django.db.models import Q
+from django.utils.crypto import get_random_string
+from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Q
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
-from .models import NovaPoshtaCity, NovaPoshtaWarehouse, WarehouseType, NovaPoshtaStreet
+from .models import (
+    NovaPoshtaCity,
+    NovaPoshtaWarehouse,
+    WarehouseType,
+    NovaPoshtaStreet,
+    Payment,
+    Order, 
+    OrderItem
+)
+from carts.models import Cart, CartItem
+from products.models import Product
 from .serializers import (
     NovaPoshtaCitySerializer,
     WarehouseTypeSerializer,
     NovaPoshtaWarehouseSerializer,
-    NovaPoshtaStreetSerializer
+    NovaPoshtaStreetSerializer,
+    OrderDetailSerializer
 )
 
 
@@ -51,7 +74,7 @@ class WarehouseTypeListView(APIView):
             )
             warehouse_types = warehouse_types | courier_type
 
-        serializer = WarehouseTypeSerializer(warehouse_types, many=True)
+        serializer = WarehouseTypeSerializer(warehouse_types, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -90,3 +113,275 @@ class StreetListView(APIView):
         streets = NovaPoshtaStreet.objects.filter(city=city)
         serializer = NovaPoshtaStreetSerializer(streets, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CreateOrderView(APIView):
+    def post(self, request):
+        data = request.data
+        required_fields = [
+            "surname", "name", "email", "formatted_number",
+            "selected_city_ref", "selected_warehouse_type_id", "selected_payment_method"
+        ]
+        for field in required_fields:
+            if not data.get(field):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if not data.get("selected_warehouse_ref") and not data.get("selected_street_ref"):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if data.get("selected_street_ref"):
+            if not data.get("house") or not data.get("apartment"):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        if data.get("selected_payment_method") not in [
+            Payment.EASYPAY, Payment.PLATA_BY_MONO
+        ]:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            city = get_object_or_404(NovaPoshtaCity, ref=data.get("selected_city_ref"))
+            try:
+                warehouse_type = get_object_or_404(WarehouseType, id=int(data.get("selected_warehouse_type_id")))
+            except (ValueError, TypeError):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            if data.get("selected_warehouse_ref"):
+                warehouse = get_object_or_404(NovaPoshtaWarehouse, ref=data.get("selected_warehouse_ref"))
+            if data.get("selected_street_ref"):
+                street = get_object_or_404(NovaPoshtaStreet, ref=data.get("selected_street_ref"))
+
+            cart_code = request.COOKIES.get("cart_code")
+            if not cart_code:
+                raise ValidationError("")
+
+            cart = Cart.objects.filter(cart_code=cart_code).first()
+            if not cart:
+                raise ValidationError("")
+
+            cart_items = CartItem.objects.filter(cart=cart)
+            if not cart_items.exists():
+                raise ValidationError("")
+
+            apartment_str = data.get("apartment")
+            if apartment_str:
+                if not data.get("apartment").isdigit():
+                    raise ValidationError("")
+                apartment = int(apartment_str)
+            else:
+                apartment = None
+
+            order = Order.objects.create(
+                order_code=get_random_string(36),
+                user=request.user if request.user.is_authenticated else None,
+                delivery_user_name=data.get("name"),
+                delivery_user_surname=data.get("surname"),
+                delivery_user_email=data.get("email"),
+                delivery_user_phone=data.get("formatted_number"),
+                delivery_city=city.name_ukr,
+                delivery_warehouse_type=warehouse_type,
+                delivery_warehouse=warehouse.name_ukr if data.get("selected_warehouse_ref") else None,
+                delivery_street=street.name if data.get("selected_street_ref") else None,
+                delivery_house=data.get("house"),
+                delivery_apartment = apartment,
+                delivery_notes=data.get("comment"),
+            )
+
+            total_price, total_quantity, total_weight = 0, 0, 0
+
+            product_ids = [item.product.id for item in cart_items if item.product]
+            products = {
+                product.id: product for product in Product.objects
+                .prefetch_related("categories")
+                .select_for_update()
+                .filter(id__in=product_ids)
+            }
+
+            for item in cart_items:
+                product = products.get(item.product.id)
+                if item.quantity > product.quantity:
+                    raise ValidationError(
+                        f"Товар «{product.name}» недоступний у потрібній кількості."
+                    )
+                if product.quantity_in_orders + item.quantity > product.quantity:
+                    raise ValidationError(
+                        f"Товар «{product.name}» замовляється багатьма користувачами. Спробуйте пізніше."
+                    )
+                OrderItem.objects.create(order=order, product=product, quantity=item.quantity)
+                product.quantity_in_orders += item.quantity
+                product.save()
+
+                total_price += product.price * item.quantity
+                total_quantity += item.quantity
+                total_weight += product.weight * item.quantity
+
+            order.total_price = total_price
+            order.total_quantity = total_quantity
+            order.total_weight = total_weight
+
+            if data.get("selected_payment_method") == Payment.PLATA_BY_MONO:
+                host = (
+                    config("NGROK_BACKEND_HOST")
+                    if config("NGROK_BACKEND_HOST")
+                    else config("ALLOWED_ENV_HOST")
+                )
+                token = config("MONOBANK_TOKEN")
+                monobank_url = config("MONOBANK_API_URL")
+
+                basket_order = []
+                for item in cart_items:
+                    product = item.product
+                    price_uah_cents = int(product.price * 100)
+                    total = price_uah_cents * item.quantity
+                    img = product.image
+                    if img and hasattr(img, 'url') and request and config("DEBUG", cast=bool) == False:
+                        icon = request.build_absolute_uri(img.url)
+                    elif img and hasattr(img, 'url') and config("NGROK_BACKEND_HOST"):
+                        icon = f"https://{config("NGROK_BACKEND_HOST")}{img.url}"
+                    else:
+                        icon = None
+                    basket_order.append({
+                        "name": product.name,
+                        "qty": item.quantity,
+                        "sum": price_uah_cents,
+                        "total": total,
+                        "icon": icon,
+                        "code": str(product.id),
+                        "header": product.name,
+                    })
+
+                redirect_url = (
+                    f"http://{config("ALLOWED_ENV_HOST")}/profile/user-info" 
+                    if request.user.is_authenticated 
+                    else f"http://{config("ALLOWED_ENV_HOST")}/order/{order.order_code}"
+                )
+
+                web_hook_url = f"https://{host}/api/monobank/payment-status/?order_code={order.order_code}"
+
+                payload = {
+                    "amount": int(order.total_price * 100), # копійки
+                    "ccy": 980,
+                    "merchantPaymInfo": {
+                        "reference": f"{order.id}",
+                        "destination": f"Оплата за замовлення №{order.id} від {timezone.now().date()}",
+                        "comment": f"Оплата за замовлення №{order.id} від {timezone.now().date()}",
+                        "basketOrder": basket_order,
+                    },
+                    "redirectUrl": redirect_url,
+                    "webHookUrl": web_hook_url,
+                    "validity": 600,
+                    "paymentType": None,
+                    "agentFeePercent": 0,
+                    "displayType": None,
+                }
+
+                headers = {"X-Token": token}
+
+                response = requests.post(
+                    f"{monobank_url}/api/merchant/invoice/create", 
+                    json=payload,
+                    headers=headers,
+                    timeout=30,
+                )
+
+                result = response.json()
+
+                if response.status_code != 200 or not result.get("invoiceId") or not result.get("pageUrl"):
+                    raise ValidationError(
+                        result.get("errText", "Помилка створення рахунку в Monobank. Спробуйте пізніше.")
+                    )
+
+                payment = Payment.objects.create(
+                    name=Payment.PLATA_BY_MONO,
+                    invoice_id=result.get("invoiceId"),
+                    forward_url=result.get("pageUrl"),
+                    status=Payment.CREATED,
+                    expires_at=order.created_at + timedelta(minutes=10),
+                )
+                order.payment = payment
+                order.save()
+            else:
+                raise ValidationError("Невірний спосіб оплати.")
+
+            cart.delete()
+            cart_code = get_random_string(72)
+            Cart.objects.create(cart_code=cart_code)
+            response = Response(
+                {"forward_url": payment.forward_url, "redirect_url": redirect_url},
+                status=status.HTTP_201_CREATED,
+            )
+            response.set_cookie(
+                "cart_code",
+                cart_code,
+                httponly=True,
+                expires=timezone.now() + timedelta(days=30),
+            )
+            return response
+
+
+class MonobankPaymentStatusView(APIView):
+    def post(self, request):
+        data = request.data
+        order_code = request.query_params.get("order_code")
+
+        if not order_code:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            order = get_object_or_404(
+                Order.objects
+                .select_related("payment")
+                .prefetch_related("order_items__product")
+                .select_for_update(of=("self", "payment"))
+                .exclude(payment=None).exclude(order_items=None),
+                order_code=order_code
+            )
+
+            if order.payment.invoice_id != data.get("invoiceId"):
+                raise ValidationError("")
+
+            payment = order.payment
+            product_ids = [item.product.id for item in order.order_items.all() if item.product]
+            products = {
+                product.id: product for product in Product.objects
+                .prefetch_related("categories")
+                .select_for_update()
+                .filter(id__in=product_ids)
+            }
+
+            new_status = data.get("status")
+            modified_date_str = data.get("modifiedDate")
+            new_modified = parse_datetime(modified_date_str) if modified_date_str else None
+
+            if payment.modified_date and new_modified and payment.modified_date >= new_modified:
+                return Response("Outdated webhook ignored", status=status.HTTP_200_OK)
+
+            if payment.status == Payment.SUCCESS:
+                return Response("Payment already marked as success", status=status.HTTP_200_OK)
+
+            payment.status = new_status
+            payment.modified_date = new_modified
+            payment.payment_method = data.get("paymentInfo", {}).get("paymentMethod")
+            payment.payment_system = data.get("paymentInfo", {}).get("paymentSystem")
+            payment.error_code = data.get("errCode")
+            payment.error_text = data.get("failureReason")
+            payment.save()
+
+            if new_status == Payment.SUCCESS:
+                order.status = Order.PAYMENT_CONFIRMED
+                order.save()
+
+                for item in order.order_items.all():
+                    product = products.get(item.product.id)
+                    product.quantity_in_orders = max(product.quantity_in_orders - item.quantity, 0)
+                    product.quantity = max(product.quantity - item.quantity, 0)
+                    product.save()
+        return Response(status=status.HTTP_200_OK)
+
+
+class OrderDetailView(RetrieveAPIView):
+    def get(self, request, order_code):
+        if not order_code:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        order = get_object_or_404(Order.objects.select_related("payment"), order_code=order_code)
+        serializer = OrderDetailSerializer(order)
+        return Response(serializer.data)

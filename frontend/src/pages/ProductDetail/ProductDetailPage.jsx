@@ -14,7 +14,7 @@ const fetcher = async (url) => {
 
 export function ProductDetailPage() {
   const { slug } = useParams();
-  const { cart, addToCart } = useCart();
+  const { addToCart } = useCart();
   const baseUrl = process.env.REACT_APP_BASE_API_URL;
   const {
     data: product,
@@ -67,8 +67,7 @@ export function ProductDetailPage() {
                         className={css["buy-now-button"]}
                         onClick={() => {
                           addToCart(product.id);
-                          cart.length > 0 &&
-                            document.getElementById("cart-button").click();
+                          document.getElementById("cart-button").click();
                         }}
                       >
                         <span>

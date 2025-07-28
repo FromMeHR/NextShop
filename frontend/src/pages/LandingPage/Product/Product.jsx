@@ -3,7 +3,7 @@ import { useCart } from "../../../hooks/useCart";
 import css from "./Product.module.css";
 
 export function Product({ product }) {
-  const { cart, addToCart } = useCart();
+  const { addToCart } = useCart();
 
   return (
     <Link to={`/product-detail/${product.slug}`}>
@@ -14,7 +14,7 @@ export function Product({ product }) {
       >
         <div className={css["product-card-image-wrapper"]}>
           <img
-            src={product.image}
+            src={`${product.image}`}
             className={css["product-card-image"]}
             alt={product.name}
           />
@@ -33,8 +33,7 @@ export function Product({ product }) {
               onClick={(e) => {
                 e.preventDefault();
                 addToCart(product.id);
-                cart.length > 0 &&
-                  document.getElementById("cart-button").click();
+                document.getElementById("cart-button").click();
               }}
             >
               <img

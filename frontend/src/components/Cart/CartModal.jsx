@@ -8,6 +8,7 @@ import css from "./CartModal.module.css";
 export function CartModal({ show, handleClose }) {
   const {
     cart,
+    isLoading,
     outOfStockItems,
     inStockItems,
     totalPrice,
@@ -23,9 +24,11 @@ export function CartModal({ show, handleClose }) {
     setOverlayVisible(show);
   }, [show, setOverlayVisible]);
 
-  if (cart.length === 0) {
-    return null;
-  }
+  useEffect(() => {
+    if (!isLoading && cart.length === 0) {
+      handleClose();
+    }
+  }, [isLoading, cart, handleClose]);
 
   return ReactDOM.createPortal(
     <div
@@ -79,7 +82,7 @@ export function CartModal({ show, handleClose }) {
                       <div className={css["cart-page__product-image-wrapper"]}>
                         <img
                           className={css["cart-page__product-image"]}
-                          src={`${process.env.REACT_APP_BASE_API_URL}${item.product_image}`}
+                          src={item.product_image}
                           alt={item.product_name}
                         />
                       </div>

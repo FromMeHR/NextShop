@@ -2,11 +2,14 @@
   pk: 1
   fields:
     name: Нова Пошта
+    min_delivery_price: 60
 - model: orders.operator
   pk: 2
   fields:
     name: Укрпошта
+    min_delivery_price: 40
 - model: orders.operator
   pk: 3
   fields:
     name: Meest
+    min_delivery_price: 30

@@ -18,6 +18,7 @@ import { Loader } from "../components/Loader/Loader";
 import { ActivateUserPage } from "../pages/ActivateUserPage/ActivateUserPage";
 import { RestorePasswordPage } from "../pages/RestorePasswordPage/RestorePasswordPage";
 import { CheckoutPage } from "../pages/CheckoutPage/CheckoutPage";
+import { OrderDetailPage } from "../pages/OrderDetailPage/OrderDetailPage";
 import { SearchPage } from "../pages/SearchPage/SearchPage";
 import { ErrorPage404 } from "../pages/ErrorPage/ErrorPage404";
 
@@ -53,6 +54,7 @@ export function ClientRouter() {
                     element={<RestorePasswordPage />}
                   />
                   <Route path="/order" element={<CheckoutPage />} />
+                  <Route path="/order/:orderCode" element={<OrderDetailPage />} />
                   <Route path="/search/:query" element={<SearchPage />} />
                   <Route path="*" element={<ErrorPage404 />} />
                 </Routes>

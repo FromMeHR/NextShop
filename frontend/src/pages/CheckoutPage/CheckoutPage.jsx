@@ -9,6 +9,8 @@ import { useCart } from "../../hooks/useCart";
 import { Loader } from "../../components/Loader/Loader";
 import { debounce } from "lodash";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { PAYMENT_NAME } from "../../constants/constants";
 import useSWR from "swr";
 import axios from "axios";
 import classnames from "classnames";
@@ -138,7 +140,7 @@ export function CheckoutPage() {
       if (selectedCity && selectedDeliveryType && selectedWarehouseType &&
         (selectedWarehouse || selectedStreet)) {
         if (selectedStreet) {
-          if (watchedHouse?.trim() !== "" && /^\d+$/.test(watchedApartment)) {
+          if (watchedHouse?.trim() !== "" && /^\d+$/.test(watchedApartment?.trim())) {
             clearErrors("delivery");
             return true;
           } else {
@@ -484,7 +486,7 @@ export function CheckoutPage() {
     setSelectedStreet(street);
     setIsDropdownStreetOpen(false);
     setSearchStreet("");
-    if (watchedHouse?.trim() !== "" && /^\d+$/.test(watchedApartment)) {
+    if (watchedHouse?.trim() !== "" && /^\d+$/.test(watchedApartment?.trim())) {
       clearErrors("delivery");
     }
   };
@@ -550,7 +552,7 @@ export function CheckoutPage() {
   useEffect(() => {
     if (selectedStreet && 
       watchedHouse?.trim() !== "" && 
-      /^\d+$/.test(watchedApartment)) {
+      /^\d+$/.test(watchedApartment?.trim())) {
       clearErrors("delivery");
     }
   }, [watchedHouse, watchedApartment, selectedStreet, clearErrors]);
@@ -567,8 +569,48 @@ export function CheckoutPage() {
     });
     if (!isValid || outOfStockItems.length > 0) return;
 
-    console.log(phoneData.formattedNumber.replace(/[^0-9]+/g, ""));
-    ////
+    const dataToSend = {
+      surname: value.surname.trim(),
+      name: value.name.trim(),
+      email: value.email.trim(),
+      formatted_number: phoneData.formattedNumber,
+      selected_city_ref: selectedCity?.ref,
+      selected_warehouse_type_id: selectedWarehouseType?.id,
+      selected_warehouse_ref: selectedWarehouse?.ref,
+      selected_street_ref: selectedStreet?.ref,
+      house: value.house.trim(),
+      apartment: value.apartment.trim(),
+      selected_payment_method: selectedPaymentMethod.name,
+    };
+
+    await axios({
+      method: "post",
+      url: `${process.env.REACT_APP_BASE_API_URL}/api/create-order/`,
+      data: dataToSend,
+      withCredentials: true,
+    })
+      .then((resp) => {
+        const forwardUrl = resp.data?.forward_url;
+        const redirectUrl = resp.data?.redirect_url;
+        if (redirectUrl) {
+          window.history.replaceState(null, "", redirectUrl);
+        }
+        if (forwardUrl) {
+          window.location.href = forwardUrl;
+        }
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 400) {
+          const errorMessage = error.response.data[0];
+          if (errorMessage) {
+            toast.error(errorMessage);
+          }
+          console.error(error);
+        } else {
+          console.error(error);
+          toast.error("Сталася помилка. Будь ласка, спробуйте пізніше.");
+        }
+      });
   };
 
   return (
@@ -1025,7 +1067,7 @@ export function CheckoutPage() {
                                                         className={css["checkout__delivery-operator-icon"]}
                                                       >
                                                         <img
-                                                          src={`${process.env.REACT_APP_BASE_API_URL}${warehouseType.image}`}
+                                                          src={warehouseType.image}
                                                           alt={warehouseType.name}
                                                         />
                                                       </div>
@@ -1035,11 +1077,13 @@ export function CheckoutPage() {
                                                     >
                                                       {warehouseType.name}
                                                     </div>
-                                                    <div
-                                                      className={css["checkout__delivery-operator-desc"]}
-                                                    >
-                                                      За рахунок отримувача <br /> за тарифами
-                                                      перевізника
+                                                    <div className={css["checkout__delivery-operator-row"]}>
+                                                      <span
+                                                        className={css["checkout__delivery-operator-subtitle"]}
+                                                      >
+                                                        Ціна:
+                                                      </span>
+                                                      <span> від {warehouseType.min_delivery_price} грн</span>
                                                     </div>
                                                   </div>
                                                 </div>
@@ -1175,24 +1219,28 @@ export function CheckoutPage() {
                                                       handleWarehouseTypeClick(warehouseType)
                                                     }
                                                   >
-                                                    <div
-                                                      className={css["checkout__delivery-operator-icon"]}
-                                                    >
-                                                      <img
-                                                        src={`${process.env.REACT_APP_BASE_API_URL}${warehouseType.image}`}
-                                                        alt={warehouseType.name}
-                                                      />
-                                                    </div>
+                                                    {warehouseType.image && (
+                                                      <div
+                                                        className={css["checkout__delivery-operator-icon"]}
+                                                      >
+                                                        <img
+                                                          src={warehouseType.image}
+                                                          alt={warehouseType.name}
+                                                        />
+                                                      </div>
+                                                    )}
                                                     <div
                                                       className={css["checkout__delivery-operator-title"]}
                                                     >
                                                       {warehouseType.name}
                                                     </div>
-                                                    <div
-                                                      className={css["checkout__delivery-operator-desc"]}
-                                                    >
-                                                      За рахунок отримувача <br /> за тарифами
-                                                      перевізника
+                                                    <div className={css["checkout__delivery-operator-row"]}>
+                                                      <span
+                                                        className={css["checkout__delivery-operator-subtitle"]}
+                                                      >
+                                                        Ціна:
+                                                      </span>
+                                                      <span> від {warehouseType.min_delivery_price} грн</span>
                                                     </div>
                                                   </div>
                                                 </div>
@@ -1366,7 +1414,7 @@ export function CheckoutPage() {
                     >
                       {selectedPaymentMethod && (
                         <div className={css["checkout__header-selected-item"]}>
-                          {selectedPaymentMethod.name}
+                          {selectedPaymentMethod.description}
                         </div>
                       )}
                     </div>
@@ -1383,15 +1431,15 @@ export function CheckoutPage() {
                       </div>
                       <div
                         className={`${css["checkout__delivery-item"]} ${
-                          selectedPaymentMethod?.id === 1 ? css["open"] : ""
+                          selectedPaymentMethod?.name === PAYMENT_NAME.EASYPAY ? css["open"] : ""
                         }`}
                       >
                         <div 
                           className={css["checkout__delivery-item-header"]}
                           onClick={() => {
                             setSelectedPaymentMethod({
-                              id: 1,
-                              name: "EasyPay (тільки картки українських банків)"
+                              name: PAYMENT_NAME.EASYPAY,
+                              description: "EasyPay (тільки картки українських банків)"
                             });
                             clearErrors("payment");
                           }}
@@ -1429,15 +1477,15 @@ export function CheckoutPage() {
                       <div className={css["checkout__delivery-item-line"]}></div>
                       <div
                         className={`${css["checkout__delivery-item"]} ${
-                          selectedPaymentMethod?.id === 2 ? css["open"] : ""
+                          selectedPaymentMethod?.name === PAYMENT_NAME.PLATA_BY_MONO ? css["open"] : ""
                         }`}
                       >
                         <div 
                           className={css["checkout__delivery-item-header"]}
                           onClick={() => {
                             setSelectedPaymentMethod({
-                              id: 2,
-                              name: "plata by mono"
+                              name: PAYMENT_NAME.PLATA_BY_MONO,
+                              description: "plata by mono"
                             })
                             clearErrors("payment");
                           }}
@@ -1497,8 +1545,19 @@ export function CheckoutPage() {
             <div className={css["checkout__right"]}>
               <div className={css["checkout__block"]}>
                 <div className={css["checkout__summary"]}>
-                  <div className={css["checkout__summary-title"]}>
-                    Моє замовлення
+                  <div className={css["checkout__summary-header"]}>
+                    <div className={css["checkout__summary-title"]}>
+                      Моє замовлення
+                    </div>
+                    <button
+                      type="button"
+                      className={css["checkout__summary-edit-cart-button"]}
+                      onClick={() => {
+                        document.getElementById("cart-button").click();
+                      }}
+                    >
+                      Редагувати
+                    </button>
                   </div>
                   <div className={css["cart-wrapper"]}>
                     <div className={css["cart-custom-scroll"]}>
@@ -1525,7 +1584,7 @@ export function CheckoutPage() {
                             <div className={css["cart__product-image-wrapper"]}>
                               <img
                                 className={css["cart__product-image"]}
-                                src={`${process.env.REACT_APP_BASE_API_URL}${item.product_image}`}
+                                src={item.product_image}
                                 alt={item.product_name}
                               />
                             </div>
@@ -1574,12 +1633,14 @@ export function CheckoutPage() {
                         Вартість доставки
                       </div>
                       <div className={css["checkout__cart-total-info-column-right"]}>
-                        Безкоштовно
+                        {selectedWarehouseType
+                          ? `від ${selectedWarehouseType.min_delivery_price} ₴`
+                          : "Безкоштовно"}
                       </div>
                     </div>
                     <div className={css["checkout__cart-total-info-row"]}>
                       <div className={css["checkout__cart-total-info-column-left"]}>
-                        Сума до оплати
+                        Сума до оплати без доставки
                       </div>
                       <div className={css["checkout__cart-total-info-column-right"]}>
                         <div className={css["checkout__cart-total-amount"]}>

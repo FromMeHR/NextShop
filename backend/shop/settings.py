@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-import textwrap
 
 from corsheaders.defaults import default_headers
 from decouple import config
@@ -35,6 +34,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "[::1]",
     "0.0.0.0",
+    config("NGROK_BACKEND_HOST"),
     config("ALLOWED_ENV_HOST"),
 ]
 
@@ -117,6 +117,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "shop.wsgi.application"
 
+CELERY_BROKER_URL = config("REDIS_URL")
+CELERY_RESULT_BACKEND = config("REDIS_URL")
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -196,7 +198,7 @@ else:
     AWS_QUERYSTRING_EXPIRE = 3600
 
     AWS_CLOUDFRONT_KEY_ID = config("AWS_CLOUDFRONT_KEY_ID")
-    AWS_CLOUDFRONT_KEY = textwrap.dedent(config("AWS_CLOUDFRONT_KEY")).encode("ascii").strip()
+    AWS_CLOUDFRONT_KEY = config("AWS_CLOUDFRONT_KEY").replace('\\n', '\n').encode("ascii")
 
 
 # Default primary key field type

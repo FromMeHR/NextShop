@@ -28,7 +28,7 @@ export function SignUpCompletionModal({
           onClick={(e) => e.stopPropagation()}
         >
           <div className={css["modal-header"]}>
-            <p className={css["modal-title"]}>Authorization</p>
+            <p className={css["modal-title"]}>Реєстрація майже завершена</p>
             <img
               src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
               className={css["modal-close-button"]}
@@ -38,9 +38,9 @@ export function SignUpCompletionModal({
           </div>
           <div className={css["modal-body"]}>
             <p className={css["modal-body-text"]}>
-              A letter has been sent to the email address you provided. <br />
-              Please follow the link in the letter to confirm your email
-              address.
+              На зазначену Вами електронну пошту надіслано листа. <br />
+              Будь ласка перейдіть за посиланням з листа для підтвердження
+              вказаної електронної адреси.
             </p>
             <button
               type="button"
@@ -50,7 +50,7 @@ export function SignUpCompletionModal({
                 setTimeout(() => handleOpenAuth(), 1);
               }}
             >
-              Return to sign in
+              Перейти до входу
             </button>
             <div className={css["resend-line"]}>
               <button
@@ -61,7 +61,7 @@ export function SignUpCompletionModal({
                   setTimeout(() => handleOpenSignUpResendActivation(), 1);
                 }}
               >
-                Resend activation link
+                Надіслати повторно
               </button>
             </div>
           </div>

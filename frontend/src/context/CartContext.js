@@ -35,10 +35,12 @@ export const CartProvider = ({ children }) => {
       setIsLoading(false);
     };
 
+    setIsLoading(true);
     fetchCart();
   }, []);
 
   const addToCart = async (productId) => {
+    setIsLoading(true);
     if (!cart.some((item) => item.product_id === productId)) {
       try {
         const response = await axios.post(
@@ -47,6 +49,7 @@ export const CartProvider = ({ children }) => {
           { withCredentials: true }
         );
         setCart(response.data.items);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error adding to cart:", error);
       }
@@ -54,6 +57,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const updateCartItem = async (itemId, newQuantity, oldQuantity = 0) => {
+    setIsLoading(true);
     if (newQuantity !== oldQuantity) {
       try {
         const response = await axios.patch(
@@ -68,6 +72,7 @@ export const CartProvider = ({ children }) => {
               : item
           )
         );
+        setIsLoading(false);
       } catch (error) {
         console.error("Error updating cart item:", error);
       }
@@ -75,12 +80,14 @@ export const CartProvider = ({ children }) => {
   };
 
   const deleteCartItem = async (itemId) => {
+    setIsLoading(true);
     try {
       await axios.delete(
         `${process.env.REACT_APP_BASE_API_URL}/api/cart/update-item/${itemId}/`,
         { withCredentials: true }
       );
       setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
+      setIsLoading(false);
     } catch (error) {
       console.error("Error deleting cart item:", error);
     }

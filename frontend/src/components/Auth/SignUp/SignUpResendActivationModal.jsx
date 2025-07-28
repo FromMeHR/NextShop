@@ -22,8 +22,8 @@ export function SignUpResendActivationModal({
   }, [show, setOverlayVisible]);
 
   const errorMessageTemplates = {
-    required: "Field is required",
-    email: "Enter E-mail in format name@example.com",
+    required: "Обов'язкове поле",
+    email: "Введіть E-mail у форматі name@example.com",
   };
 
   const {
@@ -45,9 +45,7 @@ export function SignUpResendActivationModal({
         setTimeout(() => handleOpenAuth(), 1);
       })
       .catch(() => {
-        toast.error(
-          "Failed to resend activation link. Please try again later."
-        );
+        toast.error("Не вдалося надіслати лист. Спробуйте пізніше.");
       });
   };
 
@@ -62,7 +60,9 @@ export function SignUpResendActivationModal({
           onClick={(e) => e.stopPropagation()}
         >
           <div className={css["modal-header"]}>
-            <p className={css["modal-title"]}>Resend activation link</p>
+            <p className={css["modal-title"]}>
+              Повторне надсилання листа активації
+            </p>
             <img
               src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
               className={css["modal-close-button"]}
@@ -72,9 +72,9 @@ export function SignUpResendActivationModal({
           </div>
           <div className={css["modal-body"]}>
             <p className={css["modal-body-text"]}>
-              Enter the email address you provided during sign-up to resend the
-              activation link. <br /> The activation link will be sent to this
-              email address.
+              Введіть електронну адресу вказану при реєстрації для повторного
+              надсилання листа. <br /> На зазначену Вами електронну пошту буде
+              відправлено листа з посиланням для активації.
             </p>
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
               <div className={css["forms__item"]}>
@@ -105,7 +105,7 @@ export function SignUpResendActivationModal({
                 disabled={disabled}
                 className={css["resend-form__btn"]}
               >
-                Send
+                Надіслати
               </button>
             </form>
           </div>

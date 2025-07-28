@@ -13,6 +13,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
     categories = CategorySerializer(many=True, read_only=True)
     
     class Meta:
@@ -29,8 +30,16 @@ class ProductListSerializer(serializers.ModelSerializer):
             "categories",
         )
 
+    def get_image(self, obj):
+        request = self.context.get("request")
+        img = obj.image
+        if img and hasattr(img, 'url'):
+            return request.build_absolute_uri(img.url) if request else img.url
+        return None
+
 
 class ProductDetailSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
     categories = CategorySerializer(many=True, read_only=True)
     similar_products = serializers.SerializerMethodField()
     
@@ -47,6 +56,13 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "categories",
             "similar_products",
         )
+
+    def get_image(self, obj):
+        request = self.context.get("request")
+        img = obj.image
+        if img and hasattr(img, 'url'):
+            return request.build_absolute_uri(img.url) if request else img.url
+        return None
 
     def get_similar_products(self, obj):
         products = (

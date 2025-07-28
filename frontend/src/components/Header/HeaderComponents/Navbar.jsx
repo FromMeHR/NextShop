@@ -12,7 +12,7 @@ import { RestorePasswordCompletionModal } from "../../Auth/RestorePassword/Resto
 import css from "./Navbar.module.css";
 
 export function Navbar(props) {
-  const { cart, totalQuantity } = useCart();
+  const { totalQuantity } = useCart();
   const { setIsOpen } = useBurgerMenu();
   const navigate = useNavigate();
   const [showCart, setShowCart] = useState(false);
@@ -66,7 +66,7 @@ export function Navbar(props) {
             <div
               id="cart-button"
               className={css["navbar-cart-button"]}
-              onClick={() => cart.length > 0 && setShowCart(true)}
+              onClick={() => setShowCart(true)}
             >
               <div className={css["cart-icon-wrapper"]}>
                 <img
