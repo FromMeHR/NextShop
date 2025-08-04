@@ -1,4 +1,5 @@
 import { useEffect, useState, createContext } from "react";
+import { PRODUCT_STOCK_STATUS } from "../constants/constants";
 import axios from "axios";
 
 export const CartContext = createContext();
@@ -6,8 +7,8 @@ export const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const outOfStockItems = cart.filter((item) => item.product_quantity === 0);
-  const inStockItems = cart.filter((item) => item.product_quantity > 0);
+  const outOfStockItems = cart.filter((item) => item.product_stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK);
+  const inStockItems = cart.filter((item) => item.product_stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK);
   const totalPrice = inStockItems.reduce(
     (sum, item) => sum + item.product_price * item.quantity,
     0

@@ -63,7 +63,7 @@ class CartList(ListCreateAPIView):
             cart_item.quantity = 1
             cart_item.save()
 
-        response.data = CartSerializer(cart).data
+        response.data = CartSerializer(cart, context={"request": request}).data
         response.status_code = status.HTTP_201_CREATED if item_created else status.HTTP_200_OK
         return response
 
@@ -139,7 +139,7 @@ class CartSyncView(APIView):
             .prefetch_related("cart_items__product")
             .first()
         )
-        response.data = CartSerializer(cart).data
+        response.data = CartSerializer(cart, context={"request": request}).data
         return response
 
     def delete(self, request, *args, **kwargs):

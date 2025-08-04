@@ -1,6 +1,11 @@
 import requests
+import json
+import base64
+import hashlib
+from ipware import get_client_ip
 from decouple import config
 from datetime import timedelta
+from pytz import timezone as tz
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.db import transaction
@@ -171,6 +176,7 @@ class CreateOrderView(APIView):
 
             order = Order.objects.create(
                 order_code=get_random_string(36),
+                secret_key=get_random_string(36),
                 user=request.user if request.user.is_authenticated else None,
                 delivery_user_name=data.get("name"),
                 delivery_user_surname=data.get("surname"),
@@ -181,7 +187,7 @@ class CreateOrderView(APIView):
                 delivery_warehouse=warehouse.name_ukr if data.get("selected_warehouse_ref") else None,
                 delivery_street=street.name if data.get("selected_street_ref") else None,
                 delivery_house=data.get("house"),
-                delivery_apartment = apartment,
+                delivery_apartment=apartment,
                 delivery_notes=data.get("comment"),
             )
 
@@ -217,13 +223,19 @@ class CreateOrderView(APIView):
             order.total_quantity = total_quantity
             order.total_weight = total_weight
 
+            redirect_url = (
+                f"http://{config("ALLOWED_ENV_HOST")}/profile/user-info" 
+                if request.user.is_authenticated 
+                else f"http://{config("ALLOWED_ENV_HOST")}/order/{order.order_code}"
+            )
+            host = (
+                config("NGROK_BACKEND_HOST")
+                if config("NGROK_BACKEND_HOST")
+                else config("ALLOWED_ENV_HOST")
+            )
+
             if data.get("selected_payment_method") == Payment.PLATA_BY_MONO:
-                host = (
-                    config("NGROK_BACKEND_HOST")
-                    if config("NGROK_BACKEND_HOST")
-                    else config("ALLOWED_ENV_HOST")
-                )
-                token = config("MONOBANK_TOKEN")
+                monobank_token = config("MONOBANK_TOKEN")
                 monobank_url = config("MONOBANK_API_URL")
 
                 basket_order = []
@@ -248,21 +260,15 @@ class CreateOrderView(APIView):
                         "header": product.name,
                     })
 
-                redirect_url = (
-                    f"http://{config("ALLOWED_ENV_HOST")}/profile/user-info" 
-                    if request.user.is_authenticated 
-                    else f"http://{config("ALLOWED_ENV_HOST")}/order/{order.order_code}"
-                )
-
-                web_hook_url = f"https://{host}/api/monobank/payment-status/?order_code={order.order_code}"
+                web_hook_url = f"https://{host}/api/monobank/payment-status/?secret_key={order.secret_key}"
 
                 payload = {
                     "amount": int(order.total_price * 100), # копійки
                     "ccy": 980,
                     "merchantPaymInfo": {
-                        "reference": f"{order.id}",
-                        "destination": f"Оплата за замовлення №{order.id} від {timezone.now().date()}",
-                        "comment": f"Оплата за замовлення №{order.id} від {timezone.now().date()}",
+                        "reference": str(order.order_code),
+                        "destination": f"Оплата за замовлення №{order.id} від {order.created_at.strftime("%d.%m.%Y")}",
+                        "comment": f"Оплата за замовлення №{order.id} від {order.created_at.strftime("%d.%m.%Y")}",
                         "basketOrder": basket_order,
                     },
                     "redirectUrl": redirect_url,
@@ -273,26 +279,115 @@ class CreateOrderView(APIView):
                     "displayType": None,
                 }
 
-                headers = {"X-Token": token}
+                headers = {
+                    "Content-Type": "application/json",
+                    "X-Token": monobank_token
+                }
 
-                response = requests.post(
-                    f"{monobank_url}/api/merchant/invoice/create", 
-                    json=payload,
-                    headers=headers,
-                    timeout=30,
-                )
-
-                result = response.json()
+                try:
+                    response = requests.post(
+                        f"{monobank_url}/api/merchant/invoice/create", 
+                        json=payload,
+                        headers=headers,
+                        timeout=30,
+                    )
+                    result = response.json()
+                except Exception:
+                    raise ValidationError("Помилка створення рахунку Monobank. Спробуйте пізніше.")
 
                 if response.status_code != 200 or not result.get("invoiceId") or not result.get("pageUrl"):
-                    raise ValidationError(
-                        result.get("errText", "Помилка створення рахунку в Monobank. Спробуйте пізніше.")
-                    )
+                    raise ValidationError("Помилка ініціалізації рахунку Monobank. Спробуйте пізніше.")
 
                 payment = Payment.objects.create(
                     name=Payment.PLATA_BY_MONO,
-                    invoice_id=result.get("invoiceId"),
                     forward_url=result.get("pageUrl"),
+                    status=Payment.CREATED,
+                    expires_at=order.created_at + timedelta(minutes=10),
+                )
+                order.payment = payment
+                order.save()
+            elif data.get("selected_payment_method") == Payment.EASYPAY:
+                easypay_url = config("EASYPAY_API_URL")
+                easypay_partner_key = config("EASYPAY_PARTNER_KEY")
+                easypay_service_key = config("EASYPAY_SERVICE_KEY")
+                easypay_secret_key = config("EASYPAY_SECRET_KEY")
+                easypay_locale = config("EASYPAY_LOCALE")
+
+                create_app_headers = {
+                    "Content-Type": "application/json",
+                    "PartnerKey": easypay_partner_key,
+                    "locale": easypay_locale,
+                }
+
+                try:
+                    app_resp = requests.post(
+                        f"{easypay_url}/api/system/createApp",
+                        headers=create_app_headers,
+                        timeout=30
+                    )
+                    app_data = app_resp.json()
+                except Exception:
+                    raise ValidationError("Помилка створення сесії Easypay. Спробуйте пізніше.")
+
+                app_id = app_data.get("appId")
+                page_id = app_data.get("pageId")
+
+                if not app_id or not page_id:
+                    raise ValidationError("Помилка ініціалізації EasyPay. Спробуйте пізніше.")
+
+                notify_url = f"https://{host}/api/easypay/payment-status/?secret_key={order.secret_key}"
+                expire_date = (order.created_at + timedelta(minutes=10)).isoformat()
+
+                order_payload = {
+                    "order": {
+                        "serviceKey": easypay_service_key,
+                        "orderId": str(order.order_code),
+                        "description": f"Оплата за замовлення №{order.id} від {order.created_at.strftime("%d.%m.%Y")}",
+                        "amount": float(round(order.total_price, 2)),
+                        "additionalItems": {
+                            "PayerEmail": data.get("email"),
+                            "Merchant.UrlNotify": notify_url,
+                        },
+                        "expire": expire_date,
+                        "isOneTimePay": True,
+                        "allowedInstruments": ["Card", "GooglePay", "ApplePay"],
+                    },
+                    "urls": {
+                        "success": redirect_url,
+                        "failed": redirect_url,
+                    }
+                }
+
+                json_body = json.dumps(order_payload, separators=(",", ":"))
+                sign_raw = (easypay_secret_key + json_body).encode("utf-8")
+                sign = base64.b64encode(hashlib.sha256(sign_raw).digest()).decode()
+
+                create_order_headers = {
+                    "Content-Type": "application/json",
+                    "AppId": app_id,
+                    "PageId": page_id,
+                    "PartnerKey": easypay_partner_key,
+                    "locale": easypay_locale,
+                    "Sign": sign,
+                }
+
+                try:
+                    resp = requests.post(
+                        f"{easypay_url}/api/merchant/createOrder",
+                        headers=create_order_headers,
+                        data=json_body,
+                        timeout=30,
+                    )
+                    result = resp.json()
+                except Exception:
+                    raise ValidationError("Помилка створення рахунку EasyPay. Спробуйте пізніше.")
+
+                if resp.status_code != 200 or not result.get("forwardUrl"):
+                    raise ValidationError("Помилка ініціалізації рахунку EasyPay. Спробуйте пізніше.")
+
+                payment = Payment.objects.create(
+                    name=Payment.EASYPAY,
+                    forward_url=result.get("forwardUrl"),
                     status=Payment.CREATED,
                     expires_at=order.created_at + timedelta(minutes=10),
                 )
@@ -320,9 +415,9 @@ class CreateOrderView(APIView):
 class MonobankPaymentStatusView(APIView):
     def post(self, request):
         data = request.data
-        order_code = request.query_params.get("order_code")
+        secret_key = request.query_params.get("secret_key")
 
-        if not order_code:
+        if not secret_key or not data.get("reference"):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
@@ -332,10 +427,10 @@ class MonobankPaymentStatusView(APIView):
                 .prefetch_related("order_items__product")
                 .select_for_update(of=("self", "payment"))
                 .exclude(payment=None).exclude(order_items=None),
-                order_code=order_code
+                order_code=data.get("reference")
             )
 
-            if order.payment.invoice_id != data.get("invoiceId"):
+            if order.secret_key != secret_key:
                 raise ValidationError("")
 
             payment = order.payment
@@ -349,31 +444,134 @@ class MonobankPaymentStatusView(APIView):
 
             new_status = data.get("status")
             modified_date_str = data.get("modifiedDate")
-            new_modified = parse_datetime(modified_date_str) if modified_date_str else None
+            new_modified = parse_datetime(modified_date_str).astimezone(tz("UTC")) if modified_date_str else None
 
             if payment.modified_date and new_modified and payment.modified_date >= new_modified:
                 return Response("Outdated webhook ignored", status=status.HTTP_200_OK)
 
-            if payment.status == Payment.SUCCESS:
-                return Response("Payment already marked as success", status=status.HTTP_200_OK)
+            if new_status == Payment.REVERSED and payment.status == Payment.SUCCESS:
+                for item in order.order_items.all():
+                    product = products.get(item.product.id)
+                    product.quantity = product.quantity + item.quantity
+                    product.save()
+                order.status = Order.DECLINED
+                order.save()
+                payment.status = Payment.REVERSED
+                payment.modified_date = new_modified
+                payment.save()
+                return Response(status=status.HTTP_200_OK)
+
+            if payment.status in [Payment.SUCCESS, Payment.REVERSED]:
+                return Response("Payment already processed", status=status.HTTP_200_OK)
+
+            if new_status == Payment.SUCCESS:
+                for item in order.order_items.all():
+                    product = products.get(item.product.id)
+                    if order.status != Order.PAYMENT_DECLINED:
+                        product.quantity_in_orders = max(product.quantity_in_orders - item.quantity, 0)
+                    product.quantity = max(product.quantity - item.quantity, 0)
+                    product.save()
+                order.status = Order.PREPARING
+                order.save()
 
             payment.status = new_status
             payment.modified_date = new_modified
             payment.payment_method = data.get("paymentInfo", {}).get("paymentMethod")
             payment.payment_system = data.get("paymentInfo", {}).get("paymentSystem")
+            payment.transaction_id = data.get("paymentInfo", {}).get("tranId")
             payment.error_code = data.get("errCode")
             payment.error_text = data.get("failureReason")
             payment.save()
+        return Response(status=status.HTTP_200_OK)
 
-            if new_status == Payment.SUCCESS:
-                order.status = Order.PAYMENT_CONFIRMED
-                order.save()
 
+class EasyPayPaymentStatusView(APIView):
+    def post(self, request):
+        ip, _ = get_client_ip(request)
+        if ip != config("EASYPAY_IP"):
+            return Response("Invalid IP", status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            raw_body = request.body.decode("utf-8")
+            data = request.data
+        except Exception:
+            return Response("Invalid body", status=status.HTTP_400_BAD_REQUEST)
+
+        easypay_secret_key = config("EASYPAY_SECRET_KEY")
+        sign_raw = (easypay_secret_key + raw_body).encode("utf-8")
+        expected_sign = base64.b64encode(hashlib.sha256(sign_raw).digest()).decode()
+
+        provided_sign = request.headers.get("Sign")
+        if not provided_sign or expected_sign != provided_sign:
+            return Response("Invalid signature", status=status.HTTP_403_FORBIDDEN)
+
+        secret_key = request.query_params.get("secret_key")
+        if not secret_key or not data.get("MerchantOrderId"):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            order = get_object_or_404(
+                Order.objects
+                .select_related("payment")
+                .prefetch_related("order_items__product")
+                .select_for_update(of=("self", "payment"))
+                .exclude(payment=None).exclude(order_items=None),
+                order_code=data.get("MerchantOrderId")
+            )
+
+            if order.secret_key != secret_key:
+                raise ValidationError("")
+
+            payment = order.payment
+            product_ids = [item.product.id for item in order.order_items.all() if item.product]
+            products = {
+                product.id: product for product in Product.objects
+                .prefetch_related("categories")
+                .select_for_update()
+                .filter(id__in=product_ids)
+            }
+
+            new_status = data.get("TransactionStatus")
+            modified_str = data.get("DateTime")
+            new_modified = parse_datetime(modified_str).astimezone(tz("UTC")) if modified_str else None
+
+            if payment.modified_date and new_modified and payment.modified_date >= new_modified:
+                return Response("Outdated notification", status=status.HTTP_200_OK)
+
+            if data.get("OperationType") != "Payment":
+                if data.get("OperationType") == "Refund" and payment.status == Payment.SUCCESS:
+                    for item in order.order_items.all():
+                        product = products.get(item.product.id)
+                        product.quantity = product.quantity + item.quantity
+                        product.save()
+                    order.status = Order.DECLINED
+                    order.save()
+                    payment.status = Payment.REVERSED
+                    payment.modified_date = new_modified
+                    payment.save()
+                    return Response(status=status.HTTP_200_OK)
+                raise ValidationError("")
+
+            if payment.status in [Payment.SUCCESS, Payment.REVERSED]:
+                return Response("Payment already processed", status=status.HTTP_200_OK)
+
+            if new_status == "Accepted":
                 for item in order.order_items.all():
                     product = products.get(item.product.id)
-                    product.quantity_in_orders = max(product.quantity_in_orders - item.quantity, 0)
+                    if order.status != Order.PAYMENT_DECLINED:
+                        product.quantity_in_orders = max(product.quantity_in_orders - item.quantity, 0)
                     product.quantity = max(product.quantity - item.quantity, 0)
                     product.save()
+                order.status = Order.PREPARING
+                order.save()
+
+            payment.status = Payment.SUCCESS if new_status == "Accepted" else Payment.FAILURE
+            payment.modified_date = new_modified
+            payment.payment_system = data.get("AdditionalItems", {}).get("Card.BrandType", "").lower()
+            payment.transaction_id = str(data.get("TransactionId"))
+            payment.error_code = data.get("AdditionalItems", {}).get("ErrorCode")
+            payment.error_text = data.get("AdditionalItems", {}).get("ErrorMessage")
+            payment.save()
         return Response(status=status.HTTP_200_OK)
 
 
@@ -383,5 +581,5 @@ class OrderDetailView(RetrieveAPIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         order = get_object_or_404(Order.objects.select_related("payment"), order_code=order_code)
-        serializer = OrderDetailSerializer(order)
+        serializer = OrderDetailSerializer(order, context={"request": request})
         return Response(serializer.data)

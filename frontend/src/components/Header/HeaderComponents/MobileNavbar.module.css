@@ -1,7 +1,7 @@
 .navbar-wrapper {
     background-color: var(--header-background-color);
     padding: 10px 20px 10px 20px;
-    box-shadow: 0px 0px 14px 5px var(--main-shadow-color);
+    box-shadow: 0 0 10px 1px var(--main-shadow-color);
 }
 
 .navbar-content-wrapper {

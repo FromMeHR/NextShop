@@ -15,6 +15,19 @@ export const PAGE_SIZE = {
 };
 export const DEFAULT_PAGE_SIZE = 16;
 
+export const PRODUCT_STOCK_STATUS = {
+  OUT_OF_STOCK: "out_of_stock",
+  FEW_ITEMS_LEFT: "few_items_left",
+  LOW_STOCK: "low_stock",
+  IN_STOCK: "in_stock",
+};
+export const PRODUCT_STOCK_STATUS_LABELS = {
+  [PRODUCT_STOCK_STATUS.OUT_OF_STOCK]: "Немає в наявності",
+  few_items_left: (qty) => `В наявності ${qty} шт`,
+  [PRODUCT_STOCK_STATUS.LOW_STOCK]: "Закінчується",
+  [PRODUCT_STOCK_STATUS.IN_STOCK]: "Є в наявності",
+};
+
 export const PAYMENT_NAME = {
   EASYPAY: "easypay",
   PLATA_BY_MONO: "plata_by_mono",
@@ -46,7 +59,6 @@ export const PAYMENT_SYSTEM = {
 };
 export const ORDER_STATUS = {
   AWAITING_PAYMENT: "awaiting_payment",
-  PAYMENT_CONFIRMED: "payment_confirmed",
   PAYMENT_DECLINED: "payment_declined",
   PREPARING: "preparing",
   SENT: "sent",

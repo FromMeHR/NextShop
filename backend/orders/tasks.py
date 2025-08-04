@@ -1,5 +1,6 @@
 from celery import shared_task
 from celery.exceptions import SoftTimeLimitExceeded
+from datetime import timedelta
 from django.utils import timezone
 from django.db import transaction
 from django.db.models import Q
@@ -12,16 +13,24 @@ from products.models import Product
 def check_expired_orders():
     try:
         with transaction.atomic():
+            now = timezone.now()
+            easypay_grace = now - timedelta(minutes=10)
             expired_orders = (
                 Order.objects
                 .select_related("payment")
                 .prefetch_related("order_items__product")
                 .select_for_update(of=("self", "payment"))
                 .exclude(payment=None).exclude(order_items=None)
+                .filter(status=Order.AWAITING_PAYMENT)
                 .filter(
-                    status=Order.AWAITING_PAYMENT,
-                    payment__expires_at__lt=timezone.now()
-                ).filter(
+                    (
+                        Q(payment__name=Payment.EASYPAY, payment__expires_at__lt=easypay_grace)
+                    ) |
+                    (
+                        ~Q(payment__name=Payment.EASYPAY) & Q(payment__expires_at__lt=now)
+                    )
+                )
+                .filter(
                     ~Q(payment__status=Payment.SUCCESS),
                     ~Q(payment__status=Payment.PROCESSING)
                 )

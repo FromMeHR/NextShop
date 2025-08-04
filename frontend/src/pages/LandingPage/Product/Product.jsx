@@ -1,5 +1,9 @@
 import { Link } from "react-router-dom";
 import { useCart } from "../../../hooks/useCart";
+import {
+  PRODUCT_STOCK_STATUS,
+  PRODUCT_STOCK_STATUS_LABELS,
+} from "../../../constants/constants";
 import css from "./Product.module.css";
 
 export function Product({ product }) {
@@ -9,12 +13,14 @@ export function Product({ product }) {
     <Link to={`/product-detail/${product.slug}`}>
       <div
         className={`${css["product-card"]} ${
-          product.quantity === 0 ? css["product-card-out-of-stock"] : ""
+          product.stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK
+            ? css["product-card-out-of-stock"]
+            : ""
         }`}
       >
         <div className={css["product-card-image-wrapper"]}>
           <img
-            src={`${product.image}`}
+            src={product.image}
             className={css["product-card-image"]}
             alt={product.name}
           />
@@ -22,7 +28,7 @@ export function Product({ product }) {
         <div className={css["product-card-body"]}>
           <p className={css["product-card-title"]}>{product.name}</p>
         </div>
-        {product.quantity > 0 ? (
+        {product.stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK ? (
           <div className={css["product-card-footer"]}>
             <p className={css["product-card-price"]}>
               {product.price} <span>₴</span>
@@ -43,7 +49,9 @@ export function Product({ product }) {
             </button>
           </div>
         ) : (
-          <p className={css["product-card-out-of-stock-text"]}>Відсутній в наявності</p>
+          <p className={css["product-card-out-of-stock-text"]}>
+            {PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
+          </p>
         )}
       </div>
     </Link>

@@ -11,6 +11,11 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    OUT_OF_STOCK = "out_of_stock"
+    FEW_ITEMS_LEFT = "few_items_left"
+    LOW_STOCK = "low_stock"
+    IN_STOCK = "in_stock"
+    
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True, blank=True, null=True)
     image = models.ImageField(
@@ -37,3 +42,13 @@ class Product(models.Model):
                 num += 1
             self.slug = unique_slug
         super().save(*args, **kwargs)
+
+    @property
+    def stock_status(self):
+        if self.quantity == 0:
+            return Product.OUT_OF_STOCK
+        elif self.quantity < 10:
+            return Product.FEW_ITEMS_LEFT
+        elif self.quantity < 20:
+            return Product.LOW_STOCK
+        return Product.IN_STOCK

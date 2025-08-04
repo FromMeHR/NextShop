@@ -6,6 +6,7 @@ from .views import (
     StreetListView,
     CreateOrderView,
     MonobankPaymentStatusView,
+    EasyPayPaymentStatusView,
     OrderDetailView
 )
 
@@ -19,4 +20,5 @@ urlpatterns = [
     path("create-order/", CreateOrderView.as_view(), name="create_order"),
     path("order/<str:order_code>/", OrderDetailView.as_view(), name="order_detail"),
     path("monobank/payment-status/", MonobankPaymentStatusView.as_view(), name="monobank_payment_status"),
+    path("easypay/payment-status/", EasyPayPaymentStatusView.as_view(), name="easypay_payment_status"),
 ]

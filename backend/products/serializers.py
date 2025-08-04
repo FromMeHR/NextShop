@@ -15,7 +15,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProductListSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     categories = CategorySerializer(many=True, read_only=True)
-    
+
     class Meta:
         model = Product
         fields = (
@@ -25,7 +25,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             "image",
             "description",
             "price",
-            "quantity",
+            "stock_status",
             "weight",
             "categories",
         )
@@ -42,7 +42,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     categories = CategorySerializer(many=True, read_only=True)
     similar_products = serializers.SerializerMethodField()
-    
+    quantity = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
         fields = (
@@ -52,6 +53,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "image",
             "description",
             "price",
+            "stock_status",
             "quantity",
             "categories",
             "similar_products",
@@ -63,6 +65,9 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         if img and hasattr(img, 'url'):
             return request.build_absolute_uri(img.url) if request else img.url
         return None
+
+    def get_quantity(self, obj):
+        return obj.quantity if obj.quantity < 10 else None
 
     def get_similar_products(self, obj):
         products = (

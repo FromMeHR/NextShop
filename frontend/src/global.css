@@ -13,11 +13,11 @@
 
   /* shadow color */
   --main-shadow-color: #000;
-  --product-card-shadow-color: rgba(0, 0, 0, 0.5);
+  --product-card-shadow-color: #d3d3d3;
   --back-to-top-shadow-color: rgba(0, 0, 0, 0.05);
   --auth-modal-tabs-shadow-color: #f1f1f1;
   --loader-shadow-color: #000;
-  --phone-input-country-list-shadow-color: rgba(0, 0, 0, 0.2);
+  --phone-input-country-list-shadow-color: #d3d3d3;
 
   /* border color */
   --border-color: #e3e3e3;
@@ -29,10 +29,14 @@
   --header-background-color: #000;
   --footer-background-color: #000;
   --modal-background-color: #fff;
-  --container-background-color: #767676;
+  --banner-background-color: #f8f9fa;
+  --error-page-background-color: #f8f9fa;
   --related-products-background-color: #f8f9fa;
   --product-card-background-color: #fff;
   --product-counter-background-color: #fff;
+  --product-out-of-stock-background-color: #F5F5F5;
+  --product-low-stock-background-color: #FFF7E9;
+  --product-in-stock-background-color: #F5F8E7;
   --label-background-color: #fff;
   --error-background-color: #FFF3F0;
   --red-error-background-color: red;
@@ -62,7 +66,9 @@
   --light-text-color: #fff;
   --link-text-color: #212529;
   --error-text-color: red;
-  --bunner-subtitle-text-color: #e3e3e3;
+  --product-out-of-stock-text-color: #707070;
+  --product-low-stock-text-color: #FFB628;
+  --product-in-stock-text-color: #94B80A;
 
   /* button color*/
   --main-button-color: #000;

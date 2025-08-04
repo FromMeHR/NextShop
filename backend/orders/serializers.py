@@ -72,7 +72,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.ReadOnlyField(source="product.name")
     product_slug = serializers.ReadOnlyField(source="product.slug")
     product_price = serializers.ReadOnlyField(source="product.price")
-    product_quantity = serializers.ReadOnlyField(source="product.quantity")
+    product_stock_status = serializers.ReadOnlyField(source="product.stock_status")
     product_weight = serializers.ReadOnlyField(source="product.weight")
     product_image = serializers.SerializerMethodField()
 
@@ -84,7 +84,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "product_name",
             "product_slug",
             "product_price",
-            "product_quantity",
+            "product_stock_status",
             "product_weight",
             "product_image",
             "quantity",

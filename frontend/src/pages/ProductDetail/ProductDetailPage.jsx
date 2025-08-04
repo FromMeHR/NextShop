@@ -5,6 +5,10 @@ import { Loader } from "../../components/Loader/Loader";
 import { ErrorPage404 } from "../ErrorPage/ErrorPage404";
 import { RelatedProducts } from "./RelatedProducts/RelatedProducts";
 import { useCart } from "../../hooks/useCart";
+import {
+  PRODUCT_STOCK_STATUS,
+  PRODUCT_STOCK_STATUS_LABELS,
+} from "../../constants/constants";
 import css from "./ProductDetailPage.module.css";
 
 const fetcher = async (url) => {
@@ -54,14 +58,26 @@ export function ProductDetailPage() {
                   <div className={css["product-detail__price"]}>
                     <span>{product.price} ₴</span>
                   </div>
-                  {product.quantity === 0 ? (
-                    <span className={css["product-detail__out-of-stock"]}>
-                      Відсутній в наявності
-                    </span>
+                  {product.stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK ? (
+                    <div
+                      className={`${css["product-detail__status"]} ${css["out-of-stock"]}`}
+                    >
+                      {PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
+                    </div>
                   ) : (
                     <>
-                      <div className={css["product-detail__availability"]}>
-                        <span>В наявності: {product.quantity}</span>
+                      <div
+                        className={`${css["product-detail__status"]} ${
+                          product.stock_status === PRODUCT_STOCK_STATUS.IN_STOCK
+                            ? css["in-stock"]
+                            : css["low-stock"]
+                        }`}
+                      >
+                        {product.stock_status === PRODUCT_STOCK_STATUS.FEW_ITEMS_LEFT
+                          ? PRODUCT_STOCK_STATUS_LABELS.few_items_left(
+                              product.quantity
+                            )
+                          : PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
                       </div>
                       <button
                         className={css["buy-now-button"]}

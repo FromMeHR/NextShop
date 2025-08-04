@@ -109,13 +109,13 @@ class Payment(models.Model):
     
     name = models.CharField(choices=NAME_CHOICES, blank=True, null=True)
     expires_at = models.DateTimeField()
-    invoice_id = models.CharField()
     forward_url = models.CharField()
     status = models.CharField(choices=STATUS_CHOICES, blank=True, null=True)
     payment_method = models.CharField(choices=PAYMENT_METHOD_CHOICES, blank=True, null=True)
     payment_system = models.CharField(choices=PAYMENT_SYSTEM_CHOICES, blank=True, null=True)
     modified_date = models.DateTimeField(blank=True, null=True)
-    error_code = models.PositiveSmallIntegerField(blank=True, null=True)
+    transaction_id = models.CharField(blank=True, null=True)
+    error_code = models.CharField(blank=True, null=True)
     error_text = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -124,7 +124,6 @@ class Payment(models.Model):
 
 class Order(models.Model):
     AWAITING_PAYMENT = "awaiting_payment"
-    PAYMENT_CONFIRMED = "payment_confirmed"
     PAYMENT_DECLINED = "payment_declined"
     PREPARING = "preparing"
     SENT = "sent"
@@ -134,7 +133,6 @@ class Order(models.Model):
     DECLINED = "declined"
     STATUS_CHOICES = [
         (AWAITING_PAYMENT, "Awaiting Payment"),
-        (PAYMENT_CONFIRMED, "Payment Confirmed"),
         (PAYMENT_DECLINED, "Payment Declined"),
         (PREPARING, "Preparing"),
         (SENT, "Sent"),
@@ -145,6 +143,7 @@ class Order(models.Model):
     ]
     
     order_code = models.CharField(max_length=36, unique=True, blank=True, null=True)
+    secret_key = models.CharField(max_length=36, unique=True, blank=True, null=True)
     status = models.CharField(choices=STATUS_CHOICES, default=AWAITING_PAYMENT)
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

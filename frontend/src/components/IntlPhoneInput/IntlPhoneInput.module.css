@@ -72,7 +72,7 @@
   max-width: 350px;
   max-height: 190px;
   border-radius: 10px;
-  box-shadow: 0 0 15px 1px var(--phone-input-country-list-shadow-color);
+  box-shadow: 0 0 10px 0 var(--phone-input-country-list-shadow-color);
   background-color: var(--phone-input-background-color);
   list-style: none;
   overflow-y: scroll;

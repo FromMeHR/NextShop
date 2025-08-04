@@ -4,11 +4,12 @@ import { useForm } from "react-hook-form";
 import {
   EMAIL_PATTERN,
   ALLOWED_NAME_SURNAME_SYMBOLS_PATTERN,
+  PRODUCT_STOCK_STATUS,
 } from "../../constants/constants";
 import { useCart } from "../../hooks/useCart";
 import { Loader } from "../../components/Loader/Loader";
 import { debounce } from "lodash";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { PAYMENT_NAME } from "../../constants/constants";
 import useSWR from "swr";
@@ -29,6 +30,8 @@ export function CheckoutPage() {
       null
   );
   const { cart, outOfStockItems, totalPrice, totalWeight, totalQuantity, isLoading } = useCart();
+
+  const navigate = useNavigate();
   
   const [cities, setCities] = useState([]);
   const [searchCity, setSearchCity] = useState("");
@@ -78,7 +81,7 @@ export function CheckoutPage() {
     clearErrors,
     watch,
     trigger,
-    formState: { errors, isSubmitted },
+    formState: { errors, isSubmitted, isSubmitting },
   } = useForm({ mode: "all" });
 
   useEffect(() => {
@@ -580,6 +583,7 @@ export function CheckoutPage() {
       selected_street_ref: selectedStreet?.ref,
       house: value.house.trim(),
       apartment: value.apartment.trim(),
+      comment: value.comment.trim(),
       selected_payment_method: selectedPaymentMethod.name,
     };
 
@@ -593,7 +597,7 @@ export function CheckoutPage() {
         const forwardUrl = resp.data?.forward_url;
         const redirectUrl = resp.data?.redirect_url;
         if (redirectUrl) {
-          window.history.replaceState(null, "", redirectUrl);
+          navigate(new URL(redirectUrl).pathname, { replace: true });
         }
         if (forwardUrl) {
           window.location.href = forwardUrl;
@@ -701,144 +705,146 @@ export function CheckoutPage() {
                       </div>
                     </div>
                   </div>
-                  <div className={css["checkout__сontent-wrapper"]}>
-                    <div className={css["checkout__сontent"]}>
-                      {(errors.surname ||
-                        errors.name ||
-                        errors.email ||
-                        ((phoneUnhovered || isSubmitted) && !isValidPhone)) && (
-                        <div className={css["checkout__msg-error"]}>
-                          {errorMessageTemplates.requiredContact}
-                        </div>
-                      )}
-                      <div className={css["checkout__сontent-subtitle"]}>
-                        Особисті дані
-                      </div>
-                      <div className={css["checkout__сontent-item"]}>
-                        <div
-                          className={classnames(css["form-floating"], {
-                            [css["has-error"]]: errors.surname,
-                          })}
-                        >
-                          <input
-                            id="form-surname"
-                            type="text"
-                            className={css["form-input"]}
-                            placeholder=""
-                            {...register("surname", {
-                              required: errorMessageTemplates.requiredContact,
-                              validate: validateNameSurname,
-                              onChange: (e) =>
-                                saveToLocalStorage("surname", e.target.value),
-                            })}
-                            maxLength={50}
-                          />
-                          <label htmlFor="form-surname">Прізвище</label>
-                        </div>
-                      </div>
-                      <div className={css["checkout__сontent-item"]}>
-                        <div
-                          className={classnames(css["form-floating"], {
-                            [css["has-error"]]: errors.name,
-                          })}
-                        >
-                          <input
-                            id="form-name"
-                            type="text"
-                            className={css["form-input"]}
-                            placeholder=""
-                            {...register("name", {
-                              required: errorMessageTemplates.requiredContact,
-                              validate: validateNameSurname,
-                              onChange: (e) =>
-                                saveToLocalStorage("name", e.target.value),
-                            })}
-                            maxLength={50}
-                          />
-                          <label htmlFor="form-name">Ім'я</label>
-                        </div>
-                      </div>
-                      <div className={css["checkout__сontent-subtitle"]}>
-                        Ваші контакти
-                      </div>
-                      <div className={css["checkout__сontent-item"]}>
-                        <div className={css["form-floating"]}>
-                          <PhoneInput
-                            onChange={handlePhoneChange}
-                            onChangeValidity={setIsValidPhone}
-                            localStorageNumberData={phoneData}
-                            country="ua"
-                            localization={ua}
-                            preferredCountries={["ua"]}
-                            excludeCountries={["ru"]}
-                            countryCodeEditable={false}
-                            enableSearch={true}
-                            enableTerritories={true}
-                            enableAreaCodes={true}
-                            inputError={
-                              (phoneUnhovered || isSubmitted) && !isValidPhone
-                            }
-                            inputProps={{
-                              id: "form-phone",
-                              onBlur: () => setPhoneUnhovered(true),
-                            }}
-                          />
-                          <label
-                            htmlFor="form-phone"
-                            className={css["form-phone-label"]}
-                          >
-                            Номер телефону
-                          </label>
-                          <div className={css["forms__row-text"]}>
-                            Номер для зв'язку з менеджером
-                          </div>
-                        </div>
-                      </div>
-                      <div className={css["checkout__сontent-item"]}>
-                        <div
-                          className={classnames(css["form-floating"], {
-                            [css["has-error"]]: errors.email,
-                          })}
-                        >
-                          <input
-                            id="form-email"
-                            type="email"
-                            className={css["form-input"]}
-                            placeholder=""
-                            {...register("email", {
-                              required: errorMessageTemplates.requiredContact,
-                              pattern: {
-                                value: EMAIL_PATTERN,
-                                message: errorMessageTemplates.requiredContact,
-                              },
-                              onChange: (e) =>
-                                saveToLocalStorage("email", e.target.value),
-                            })}
-                          />
-                          <label htmlFor="form-email">E-mail</label>
-                          <div className={css["forms__row-text"]}>
-                            E-mail для відстеження статусу замовлення
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        className={css["checkout__сontent-button"]}
-                        disabled={
-                          errors.surname ||
+                  <div className={css["checkout__section--content-wrapper"]}>
+                    <div className={css["checkout__section--content"]}>
+                      <div className={css["checkout__section--content-body"]}>
+                        {(errors.surname ||
                           errors.name ||
                           errors.email ||
-                          !isValidPhone
-                        }
-                        onClick={() =>
-                          handleToggleSection("contact") &&
-                          isValidSection("contact") &&
-                          !openedSections.includes("delivery") &&
-                          handleToggleSection("delivery")
-                        }
-                      >
-                        Обрати спосіб доставки
-                      </button>
+                          ((phoneUnhovered || isSubmitted) && !isValidPhone)) && (
+                          <div className={css["checkout__msg-error"]}>
+                            {errorMessageTemplates.requiredContact}
+                          </div>
+                        )}
+                        <div className={css["checkout__content-subtitle"]}>
+                          Особисті дані
+                        </div>
+                        <div className={css["checkout__content-item"]}>
+                          <div
+                            className={classnames(css["form-floating"], {
+                              [css["has-error"]]: errors.surname,
+                            })}
+                          >
+                            <input
+                              id="form-surname"
+                              type="text"
+                              className={css["form-input"]}
+                              placeholder=""
+                              {...register("surname", {
+                                required: errorMessageTemplates.requiredContact,
+                                validate: validateNameSurname,
+                                onChange: (e) =>
+                                  saveToLocalStorage("surname", e.target.value),
+                              })}
+                              maxLength={50}
+                            />
+                            <label htmlFor="form-surname">Прізвище</label>
+                          </div>
+                        </div>
+                        <div className={css["checkout__content-item"]}>
+                          <div
+                            className={classnames(css["form-floating"], {
+                              [css["has-error"]]: errors.name,
+                            })}
+                          >
+                            <input
+                              id="form-name"
+                              type="text"
+                              className={css["form-input"]}
+                              placeholder=""
+                              {...register("name", {
+                                required: errorMessageTemplates.requiredContact,
+                                validate: validateNameSurname,
+                                onChange: (e) =>
+                                  saveToLocalStorage("name", e.target.value),
+                              })}
+                              maxLength={50}
+                            />
+                            <label htmlFor="form-name">Ім'я</label>
+                          </div>
+                        </div>
+                        <div className={css["checkout__content-subtitle"]}>
+                          Ваші контакти
+                        </div>
+                        <div className={css["checkout__content-item"]}>
+                          <div className={css["form-floating"]}>
+                            <PhoneInput
+                              onChange={handlePhoneChange}
+                              onChangeValidity={setIsValidPhone}
+                              localStorageNumberData={phoneData}
+                              country="ua"
+                              localization={ua}
+                              preferredCountries={["ua"]}
+                              excludeCountries={["ru"]}
+                              countryCodeEditable={false}
+                              enableSearch={true}
+                              enableTerritories={true}
+                              enableAreaCodes={true}
+                              inputError={
+                                (phoneUnhovered || isSubmitted) && !isValidPhone
+                              }
+                              inputProps={{
+                                id: "form-phone",
+                                onBlur: () => setPhoneUnhovered(true),
+                              }}
+                            />
+                            <label
+                              htmlFor="form-phone"
+                              className={css["form-phone-label"]}
+                            >
+                              Номер телефону
+                            </label>
+                            <div className={css["forms__row-text"]}>
+                              Номер для зв'язку з менеджером
+                            </div>
+                          </div>
+                        </div>
+                        <div className={css["checkout__content-item"]}>
+                          <div
+                            className={classnames(css["form-floating"], {
+                              [css["has-error"]]: errors.email,
+                            })}
+                          >
+                            <input
+                              id="form-email"
+                              type="email"
+                              className={css["form-input"]}
+                              placeholder=""
+                              {...register("email", {
+                                required: errorMessageTemplates.requiredContact,
+                                pattern: {
+                                  value: EMAIL_PATTERN,
+                                  message: errorMessageTemplates.requiredContact,
+                                },
+                                onChange: (e) =>
+                                  saveToLocalStorage("email", e.target.value),
+                              })}
+                            />
+                            <label htmlFor="form-email">E-mail</label>
+                            <div className={css["forms__row-text"]}>
+                              E-mail для відстеження статусу замовлення
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className={css["checkout__content-button"]}
+                          disabled={
+                            errors.surname ||
+                            errors.name ||
+                            errors.email ||
+                            !isValidPhone
+                          }
+                          onClick={() =>
+                            handleToggleSection("contact") &&
+                            isValidSection("contact") &&
+                            !openedSections.includes("delivery") &&
+                            handleToggleSection("delivery")
+                          }
+                        >
+                          Обрати спосіб доставки
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -878,515 +884,510 @@ export function CheckoutPage() {
                           {selectedWarehouse.name_ukr}
                         </div>
                       )}
-                      {selectedStreet && getValues("house") && (
+                      {selectedStreet && getValues("house") && getValues("apartment") && (
                         <div className={css["checkout__header-selected-item"]}>
-                          {selectedStreet.name}, {getValues("house")}
+                          {`${selectedStreet.name}, ${getValues("house")}, 
+                            ${getValues("apartment")}`}
                         </div>
                       )}
                     </div>
                   </div>
-                  <div className={css["checkout__сontent-wrapper"]}>
-                    <div className={css["checkout__сontent"]}>
-                      {errors.delivery && (
-                        <div className={css["checkout__msg-error"]}>
-                          {errorMessageTemplates.requiredDelivery}
-                        </div>
-                      )}
-                      <div className={css["checkout__сontent-item"]}>
-                        <div
-                          className={`${css["checkout__select-box"]} ${
-                            dropdownCityPosition === "above"
-                              ? css["open-above"]
-                              : css["open-below"]
-                          } ${isDropdownCityOpen ? css["open"] : ""}`}
-                          onClick={() => setIsDropdownCityOpen((prev) => !prev)}
-                          ref={selectCityBoxRef}
-                        >
-                          <div className={css["checkout__selected-item"]}>
-                            {selectedCity
-                              ? selectedCity.name_ukr
-                              : "Виберіть місто"}
+                  <div className={css["checkout__section--content-wrapper"]}>
+                    <div className={css["checkout__section--content"]}>
+                      <div className={css["checkout__section--content-body"]}>
+                        {errors.delivery && (
+                          <div className={css["checkout__msg-error"]}>
+                            {errorMessageTemplates.requiredDelivery}
                           </div>
+                        )}
+                        <div className={css["checkout__content-item"]}>
                           <div
-                            className={`${css["checkout__select-arrow"]} ${
-                              isDropdownCityOpen ? css["open"] : ""
-                            }`}
-                          >
-                            <img
-                              src={`${process.env.REACT_APP_PUBLIC_URL}/svg/caret-down.svg`}
-                              alt="Arrow"
-                            />
-                          </div>
-                        </div>
-                        {ReactDOM.createPortal(
-                          <div
-                            className={`${css["checkout__dropdown"]} ${
+                            className={`${css["checkout__select-box"]} ${
                               dropdownCityPosition === "above"
                                 ? css["open-above"]
                                 : css["open-below"]
                             } ${isDropdownCityOpen ? css["open"] : ""}`}
-                            ref={dropdownCityRef}
+                            onClick={() => setIsDropdownCityOpen((prev) => !prev)}
+                            ref={selectCityBoxRef}
                           >
-                            <ul className={css["checkout__dropdown-results"]}>
-                              <li className={css["checkout__search-block"]}>
-                                <div
-                                  className={
-                                    css["checkout__search-img-wrapper"]
-                                  }
-                                >
-                                  <img
-                                    src={`${process.env.REACT_APP_PUBLIC_URL}/svg/search.svg`}
-                                    className="checkout__search-img"
-                                    alt="Search icon"
-                                  />
-                                </div>
-                                <input
-                                  className={css["checkout__search-input"]}
-                                  type="text"
-                                  placeholder="Пошук"
-                                  value={searchCity}
-                                  onChange={(e) =>
-                                    setSearchCity(e.target.value)
-                                  }
-                                />
-                              </li>
-                              {searchCity.length < 2 ? (
-                                <li className={css["search-results-message"]}>
-                                  Введіть два або більше символів
-                                </li>
-                              ) : (
-                                <>
-                                  {cities && cities.length > 0 ? (
-                                    <>
-                                      {citiesLoading && !citiesError && (
-                                        <li
-                                          className={
-                                            css["search-results-message"]
-                                          }
-                                        >
-                                          Пошук...
-                                        </li>
-                                      )}
-                                      {cities.map((city) => (
-                                        <li
-                                          key={city.ref}
-                                          className={css["search-results-item"]}
-                                          onClick={() => handleCitySelect(city)}
-                                        >
-                                          {city.name_ukr}
-                                        </li>
-                                      ))}
-                                    </>
-                                  ) : (
-                                    <li className={css["search-results-message"]}>
-                                      Не знайдено
-                                    </li>
-                                  )}
-                                </>
-                              )}
-                            </ul>
-                          </div>,
-                          document.body
-                        )}
-                        {!warehouseTypesLoading && !warehouseTypesError ? (
-                          <>
-                            <div className={css["checkout__сontent-subtitle"]}>
-                              Спосіб доставки
+                            <div className={css["checkout__selected-item"]}>
+                              {selectedCity
+                                ? selectedCity.name_ukr
+                                : "Виберіть місто"}
                             </div>
-                            {warehouseTypes &&
-                              warehouseTypes.length > 0 &&
-                              [
-                                ...new Map(
-                                  warehouseTypes.map((item) => [
-                                    item.delivery_type.id,
-                                    item.delivery_type,
-                                  ])
-                                ).values(),
-                              ].map((deliveryType) => (
-                                <React.Fragment key={deliveryType.id}>
+                            <div
+                              className={`${css["checkout__select-arrow"]} ${
+                                isDropdownCityOpen ? css["open"] : ""
+                              }`}
+                            >
+                              <img
+                                src={`${process.env.REACT_APP_PUBLIC_URL}/svg/caret-down.svg`}
+                                alt="Arrow"
+                              />
+                            </div>
+                          </div>
+                          {ReactDOM.createPortal(
+                            <div
+                              className={`${css["checkout__dropdown"]} ${
+                                dropdownCityPosition === "above"
+                                  ? css["open-above"]
+                                  : css["open-below"]
+                              } ${isDropdownCityOpen ? css["open"] : ""}`}
+                              ref={dropdownCityRef}
+                            >
+                              <ul className={css["checkout__dropdown-results"]}>
+                                <li className={css["checkout__search-block"]}>
                                   <div
-                                    className={`${
-                                      css["checkout__delivery-item"]
-                                    } ${
-                                      selectedDeliveryType === deliveryType.id
-                                        ? css["open"]
-                                        : ""
-                                    }`}
+                                    className={
+                                      css["checkout__search-img-wrapper"]
+                                    }
                                   >
-                                    <div 
-                                      className={css["checkout__delivery-item-header"]}
-                                      onClick={() =>
-                                        handleDeliveryItemClick(deliveryType.id)
-                                      }
+                                    <img
+                                      src={`${process.env.REACT_APP_PUBLIC_URL}/svg/search.svg`}
+                                      className="checkout__search-img"
+                                      alt="Search icon"
+                                    />
+                                  </div>
+                                  <input
+                                    className={css["checkout__search-input"]}
+                                    type="text"
+                                    placeholder="Пошук"
+                                    value={searchCity}
+                                    onChange={(e) =>
+                                      setSearchCity(e.target.value)
+                                    }
+                                  />
+                                </li>
+                                {searchCity.length < 2 ? (
+                                  <li className={css["search-results-message"]}>
+                                    Введіть два або більше символів
+                                  </li>
+                                ) : (
+                                  <>
+                                    {cities && cities.length > 0 ? (
+                                      <>
+                                        {citiesLoading && !citiesError && (
+                                          <li
+                                            className={
+                                              css["search-results-message"]
+                                            }
+                                          >
+                                            Пошук...
+                                          </li>
+                                        )}
+                                        {cities.map((city) => (
+                                          <li
+                                            key={city.ref}
+                                            className={css["search-results-item"]}
+                                            onClick={() => handleCitySelect(city)}
+                                          >
+                                            {city.name_ukr}
+                                          </li>
+                                        ))}
+                                      </>
+                                    ) : (
+                                      <li className={css["search-results-message"]}>
+                                        Не знайдено
+                                      </li>
+                                    )}
+                                  </>
+                                )}
+                              </ul>
+                            </div>,
+                            document.body
+                          )}
+                          {!warehouseTypesLoading && !warehouseTypesError ? (
+                            <>
+                              <div className={css["checkout__content-subtitle"]}>
+                                Спосіб доставки
+                              </div>
+                              {warehouseTypes &&
+                                warehouseTypes.length > 0 &&
+                                [
+                                  ...new Map(
+                                    warehouseTypes.map((item) => [
+                                      item.delivery_type.id,
+                                      item.delivery_type,
+                                    ])
+                                  ).values(),
+                                ].map((deliveryType) => (
+                                  <React.Fragment key={deliveryType.id}>
+                                    <div
+                                      className={`${
+                                        css["checkout__delivery-item"]
+                                      } ${
+                                        selectedDeliveryType === deliveryType.id
+                                          ? css["open"]
+                                          : ""
+                                      }`}
                                     >
-                                      <div className={css["checkout__delivery-item-column"]}>
-                                        <div className={css["checkout__delivery-item-title"]}>
-                                          {deliveryType.name}.
-                                          {deliveryType.id === 1 &&
-                                            ` Об'ємна вага: ${totalWeight.toFixed(2)} кг`}
+                                      <div 
+                                        className={css["checkout__delivery-item-header"]}
+                                        onClick={() =>
+                                          handleDeliveryItemClick(deliveryType.id)
+                                        }
+                                      >
+                                        <div className={css["checkout__delivery-item-column"]}>
+                                          <div className={css["checkout__delivery-item-title"]}>
+                                            {deliveryType.name}.
+                                            {deliveryType.id === 1 &&
+                                              ` Об'ємна вага: ${totalWeight.toFixed(2)} кг`}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className={css["checkout__delivery-item--content-wrapper"]}>
+                                        <div className={css["checkout__delivery-item--content"]}>
+                                          {deliveryType.id === 1 && (
+                                            <div className={css["checkout__delivery-item--content-body"]}>
+                                              <div className={css["checkout__content-subtitle"]}>
+                                                Виберіть оператора
+                                              </div>
+                                              <div className={css["checkout__delivery-box"]}>
+                                              {warehouseTypes
+                                                .filter((wt) => wt.delivery_type.id === deliveryType.id)
+                                                .map((warehouseType) => (
+                                                  <div 
+                                                    key={warehouseType.ref} 
+                                                    className={css["checkout__delivery-operator-wrapper"]}
+                                                  >
+                                                    <div
+                                                      key={warehouseType.ref}
+                                                      className={`${css["checkout__delivery-operator"]} ${
+                                                        selectedWarehouseType?.ref ===
+                                                        warehouseType.ref
+                                                          ? css["active"]
+                                                          : ""
+                                                      }`}
+                                                      onClick={() =>
+                                                        handleWarehouseTypeClick(warehouseType)
+                                                      }
+                                                    >
+                                                      {warehouseType.image && (
+                                                        <div
+                                                          className={css["checkout__delivery-operator-icon"]}
+                                                        >
+                                                          <img
+                                                            src={warehouseType.image}
+                                                            alt={warehouseType.name}
+                                                          />
+                                                        </div>
+                                                      )}
+                                                      <div
+                                                        className={css["checkout__delivery-operator-title"]}
+                                                      >
+                                                        {warehouseType.name}
+                                                      </div>
+                                                      <div className={css["checkout__delivery-operator-row"]}>
+                                                        <span
+                                                          className={css["checkout__delivery-operator-subtitle"]}
+                                                        >
+                                                          Ціна:
+                                                        </span>
+                                                        <span> від {warehouseType.min_delivery_price} грн</span>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                              {selectedWarehouseType && (
+                                                <>
+                                                <div className={css["checkout__content-subtitle"]}>
+                                                  Виберіть відділення/поштомат
+                                                </div>
+                                                <div
+                                                  className={`${css["checkout__select-box"]} ${
+                                                    dropdownWarehousePosition === "above"
+                                                      ? css["open-above"]
+                                                      : css["open-below"]
+                                                  } ${isDropdownWarehouseOpen ? css["open"] : ""}`}
+                                                  onClick={() => setIsDropdownWarehouseOpen((prev) => !prev)}
+                                                  ref={selectWarehouseBoxRef}
+                                                >
+                                                  <div className={css["checkout__selected-item"]}>
+                                                    {selectedWarehouse
+                                                      ? selectedWarehouse.name_ukr
+                                                      : "Не обрано"}
+                                                  </div>
+                                                  <div
+                                                    className={`${css["checkout__select-arrow"]} ${
+                                                      isDropdownWarehouseOpen ? css["open"] : ""
+                                                    }`}
+                                                  >
+                                                    <img
+                                                      src={`${process.env.REACT_APP_PUBLIC_URL}/svg/caret-down.svg`}
+                                                      alt="Arrow"
+                                                    />
+                                                  </div>
+                                                </div>
+                                                {ReactDOM.createPortal(
+                                                  <div
+                                                    className={`${css["checkout__dropdown"]} ${
+                                                      dropdownWarehousePosition === "above"
+                                                        ? css["open-above"]
+                                                        : css["open-below"]
+                                                    } ${isDropdownWarehouseOpen ? css["open"] : ""}`}
+                                                    ref={dropdownWarehouseRef}
+                                                  >
+                                                    <ul className={css["checkout__dropdown-results"]}>
+                                                      <li className={css["checkout__search-block"]}>
+                                                        <div
+                                                          className={
+                                                            css["checkout__search-img-wrapper"]
+                                                          }
+                                                        >
+                                                          <img
+                                                            src={`${process.env.REACT_APP_PUBLIC_URL}/svg/search.svg`}
+                                                            className="checkout__search-img"
+                                                            alt="Search icon"
+                                                          />
+                                                        </div>
+                                                        <input
+                                                          className={css["checkout__search-input"]}
+                                                          type="text"
+                                                          placeholder="Пошук"
+                                                          value={searchWarehouse}
+                                                          onChange={(e) =>
+                                                            handleWarehouseSearch(e.target.value)
+                                                          }
+                                                        />
+                                                      </li>
+                                                      {filteredWarehouses && filteredWarehouses.length > 0 ? (
+                                                        <>
+                                                          {filteredWarehouses.map((warehouse) => (
+                                                            <li
+                                                              key={warehouse.ref}
+                                                              className={css["search-results-item"]}
+                                                              onClick={() => handleWarehouseSelect(warehouse)}
+                                                            >
+                                                              {warehouse.name_ukr} <br/>
+                                                              {totalWeight > warehouse.max_weight_allowed && (
+                                                                <span className={css["search-results-item-error"]}>
+                                                                  вага замовлення більше ліміту видачі
+                                                                </span>
+                                                              )}
+                                                            </li>
+                                                          ))}
+                                                        </>
+                                                      ) : (
+                                                        <li className={css["search-results-message"]}>
+                                                          Не знайдено
+                                                        </li>
+                                                      )}
+                                                    </ul>
+                                                  </div>,
+                                                  document.body
+                                                )}
+                                                </>
+                                              )}
+                                              <button
+                                                type="button"
+                                                className={css["checkout__content-button"]}
+                                                disabled={errors.delivery}
+                                                onClick={() =>
+                                                  handleToggleSection("delivery") &&
+                                                  isValidSection("delivery") &&
+                                                  !openedSections.includes("payment") &&
+                                                  handleToggleSection("payment")
+                                                }
+                                              >
+                                                Обрати спосіб оплати
+                                              </button>
+                                            </div>
+                                          )}
+                                          {deliveryType.id === 2 && (
+                                            <div className={css["checkout__delivery-item--content-body"]}>
+                                              <div className={css["checkout__content-subtitle"]}>
+                                                Виберіть оператора
+                                              </div>
+                                              <div className={css["checkout__delivery-box"]}>
+                                              {warehouseTypes
+                                                .filter((wt) => wt.delivery_type.id === deliveryType.id)
+                                                .map((warehouseType) => (
+                                                  <div 
+                                                    key={warehouseType.ref} 
+                                                    className={css["checkout__delivery-operator-wrapper"]}
+                                                  >
+                                                    <div
+                                                      key={warehouseType.ref}
+                                                      className={`${css["checkout__delivery-operator"]} ${
+                                                        selectedWarehouseType?.ref ===
+                                                        warehouseType.ref
+                                                          ? css["active"]
+                                                          : ""
+                                                      }`}
+                                                      onClick={() =>
+                                                        handleWarehouseTypeClick(warehouseType)
+                                                      }
+                                                    >
+                                                      {warehouseType.image && (
+                                                        <div
+                                                          className={css["checkout__delivery-operator-icon"]}
+                                                        >
+                                                          <img
+                                                            src={warehouseType.image}
+                                                            alt={warehouseType.name}
+                                                          />
+                                                        </div>
+                                                      )}
+                                                      <div
+                                                        className={css["checkout__delivery-operator-title"]}
+                                                      >
+                                                        {warehouseType.name}
+                                                      </div>
+                                                      <div className={css["checkout__delivery-operator-row"]}>
+                                                        <span
+                                                          className={css["checkout__delivery-operator-subtitle"]}
+                                                        >
+                                                          Ціна:
+                                                        </span>
+                                                        <span> від {warehouseType.min_delivery_price} грн</span>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                              {selectedWarehouseType && (
+                                                <>
+                                                <div className={css["checkout__content-subtitle"]}>
+                                                  Адреса доставки
+                                                </div>
+                                                <div
+                                                  className={`${css["checkout__select-box"]} ${
+                                                    dropdownStreetPosition === "above"
+                                                      ? css["open-above"]
+                                                      : css["open-below"]
+                                                  } ${isDropdownStreetOpen ? css["open"] : ""}`}
+                                                  onClick={() => setIsDropdownStreetOpen((prev) => !prev)}
+                                                  ref={selectStreetBoxRef}
+                                                >
+                                                  <div className={css["checkout__selected-item"]}>
+                                                    {selectedStreet
+                                                      ? selectedStreet.name
+                                                      : "Не обрано"}
+                                                  </div>
+                                                  <div
+                                                    className={`${css["checkout__select-arrow"]} ${
+                                                      isDropdownStreetOpen ? css["open"] : ""
+                                                    }`}
+                                                  >
+                                                    <img
+                                                      src={`${process.env.REACT_APP_PUBLIC_URL}/svg/caret-down.svg`}
+                                                      alt="Arrow"
+                                                    />
+                                                  </div>
+                                                  <label className={css["select-street-label"]}>Вулиця</label>
+                                                </div>
+                                                {ReactDOM.createPortal(
+                                                  <div
+                                                    className={`${css["checkout__dropdown"]} ${
+                                                      dropdownStreetPosition === "above"
+                                                        ? css["open-above"]
+                                                        : css["open-below"]
+                                                    } ${isDropdownStreetOpen ? css["open"] : ""}`}
+                                                    ref={dropdownStreetRef}
+                                                  >
+                                                    <ul className={css["checkout__dropdown-results"]}>
+                                                      <li className={css["checkout__search-block"]}>
+                                                        <div
+                                                          className={
+                                                            css["checkout__search-img-wrapper"]
+                                                          }
+                                                        >
+                                                          <img
+                                                            src={`${process.env.REACT_APP_PUBLIC_URL}/svg/search.svg`}
+                                                            className="checkout__search-img"
+                                                            alt="Search icon"
+                                                          />
+                                                        </div>
+                                                        <input
+                                                          className={css["checkout__search-input"]}
+                                                          type="text"
+                                                          placeholder="Пошук"
+                                                          value={searchStreet}
+                                                          onChange={(e) =>
+                                                            handleStreetSearch(e.target.value)
+                                                          }
+                                                        />
+                                                      </li>
+                                                      {filteredStreets && filteredStreets.length > 0 ? (
+                                                        <>
+                                                          {filteredStreets.map((street) => (
+                                                            <li
+                                                              key={street.ref}
+                                                              className={css["search-results-item"]}
+                                                              onClick={() => handleStreetSelect(street)}
+                                                            >
+                                                              {street.name}
+                                                            </li>
+                                                          ))}
+                                                        </>
+                                                      ) : (
+                                                        <li className={css["search-results-message"]}>
+                                                          Не знайдено
+                                                        </li>
+                                                      )}
+                                                    </ul>
+                                                  </div>,
+                                                  document.body
+                                                )}
+                                                <div className={css["checkout__content-item"]}>
+                                                  <div className={css["checkout__street-subitems"]}>
+                                                    <div className={css["form-floating"]}>
+                                                      <input
+                                                        id="form-house"
+                                                        type="text"
+                                                        className={css["form-input"]}
+                                                        placeholder=""
+                                                        {...register("house")}
+                                                        maxLength={50}
+                                                      />
+                                                      <label htmlFor="form-house">Будинок</label>
+                                                    </div>
+                                                    <div className={css["form-floating"]}>
+                                                      <input
+                                                        id="form-apartment"
+                                                        type="text"
+                                                        className={css["form-input"]}
+                                                        placeholder=""
+                                                        {...register("apartment")}
+                                                        maxLength={50}
+                                                      />
+                                                      <label htmlFor="form-apartment">Квартира</label>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                </>
+                                              )}
+                                              <button
+                                                type="button"
+                                                className={css["checkout__content-button"]}
+                                                disabled={errors.delivery}
+                                                onClick={() => {
+                                                  handleToggleSection("delivery") &&
+                                                  isValidSection("delivery") &&
+                                                  !openedSections.includes("payment") &&
+                                                  handleToggleSection("payment")
+                                                }}
+                                              >
+                                                Обрати спосіб оплати
+                                              </button>
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
                                     <div
                                       className={
-                                        css["checkout__delivery-item-content-wrapper"]
+                                        css["checkout__delivery-item-line"]
                                       }
-                                    >
-                                      <div
-                                        className={
-                                          css["checkout__delivery-item-content"]
-                                        }
-                                      >
-                                        {deliveryType.id === 1 && (
-                                          <>
-                                            <div className={css["checkout__сontent-subtitle"]}>
-                                              Виберіть оператора
-                                            </div>
-                                            <div className={css["checkout__delivery-box"]}>
-                                            {warehouseTypes
-                                              .filter((wt) => wt.delivery_type.id === deliveryType.id)
-                                              .map((warehouseType) => (
-                                                <div 
-                                                  key={warehouseType.ref} 
-                                                  className={css["checkout__delivery-operator-wrapper"]}
-                                                >
-                                                  <div
-                                                    key={warehouseType.ref}
-                                                    className={`${css["checkout__delivery-operator"]} ${
-                                                      selectedWarehouseType?.ref ===
-                                                      warehouseType.ref
-                                                        ? css["active"]
-                                                        : ""
-                                                    }`}
-                                                    onClick={() =>
-                                                      handleWarehouseTypeClick(warehouseType)
-                                                    }
-                                                  >
-                                                    {warehouseType.image && (
-                                                      <div
-                                                        className={css["checkout__delivery-operator-icon"]}
-                                                      >
-                                                        <img
-                                                          src={warehouseType.image}
-                                                          alt={warehouseType.name}
-                                                        />
-                                                      </div>
-                                                    )}
-                                                    <div
-                                                      className={css["checkout__delivery-operator-title"]}
-                                                    >
-                                                      {warehouseType.name}
-                                                    </div>
-                                                    <div className={css["checkout__delivery-operator-row"]}>
-                                                      <span
-                                                        className={css["checkout__delivery-operator-subtitle"]}
-                                                      >
-                                                        Ціна:
-                                                      </span>
-                                                      <span> від {warehouseType.min_delivery_price} грн</span>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              ))}
-                                            </div>
-                                            {selectedWarehouseType && (
-                                              <>
-                                              <div className={css["checkout__сontent-subtitle"]}>
-                                                Виберіть відділення/поштомат
-                                              </div>
-                                              <div
-                                                className={`${css["checkout__select-box"]} ${
-                                                  dropdownWarehousePosition === "above"
-                                                    ? css["open-above"]
-                                                    : css["open-below"]
-                                                } ${isDropdownWarehouseOpen ? css["open"] : ""}`}
-                                                onClick={() => setIsDropdownWarehouseOpen((prev) => !prev)}
-                                                ref={selectWarehouseBoxRef}
-                                              >
-                                                <div className={css["checkout__selected-item"]}>
-                                                  {selectedWarehouse
-                                                    ? selectedWarehouse.name_ukr
-                                                    : "Не обрано"}
-                                                </div>
-                                                <div
-                                                  className={`${css["checkout__select-arrow"]} ${
-                                                    isDropdownWarehouseOpen ? css["open"] : ""
-                                                  }`}
-                                                >
-                                                  <img
-                                                    src={`${process.env.REACT_APP_PUBLIC_URL}/svg/caret-down.svg`}
-                                                    alt="Arrow"
-                                                  />
-                                                </div>
-                                              </div>
-                                              {ReactDOM.createPortal(
-                                                <div
-                                                  className={`${css["checkout__dropdown"]} ${
-                                                    dropdownWarehousePosition === "above"
-                                                      ? css["open-above"]
-                                                      : css["open-below"]
-                                                  } ${isDropdownWarehouseOpen ? css["open"] : ""}`}
-                                                  ref={dropdownWarehouseRef}
-                                                >
-                                                  <ul className={css["checkout__dropdown-results"]}>
-                                                    <li className={css["checkout__search-block"]}>
-                                                      <div
-                                                        className={
-                                                          css["checkout__search-img-wrapper"]
-                                                        }
-                                                      >
-                                                        <img
-                                                          src={`${process.env.REACT_APP_PUBLIC_URL}/svg/search.svg`}
-                                                          className="checkout__search-img"
-                                                          alt="Search icon"
-                                                        />
-                                                      </div>
-                                                      <input
-                                                        className={css["checkout__search-input"]}
-                                                        type="text"
-                                                        placeholder="Пошук"
-                                                        value={searchWarehouse}
-                                                        onChange={(e) =>
-                                                          handleWarehouseSearch(e.target.value)
-                                                        }
-                                                      />
-                                                    </li>
-                                                    {filteredWarehouses && filteredWarehouses.length > 0 ? (
-                                                      <>
-                                                        {filteredWarehouses.map((warehouse) => (
-                                                          <li
-                                                            key={warehouse.ref}
-                                                            className={css["search-results-item"]}
-                                                            onClick={() => handleWarehouseSelect(warehouse)}
-                                                          >
-                                                            {warehouse.name_ukr} <br/>
-                                                            {totalWeight > warehouse.max_weight_allowed && (
-                                                              <span className={css["search-results-item-error"]}>
-                                                                вага замовлення більше ліміту видачі
-                                                              </span>
-                                                            )}
-                                                          </li>
-                                                        ))}
-                                                      </>
-                                                    ) : (
-                                                      <li className={css["search-results-message"]}>
-                                                        Не знайдено
-                                                      </li>
-                                                    )}
-                                                  </ul>
-                                                </div>,
-                                                document.body
-                                              )}
-                                              </>
-                                            )}
-                                            <button
-                                              type="button"
-                                              className={css["checkout__сontent-button"]}
-                                              disabled={errors.delivery}
-                                              onClick={() =>
-                                                handleToggleSection("delivery") &&
-                                                isValidSection("delivery") &&
-                                                !openedSections.includes("payment") &&
-                                                handleToggleSection("payment")
-                                              }
-                                            >
-                                              Обрати спосіб оплати
-                                            </button>
-                                          </>
-                                        )}
-                                        {deliveryType.id === 2 && (
-                                          <>
-                                            <div className={css["checkout__сontent-subtitle"]}>
-                                              Виберіть оператора
-                                            </div>
-                                            <div className={css["checkout__delivery-box"]}>
-                                            {warehouseTypes
-                                              .filter((wt) => wt.delivery_type.id === deliveryType.id)
-                                              .map((warehouseType) => (
-                                                <div 
-                                                  key={warehouseType.ref} 
-                                                  className={css["checkout__delivery-operator-wrapper"]}
-                                                >
-                                                  <div
-                                                    key={warehouseType.ref}
-                                                    className={`${css["checkout__delivery-operator"]} ${
-                                                      selectedWarehouseType?.ref ===
-                                                      warehouseType.ref
-                                                        ? css["active"]
-                                                        : ""
-                                                    }`}
-                                                    onClick={() =>
-                                                      handleWarehouseTypeClick(warehouseType)
-                                                    }
-                                                  >
-                                                    {warehouseType.image && (
-                                                      <div
-                                                        className={css["checkout__delivery-operator-icon"]}
-                                                      >
-                                                        <img
-                                                          src={warehouseType.image}
-                                                          alt={warehouseType.name}
-                                                        />
-                                                      </div>
-                                                    )}
-                                                    <div
-                                                      className={css["checkout__delivery-operator-title"]}
-                                                    >
-                                                      {warehouseType.name}
-                                                    </div>
-                                                    <div className={css["checkout__delivery-operator-row"]}>
-                                                      <span
-                                                        className={css["checkout__delivery-operator-subtitle"]}
-                                                      >
-                                                        Ціна:
-                                                      </span>
-                                                      <span> від {warehouseType.min_delivery_price} грн</span>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              ))}
-                                            </div>
-                                            {selectedWarehouseType && (
-                                              <>
-                                              <div className={css["checkout__сontent-subtitle"]}>
-                                                Адреса доставки
-                                              </div>
-                                              <div
-                                                className={`${css["checkout__select-box"]} ${
-                                                  dropdownStreetPosition === "above"
-                                                    ? css["open-above"]
-                                                    : css["open-below"]
-                                                } ${isDropdownStreetOpen ? css["open"] : ""}`}
-                                                onClick={() => setIsDropdownStreetOpen((prev) => !prev)}
-                                                ref={selectStreetBoxRef}
-                                              >
-                                                <div className={css["checkout__selected-item"]}>
-                                                  {selectedStreet
-                                                    ? selectedStreet.name
-                                                    : "Не обрано"}
-                                                </div>
-                                                <div
-                                                  className={`${css["checkout__select-arrow"]} ${
-                                                    isDropdownStreetOpen ? css["open"] : ""
-                                                  }`}
-                                                >
-                                                  <img
-                                                    src={`${process.env.REACT_APP_PUBLIC_URL}/svg/caret-down.svg`}
-                                                    alt="Arrow"
-                                                  />
-                                                </div>
-                                                <label className={css["select-street-label"]}>Вулиця</label>
-                                              </div>
-                                              {ReactDOM.createPortal(
-                                                <div
-                                                  className={`${css["checkout__dropdown"]} ${
-                                                    dropdownStreetPosition === "above"
-                                                      ? css["open-above"]
-                                                      : css["open-below"]
-                                                  } ${isDropdownStreetOpen ? css["open"] : ""}`}
-                                                  ref={dropdownStreetRef}
-                                                >
-                                                  <ul className={css["checkout__dropdown-results"]}>
-                                                    <li className={css["checkout__search-block"]}>
-                                                      <div
-                                                        className={
-                                                          css["checkout__search-img-wrapper"]
-                                                        }
-                                                      >
-                                                        <img
-                                                          src={`${process.env.REACT_APP_PUBLIC_URL}/svg/search.svg`}
-                                                          className="checkout__search-img"
-                                                          alt="Search icon"
-                                                        />
-                                                      </div>
-                                                      <input
-                                                        className={css["checkout__search-input"]}
-                                                        type="text"
-                                                        placeholder="Пошук"
-                                                        value={searchStreet}
-                                                        onChange={(e) =>
-                                                          handleStreetSearch(e.target.value)
-                                                        }
-                                                      />
-                                                    </li>
-                                                    {filteredStreets && filteredStreets.length > 0 ? (
-                                                      <>
-                                                        {filteredStreets.map((street) => (
-                                                          <li
-                                                            key={street.ref}
-                                                            className={css["search-results-item"]}
-                                                            onClick={() => handleStreetSelect(street)}
-                                                          >
-                                                            {street.name}
-                                                          </li>
-                                                        ))}
-                                                      </>
-                                                    ) : (
-                                                      <li className={css["search-results-message"]}>
-                                                        Не знайдено
-                                                      </li>
-                                                    )}
-                                                  </ul>
-                                                </div>,
-                                                document.body
-                                              )}
-                                              <div className={css["checkout__сontent-item"]}>
-                                                <div className={css["checkout__street-subitems"]}>
-                                                  <div className={css["form-floating"]}>
-                                                    <input
-                                                      id="form-house"
-                                                      type="text"
-                                                      className={css["form-input"]}
-                                                      placeholder=""
-                                                      {...register("house")}
-                                                      maxLength={50}
-                                                    />
-                                                    <label htmlFor="form-house">Будинок</label>
-                                                  </div>
-                                                  <div className={css["form-floating"]}>
-                                                    <input
-                                                      id="form-apartment"
-                                                      type="text"
-                                                      className={css["form-input"]}
-                                                      placeholder=""
-                                                      {...register("apartment")}
-                                                      maxLength={50}
-                                                    />
-                                                    <label htmlFor="form-apartment">Квартира</label>
-                                                  </div>
-                                                </div>
-                                              </div>
-                                              </>
-                                            )}
-                                            <button
-                                              type="button"
-                                              className={css["checkout__сontent-button"]}
-                                              disabled={errors.delivery}
-                                              onClick={() => {
-                                                handleToggleSection("delivery") &&
-                                                isValidSection("delivery") &&
-                                                !openedSections.includes("payment") &&
-                                                handleToggleSection("payment")
-                                              }}
-                                            >
-                                              Обрати спосіб оплати
-                                            </button>
-                                          </>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div
-                                    className={
-                                      css["checkout__delivery-item-line"]
-                                    }
-                                  ></div>
-                                </React.Fragment>
-                              ))}
-                          </>
-                        ) : (
-                          <div>Завантаження...</div>
-                        )}
+                                    ></div>
+                                  </React.Fragment>
+                                ))}
+                            </>
+                          ) : (
+                            <div>Завантаження...</div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1407,7 +1408,7 @@ export function CheckoutPage() {
                     </div>
                     <div
                       className={`${css["checkout__header-selected-items"]} ${
-                        !openedSections.includes("payment")
+                        selectedPaymentMethod && !openedSections.includes("payment")
                           ? css["show"]
                           : ""
                       }`}
@@ -1419,115 +1420,106 @@ export function CheckoutPage() {
                       )}
                     </div>
                   </div>
-                  <div className={css["checkout__сontent-wrapper"]}>
-                    <div className={css["checkout__сontent"]}>
-                      {errors.payment && (
-                        <div className={css["checkout__msg-error"]}>
-                          {errorMessageTemplates.requiredPayment}
-                        </div>
-                      )}
-                      <div className={css["checkout__сontent-subtitle"]}>
-                        Спосіб оплати
-                      </div>
-                      <div
-                        className={`${css["checkout__delivery-item"]} ${
-                          selectedPaymentMethod?.name === PAYMENT_NAME.EASYPAY ? css["open"] : ""
-                        }`}
-                      >
-                        <div 
-                          className={css["checkout__delivery-item-header"]}
-                          onClick={() => {
-                            setSelectedPaymentMethod({
-                              name: PAYMENT_NAME.EASYPAY,
-                              description: "EasyPay (тільки картки українських банків)"
-                            });
-                            clearErrors("payment");
-                          }}
-                        >
-                          <div className={css["checkout__delivery-item-column"]}>
-                            <div className={css["checkout__delivery-item-title"]}>
-                              EasyPay (тільки картки українських банків)
-                            </div>
-                            <div className={css["checkout__delivery-item-subtitle"]}>
-                              Оплата картами MasterCard, Visa онлайн у EasyPay
-                            </div>
+                  <div className={css["checkout__section--content-wrapper"]}>
+                    <div className={css["checkout__section--content"]}>
+                      <div className={css["checkout__section--content-body"]}>
+                        {errors.payment && (
+                          <div className={css["checkout__msg-error"]}>
+                            {errorMessageTemplates.requiredPayment}
                           </div>
+                        )}
+                        <div className={css["checkout__content-subtitle"]}>
+                          Спосіб оплати
                         </div>
                         <div
-                          className={
-                            css["checkout__delivery-item-content-wrapper"]
-                          }
+                          className={`${css["checkout__payment-item"]} ${
+                            selectedPaymentMethod?.name === PAYMENT_NAME.EASYPAY ? css["open"] : ""
+                          }`}
                         >
-                          <div
-                            className={
-                              css["checkout__delivery-item-content"]
-                            }
+                          <div 
+                            className={css["checkout__payment-item-header"]}
+                            onClick={() => {
+                              setSelectedPaymentMethod({
+                                name: PAYMENT_NAME.EASYPAY,
+                                description: "EasyPay (тільки картки українських банків)"
+                              });
+                              clearErrors("payment");
+                            }}
                           >
-                            <button
-                              type="button"
-                              className={css["checkout__сontent-button"]}
-                              disabled={errors.payment}
-                              onClick={() => handleToggleSection("payment")}
-                            >
-                              Далі
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div className={css["checkout__delivery-item-line"]}></div>
-                      <div
-                        className={`${css["checkout__delivery-item"]} ${
-                          selectedPaymentMethod?.name === PAYMENT_NAME.PLATA_BY_MONO ? css["open"] : ""
-                        }`}
-                      >
-                        <div 
-                          className={css["checkout__delivery-item-header"]}
-                          onClick={() => {
-                            setSelectedPaymentMethod({
-                              name: PAYMENT_NAME.PLATA_BY_MONO,
-                              description: "plata by mono"
-                            })
-                            clearErrors("payment");
-                          }}
-                        >
-                          <div className={css["checkout__delivery-item-column"]}>
-                            <div className={css["checkout__delivery-item-title"]}>
-                              plata by mono
+                            <div className={css["checkout__payment-item-column"]}>
+                              <div className={css["checkout__payment-item-title"]}>
+                                EasyPay (тільки картки українських банків)
+                              </div>
+                              <div className={css["checkout__payment-item-subtitle"]}>
+                                Оплата картами MasterCard, Visa, ApplePay, GooglePay
+                                онлайн у EasyPay
+                              </div>
                             </div>
-                            <div className={css["checkout__delivery-item-subtitle"]}>
-                              Оплата картами MasterCard, Visa, ApplePay, GooglePay
-                              онлайн у Mono
+                          </div>
+                          <div className={css["checkout__payment-item--content-wrapper"]}>
+                            <div className={css["checkout__payment-item--content"]}>
+                              <div className={css["checkout__payment-item--content-body"]}>
+                                <button
+                                  type="button"
+                                  className={css["checkout__content-button"]}
+                                  disabled={errors.payment}
+                                  onClick={() => handleToggleSection("payment")}
+                                >
+                                  Далі
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
+                        <div className={css["checkout__payment-item-line"]}></div>
                         <div
-                          className={
-                            css["checkout__delivery-item-content-wrapper"]
-                          }
+                          className={`${css["checkout__payment-item"]} ${
+                            selectedPaymentMethod?.name === PAYMENT_NAME.PLATA_BY_MONO ? css["open"] : ""
+                          }`}
                         >
-                          <div
-                            className={
-                              css["checkout__delivery-item-content"]
-                            }
+                          <div 
+                            className={css["checkout__payment-item-header"]}
+                            onClick={() => {
+                              setSelectedPaymentMethod({
+                                name: PAYMENT_NAME.PLATA_BY_MONO,
+                                description: "plata by mono"
+                              })
+                              clearErrors("payment");
+                            }}
                           >
-                            <button
-                              type="button"
-                              className={css["checkout__сontent-button"]}
-                              disabled={errors.payment}
-                              onClick={() => 
-                                handleToggleSection("payment")
-                              }
-                            >
-                              Далі
-                            </button>
+                            <div className={css["checkout__payment-item-column"]}>
+                              <div className={css["checkout__payment-item-title"]}>
+                                plata by mono
+                              </div>
+                              <div className={css["checkout__payment-item-subtitle"]}>
+                                Оплата картами MasterCard, Visa, ApplePay, GooglePay
+                                онлайн у Mono
+                              </div>
+                            </div>
+                          </div>
+                          <div className={css["checkout__payment-item--content-wrapper"]}>
+                            <div className={css["checkout__payment-item--content"]}>
+                              <div className={css["checkout__payment-item--content-body"]}>
+                                <button
+                                  type="button"
+                                  className={css["checkout__content-button"]}
+                                  disabled={errors.payment}
+                                  onClick={() => 
+                                    handleToggleSection("payment")
+                                  }
+                                >
+                                  Далі
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
+                        <div className={css["checkout__payment-item-line"]}></div>
                       </div>
-                      <div className={css["checkout__delivery-item-line"]}></div>
                     </div>
                   </div>
                 </div>
-                <div className={css["checkout__сontent"]}>
+                <div className={css["checkout__section--content-body"]}>
                   <div className={css["form-floating"]}>
                     <textarea
                       id="checkout-comment"
@@ -1597,7 +1589,7 @@ export function CheckoutPage() {
                               <div className={css["cart__product-column__row"]}>
                                 <div className={css["cart__product-price"]}>
                                   <span>
-                                    {item.product_quantity > 0
+                                    {item.product_stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK
                                       ? `${item.quantity > 1 ? `${item.quantity} x` : ""} ${item.product_price} ₴`
                                       : "- ₴"}
                                   </span>
@@ -1651,8 +1643,8 @@ export function CheckoutPage() {
                   </div>
                   <button 
                     type="submit"
-                    disabled={outOfStockItems.length > 0}
-                    className={`${css["checkout__сontent-button"]} ${css["full"]}`}
+                    disabled={isSubmitting || outOfStockItems.length > 0}
+                    className={`${css["checkout__content-button"]} ${css["full"]}`}
                   >
                     Підтвердити замовлення
                   </button>

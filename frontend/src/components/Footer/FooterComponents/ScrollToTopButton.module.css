@@ -1,6 +1,6 @@
 .btn_back-to-top {
     position: fixed;
-    box-shadow: 0 14px 25px var(--back-to-top-shadow-color);
+    box-shadow: 0 5px 10px 0 var(--back-to-top-shadow-color);
     width: 60px;
     height: 60px;
     border-radius: 50%;

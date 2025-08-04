@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { debounce } from "lodash";
 import { useCart } from "../../hooks/useCart";
 import { useModal } from "../../hooks/useModal";
+import { PRODUCT_STOCK_STATUS } from "../../constants/constants";
 import ReactDOM from "react-dom";
 import css from "./CartModal.module.css";
 
@@ -18,6 +20,9 @@ export function CartModal({ show, handleClose }) {
   } = useCart();
   const { setOverlayVisible } = useModal();
   const [isVisible, setIsVisible] = useState(false);
+  const [quantities, setQuantities] = useState({});
+  const debouncedMap = useRef(new Map());
+  const updateQueue = useRef(Promise.resolve());
 
   useEffect(() => {
     setIsVisible(show);
@@ -29,6 +34,36 @@ export function CartModal({ show, handleClose }) {
       handleClose();
     }
   }, [isLoading, cart, handleClose]);
+
+  useEffect(() => {
+    const newQuantities = {};
+    cart.forEach((item) => {
+      newQuantities[item.id] = item.quantity;
+    });
+    setQuantities(newQuantities);
+  }, [cart]);
+
+  const enqueueUpdate = useCallback((itemId, quantity, prevQuantity) => {
+    updateQueue.current = updateQueue.current.then(() =>
+      updateCartItem(itemId, quantity, prevQuantity)
+    );
+  }, [updateCartItem]);
+
+  const handleQuantityChange = useCallback((itemId, newQuantity, prevQuantity) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [itemId]: newQuantity,
+    }));
+
+    if (!debouncedMap.current.has(itemId)) {
+      const debouncedFn = debounce((qty, prevQty) => {
+        enqueueUpdate(itemId, qty, prevQty);
+      }, 500);
+      debouncedMap.current.set(itemId, debouncedFn);
+    }
+
+    debouncedMap.current.get(itemId)(newQuantity, prevQuantity);
+  }, [enqueueUpdate]);
 
   return ReactDOM.createPortal(
     <div
@@ -102,32 +137,30 @@ export function CartModal({ show, handleClose }) {
                               className={css["product-counter__btn_subtract"]}
                               alt="Minus"
                               onClick={() => {
-                                updateCartItem(
-                                  item.id,
-                                  Math.max(item.quantity - 1, 1),
-                                  item.quantity
-                                );
+                                const newQty = Math.max((quantities[item.id] || item.quantity) - 1, 1);
+                                handleQuantityChange(item.id, newQty, item.quantity);
                               }}
                             />
                             <input
                               className={css["product-counter__input"]}
                               type="text"
                               readOnly
-                              value={item.quantity}
+                              value={quantities[item.id] ?? item.quantity}
                             />
                             <img
                               src={`${process.env.REACT_APP_PUBLIC_URL}/svg/plus.svg`}
                               className={css["product-counter__btn_add"]}
                               alt="Plus"
                               onClick={() => {
-                                updateCartItem(item.id, item.quantity + 1);
+                                const newQty = (quantities[item.id] || item.quantity) + 1;
+                                handleQuantityChange(item.id, newQty, item.quantity);
                               }}
                             />
                           </div>
                           <div className={css["cart-page__product-price"]}>
                             <span>
-                              {item.product_quantity > 0
-                                ? `${item.product_price * item.quantity} ₴`
+                              {item.product_stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK
+                                ? `${item.product_price * (quantities[item.id] || item.quantity)} ₴`
                                 : "- ₴"}
                             </span>
                           </div>

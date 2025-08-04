@@ -56,15 +56,27 @@
     margin-bottom: 10px;
 }
 
-.product-detail__availability {
+.product-detail__status {
+    width: fit-content;
     font-size: 0.875rem;
-    color: var(--secondary-text-color);
+    font-weight: 600;
+    padding: 1px 5px;
     margin-bottom: 20px;
 }
 
-.product-detail__out-of-stock {
-    font-size: 1rem;
-    color: var(--error-text-color);
+.product-detail__status.out-of-stock {
+    background-color: var(--product-out-of-stock-background-color);
+    color: var(--product-out-of-stock-text-color);
+}
+
+.product-detail__status.low-stock {
+    background-color: var(--product-low-stock-background-color);
+    color: var(--product-low-stock-text-color);
+}
+
+.product-detail__status.in-stock {
+    background-color: var(--product-in-stock-background-color);
+    color: var(--product-in-stock-text-color);
 }
 
 .buy-now-button {
