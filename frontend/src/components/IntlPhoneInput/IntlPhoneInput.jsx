@@ -262,8 +262,8 @@ class PhoneInput extends React.Component {
         ? rect.bottom
         : rect.top - dropdownHeight - 7;
 
-    this.dropdownRef.style.top = `${top + window.scrollY}px`;
-    this.dropdownRef.style.left = `${rect.left + window.scrollX}px`;
+    this.dropdownRef.style.top = `${top}px`;
+    this.dropdownRef.style.left = `${rect.left}px`;
     this.dropdownRef.style.width = `${rect.width}px`;
   };
 

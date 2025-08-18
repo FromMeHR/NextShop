@@ -63,12 +63,10 @@
   border-bottom: 4px solid var(--phone-input-arrow-border-color);
 }
 
-.country-list:not(.open) {
-  top: -100% !important;
-}
-
 .country-list {
-  position: absolute;
+  position: fixed;
+  top: 0;
+  left: 0;
   max-width: 350px;
   max-height: 190px;
   border-radius: 10px;

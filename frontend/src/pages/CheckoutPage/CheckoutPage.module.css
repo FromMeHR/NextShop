@@ -412,12 +412,10 @@
     height: 18px;
 }
 
-.checkout__dropdown:not(.open) {
-    top: -100% !important;
-}
-
 .checkout__dropdown {
-    position: absolute;
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 250px;
     background-color: white;
     border: 1px solid var(--grey-border-color);

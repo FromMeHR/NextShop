@@ -277,8 +277,8 @@ export function CheckoutPage() {
     const top =
       resolvedPosition === "above" ? rect.top - dropdownHeight : rect.bottom;
 
-    dropdownCityRef.current.style.top = `${top + window.scrollY}px`;
-    dropdownCityRef.current.style.left = `${rect.left + window.scrollX}px`;
+    dropdownCityRef.current.style.top = `${top}px`;
+    dropdownCityRef.current.style.left = `${rect.left}px`;
     dropdownCityRef.current.style.width = `${rect.width}px`;
   }, [cities, citiesLoading, dropdownCityPosition]);
 
@@ -419,8 +419,8 @@ export function CheckoutPage() {
     const top =
       dropdownPosition === "above" ? rect.top - dropdownHeight : rect.bottom;
 
-    dropdownWarehouseRef.current.style.top = `${top + window.scrollY}px`;
-    dropdownWarehouseRef.current.style.left = `${rect.left + window.scrollX}px`;
+    dropdownWarehouseRef.current.style.top = `${top}px`;
+    dropdownWarehouseRef.current.style.left = `${rect.left}px`;
     dropdownWarehouseRef.current.style.width = `${rect.width}px`;
   }, []);
 
@@ -519,8 +519,8 @@ export function CheckoutPage() {
     const top =
       dropdownPosition === "above" ? rect.top - dropdownHeight : rect.bottom;
 
-    dropdownStreetRef.current.style.top = `${top + window.scrollY}px`;
-    dropdownStreetRef.current.style.left = `${rect.left + window.scrollX}px`;
+    dropdownStreetRef.current.style.top = `${top}px`;
+    dropdownStreetRef.current.style.left = `${rect.left}px`;
     dropdownStreetRef.current.style.width = `${rect.width}px`;
   }, []);
 
