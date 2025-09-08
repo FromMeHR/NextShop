@@ -13,13 +13,13 @@ export function RestorePasswordSendEmailModal({
   handleClose,
   handleOpenRestorePasswordCompletion,
 }) {
-  const { setOverlayVisible } = useModal();
+  const { showOverlay, hideOverlay } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-    setOverlayVisible(show);
-  }, [show, setOverlayVisible]);
+    show ? showOverlay() : hideOverlay();
+  }, [show, showOverlay, hideOverlay]);
 
   const errorMessageTemplates = {
     required: "Обов'язкове поле",
@@ -42,7 +42,7 @@ export function RestorePasswordSendEmailModal({
     })
       .then(() => {
         handleClose();
-        setTimeout(() => handleOpenRestorePasswordCompletion(), 1);
+        handleOpenRestorePasswordCompletion();
       })
       .catch(() => {
         toast.error(

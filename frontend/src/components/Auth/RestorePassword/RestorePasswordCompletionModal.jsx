@@ -8,13 +8,13 @@ export function RestorePasswordCompletionModal({
   handleClose,
   handleOpenAuth,
 }) {
-  const { setOverlayVisible } = useModal();
+  const { showOverlay, hideOverlay } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-    setOverlayVisible(show);
-  }, [show, setOverlayVisible]);
+    show ? showOverlay() : hideOverlay();
+  }, [show, showOverlay, hideOverlay]);
 
   return ReactDOM.createPortal(
     <div
@@ -44,7 +44,7 @@ export function RestorePasswordCompletionModal({
               className={css["return-to-sign-in-btn"]}
               onClick={() => {
                 handleClose();
-                setTimeout(() => handleOpenAuth(), 1);
+                handleOpenAuth();
               }}
             >
               Перейти до входу

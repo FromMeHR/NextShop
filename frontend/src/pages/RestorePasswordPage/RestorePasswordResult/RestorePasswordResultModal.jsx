@@ -8,13 +8,13 @@ export function RestorePasswordResultModal({
   restorePasswordStatus,
   handleClose,
 }) {
-  const { setOverlayVisible } = useModal();
+  const { showOverlay, hideOverlay } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-    setOverlayVisible(show);
-  }, [show, setOverlayVisible]);
+    show ? showOverlay() : hideOverlay();
+  }, [show, showOverlay, hideOverlay]);
 
   return ReactDOM.createPortal(
     <div
@@ -50,7 +50,7 @@ export function RestorePasswordResultModal({
               className={css["return-to-sign-in-btn"]}
               onClick={() => {
                 handleClose();
-                setTimeout(() => document.getElementById("user-button").click(), 1);
+                document.getElementById("user-button").click();
               }}
             >
               Перейти до входу

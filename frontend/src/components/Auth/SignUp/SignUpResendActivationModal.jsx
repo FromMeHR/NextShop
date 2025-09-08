@@ -13,13 +13,13 @@ export function SignUpResendActivationModal({
   handleClose,
   handleOpenAuth,
 }) {
-  const { setOverlayVisible } = useModal();
+  const { showOverlay, hideOverlay } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-    setOverlayVisible(show);
-  }, [show, setOverlayVisible]);
+    show ? showOverlay() : hideOverlay();
+  }, [show, showOverlay, hideOverlay]);
 
   const errorMessageTemplates = {
     required: "Обов'язкове поле",
@@ -42,7 +42,7 @@ export function SignUpResendActivationModal({
     })
       .then(() => {
         handleClose();
-        setTimeout(() => handleOpenAuth(), 1);
+        handleOpenAuth();
       })
       .catch(() => {
         toast.error("Не вдалося надіслати лист. Спробуйте пізніше.");

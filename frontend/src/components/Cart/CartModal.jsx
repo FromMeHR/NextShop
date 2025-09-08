@@ -18,7 +18,7 @@ export function CartModal({ show, handleClose }) {
     deleteCartItem,
     totalQuantity,
   } = useCart();
-  const { setOverlayVisible } = useModal();
+  const { showOverlay, hideOverlay } = useModal();
   const [isVisible, setIsVisible] = useState(false);
   const [quantities, setQuantities] = useState({});
   const debouncedMap = useRef(new Map());
@@ -26,8 +26,8 @@ export function CartModal({ show, handleClose }) {
 
   useEffect(() => {
     setIsVisible(show);
-    setOverlayVisible(show);
-  }, [show, setOverlayVisible]);
+    show ? showOverlay() : hideOverlay();
+  }, [show, showOverlay, hideOverlay]);
 
   useEffect(() => {
     if (!isLoading && cart.length === 0) {

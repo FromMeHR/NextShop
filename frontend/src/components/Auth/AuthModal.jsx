@@ -25,15 +25,15 @@ export function AuthModal({
 }) {
   const { login } = useAuth();
   const { setCart } = useCart();
-  const { setOverlayVisible } = useModal();
+  const { showOverlay, hideOverlay } = useModal();
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [activeForm, setActiveForm] = useState("signIn");
 
   useEffect(() => {
     setIsVisible(show);
-    setOverlayVisible(show);
-  }, [show, setOverlayVisible]);
+    show ? showOverlay() : hideOverlay();
+  }, [show, showOverlay, hideOverlay]);
 
   const toggleForm = (form) => {
     setActiveForm(form);
@@ -94,7 +94,7 @@ export function AuthModal({
             resp.email_not_verified[0] === "E-mail verification required"
           ) {
             handleClose();
-            setTimeout(() => handleOpenSignUpCompletion(), 1);
+            handleOpenSignUpCompletion();
           }
           if (
             resp.non_field_errors &&
@@ -171,7 +171,7 @@ export function AuthModal({
     })
       .then(() => {
         handleClose();
-        setTimeout(() => handleOpenSignUpCompletion(), 1);
+        handleOpenSignUpCompletion();
       })
       .catch((error) => {
         if (error.response && error.response.status === 400) {
@@ -292,7 +292,7 @@ export function AuthModal({
                       className={css["forgot-password"]}
                       onClick={() => {
                         handleClose();
-                        setTimeout(() => handleOpenRestorePasswordSendEmail(), 1);
+                        handleOpenRestorePasswordSendEmail();
                       }}
                     >
                       Забув пароль

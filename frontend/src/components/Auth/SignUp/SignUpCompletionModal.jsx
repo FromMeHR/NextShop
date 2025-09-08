@@ -9,13 +9,13 @@ export function SignUpCompletionModal({
   handleOpenAuth,
   handleOpenSignUpResendActivation,
 }) {
-  const { setOverlayVisible } = useModal();
+  const { showOverlay, hideOverlay } = useModal();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(show);
-    setOverlayVisible(show);
-  }, [show, setOverlayVisible]);
+    show ? showOverlay() : hideOverlay();
+  }, [show, showOverlay, hideOverlay]);
 
   return ReactDOM.createPortal(
     <div
@@ -47,7 +47,7 @@ export function SignUpCompletionModal({
               className={css["return-to-sign-in-btn"]}
               onClick={() => {
                 handleClose();
-                setTimeout(() => handleOpenAuth(), 1);
+                handleOpenAuth();
               }}
             >
               Перейти до входу
@@ -58,7 +58,7 @@ export function SignUpCompletionModal({
                 className={css["resend-line-btn"]}
                 onClick={() => {
                   handleClose();
-                  setTimeout(() => handleOpenSignUpResendActivation(), 1);
+                  handleOpenSignUpResendActivation();
                 }}
               >
                 Надіслати повторно
