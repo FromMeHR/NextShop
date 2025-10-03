@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import css from "./ScrollToTopButton.module.css";
 
@@ -27,7 +29,7 @@ export function ScrollToTopButton() {
       onClick={scrollToTop}
     >
       <img
-        src={`${process.env.REACT_APP_PUBLIC_URL}/svg/up.svg`}
+        src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`}
         alt="Back to top"
       />
     </button>

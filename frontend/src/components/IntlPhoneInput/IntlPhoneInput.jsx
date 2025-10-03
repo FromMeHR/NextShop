@@ -244,7 +244,7 @@ class PhoneInput extends React.Component {
       props.onChangeValidity(this.validateNumber(formattedNumber));
   }
 
-  updateDropdownPosition = () => {
+  updateDropdownPosition = ({ scrollY = window.scrollY, scrollX = window.scrollX }) => {
     if (!this.internationalPhoneRef || !this.dropdownRef) return;
 
     const rect = this.internationalPhoneRef.getBoundingClientRect();
@@ -262,16 +262,18 @@ class PhoneInput extends React.Component {
         ? rect.bottom
         : rect.top - dropdownHeight - 7;
 
-    this.dropdownRef.style.top = `${top}px`;
-    this.dropdownRef.style.left = `${rect.left}px`;
-    this.dropdownRef.style.width = `${rect.width}px`;
+    Object.assign(this.dropdownRef.style, {
+      top: `${top + scrollY}px`,
+      left: `${rect.left + scrollX}px`,
+      width: `${rect.width}px`,
+    });
   };
 
   componentDidMount() {
     if (document.addEventListener) {
       document.addEventListener("mousedown", this.handleClickOutside);
       if (this.state.showDropdown) {
-        this.updateDropdownPosition();
+        this.updateDropdownPosition({});
         window.addEventListener("resize", this.updateDropdownPosition);
         window.addEventListener("scroll", this.updateDropdownPosition);
       }
@@ -301,16 +303,17 @@ class PhoneInput extends React.Component {
     }
 
     if (this.state.showDropdown && !prevState.showDropdown) {
-      this.updateDropdownPosition();
+      this.updateDropdownPosition({});
       window.addEventListener("resize", this.updateDropdownPosition);
       window.addEventListener("scroll", this.updateDropdownPosition);
     } else if (!this.state.showDropdown && prevState.showDropdown) {
+      this.updateDropdownPosition({ scrollY: 0, scrollX: 0 });
       window.removeEventListener("resize", this.updateDropdownPosition);
       window.removeEventListener("scroll", this.updateDropdownPosition);
     }
 
     if (this.state.searchValue !== prevState.searchValue) {
-      this.updateDropdownPosition();
+      this.updateDropdownPosition({});
     }
   }
 
@@ -1187,7 +1190,7 @@ class PhoneInput extends React.Component {
           <li className={css["search-block"]}>
             <div className={css["search-img-wrapper"]}>
               <img
-                src={`${process.env.REACT_APP_PUBLIC_URL}/svg/search.svg`}
+                src={`${process.env.NEXT_PUBLIC_URL}/svg/search.svg`}
                 className={css["search-img"]}
                 alt="Search icon"
               />

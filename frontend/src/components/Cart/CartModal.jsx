@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { debounce } from "lodash";
 import { useCart } from "../../hooks/useCart";
 import { useModal } from "../../hooks/useModal";
@@ -84,7 +84,7 @@ export function CartModal({ show, handleClose }) {
                   : `${totalQuantity} товар`}
               </span>
               <img
-                src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
+                src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
                 className={css["modal-close-button"]}
                 alt="Close"
                 onClick={handleClose}
@@ -97,7 +97,7 @@ export function CartModal({ show, handleClose }) {
                 {outOfStockItems.length > 0 && (
                   <div className={css["cart-page__msg-attention"]}>
                     <img
-                      src={`${process.env.REACT_APP_PUBLIC_URL}/svg/warning.svg`}
+                      src={`${process.env.NEXT_PUBLIC_URL}/svg/warning.svg`}
                       alt="Warning icon"
                     />
                     <p>
@@ -133,7 +133,7 @@ export function CartModal({ show, handleClose }) {
                         <div className={css["cart-page__product-column__row"]}>
                           <div className={css["product-counter"]}>
                             <img
-                              src={`${process.env.REACT_APP_PUBLIC_URL}/svg/minus.svg`}
+                              src={`${process.env.NEXT_PUBLIC_URL}/svg/minus.svg`}
                               className={css["product-counter__btn_subtract"]}
                               alt="Minus"
                               onClick={() => {
@@ -148,7 +148,7 @@ export function CartModal({ show, handleClose }) {
                               value={quantities[item.id] ?? item.quantity}
                             />
                             <img
-                              src={`${process.env.REACT_APP_PUBLIC_URL}/svg/plus.svg`}
+                              src={`${process.env.NEXT_PUBLIC_URL}/svg/plus.svg`}
                               className={css["product-counter__btn_add"]}
                               alt="Plus"
                               onClick={() => {
@@ -165,7 +165,7 @@ export function CartModal({ show, handleClose }) {
                             </span>
                           </div>
                           <img
-                            src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
+                            src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
                             className={css["cart-page__product-btn_delete"]}
                             alt="Delete"
                             onClick={() => deleteCartItem(item.id)}
@@ -188,7 +188,7 @@ export function CartModal({ show, handleClose }) {
               </div>
               {inStockItems.length > 0 && (
                 <div className={css["cart-total__column"]}>
-                  <Link to="/order" onClick={handleClose}>
+                  <Link href="/order" onClick={handleClose}>
                     <button className={css["cart-total__btn"]}>
                       Оформити замовлення
                     </button>

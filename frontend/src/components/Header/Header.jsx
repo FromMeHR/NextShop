@@ -3,17 +3,17 @@ import { SearchBox } from "./HeaderComponents/SearchBox";
 import { MobileNavbar } from "./HeaderComponents/MobileNavbar";
 import css from "./Header.module.css";
 
-export function Header(props) {
+export function Header() {
   return (
     <>
       <header className={css["header"]}>
-        <Navbar isAuthorized={props.isAuthorized} />
+        <Navbar />
       </header>
       <div className={css["header-mobile-search"]}>
         <SearchBox />
       </div>
       <div className={css["header-mobile-navbar"]}>
-        <MobileNavbar isAuthorized={props.isAuthorized} />
+        <MobileNavbar />
       </div>
     </>
   );

@@ -78,3 +78,9 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         )
         serializer = ProductListSerializer(products, many=True, context=self.context)
         return serializer.data[:30]
+
+
+class ProductSitemapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ["slug"]

@@ -1,11 +1,11 @@
 import { createContext, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { usePathname } from "next/navigation";
 
 export const BurgerMenuContext = createContext();
 
 export const BurgerMenuProvider = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);

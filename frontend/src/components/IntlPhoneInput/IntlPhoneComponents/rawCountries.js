@@ -1508,6 +1508,6 @@ const rawCountries = [
     "263",
     ".. ... ...."
   ]
-]
+];
 
-export default rawCountries
+export default rawCountries;

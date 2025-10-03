@@ -187,6 +187,6 @@ const rawTerritories = [
     "681",
     ".. ...."
   ],
-]
+];
 
-export default rawTerritories
+export default rawTerritories;

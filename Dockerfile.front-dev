@@ -1,0 +1,27 @@
+FROM node:24-alpine
+
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+COPY ./frontend/package.json ./frontend/package-lock.json* ./frontend/yarn.lock* ./frontend/pnpm-lock.yaml* ./frontend/.npmrc* ./
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+
+COPY ./frontend/src ./src
+COPY ./frontend/public ./public
+COPY ./frontend/eslint.config.mjs .
+COPY ./frontend/jsconfig.json .
+COPY ./frontend/next.config.mjs .
+
+ENV NEXT_TELEMETRY_DISABLED=1
+
+CMD \
+  if [ -f yarn.lock ]; then yarn dev; \
+  elif [ -f package-lock.json ]; then npm run dev; \
+  elif [ -f pnpm-lock.yaml ]; then pnpm dev; \
+  else echo "Lockfile not found." && exit 1; \
+  fi

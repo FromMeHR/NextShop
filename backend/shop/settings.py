@@ -32,6 +32,7 @@ DEBUG = config("DEBUG", cast=bool)
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
+    "back",
     "[::1]",
     "0.0.0.0",
     config("NGROK_BACKEND_HOST"),

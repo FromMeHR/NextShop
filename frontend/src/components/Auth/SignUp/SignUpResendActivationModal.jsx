@@ -37,7 +37,7 @@ export function SignUpResendActivationModal({
   const onSubmit = async (value) => {
     await axios({
       method: "post",
-      url: `${process.env.REACT_APP_BASE_API_URL}/api/auth/users/resend_activation/`,
+      url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/resend_activation/`,
       data: { email: value.email },
     })
       .then(() => {
@@ -64,7 +64,7 @@ export function SignUpResendActivationModal({
               Повторне надсилання листа активації
             </p>
             <img
-              src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
+              src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
               className={css["modal-close-button"]}
               alt="Close"
               onClick={handleClose}

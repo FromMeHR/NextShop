@@ -124,6 +124,10 @@
     position: relative;
 }
 
+.tab-pane fieldset {
+    border: none;
+}
+
 .forms__item {
     margin: 0 0 15px 0;
 }

@@ -1,29 +1,31 @@
+"use client";
+
 import { useCart } from "../../../hooks/useCart";
 import { BurgerMenu } from "./BurgerMenu";
-import { Link, useLocation } from "react-router-dom";
+import { usePathname } from "next/navigation";
 import css from "./MobileNavbar.module.css";
 
-export function MobileNavbar(props) {
+export function MobileNavbar() {
   const { cart, totalQuantity } = useCart();
-  const location = useLocation();
+  const pathname = usePathname();
 
   return (
     <nav className={css["navbar-wrapper"]}>
       <div className={css["navbar-content-wrapper"]}>
-        <Link to="/" reloadDocument>
+        <a href="/">
           <div
             className={`${css["navbar-element"]} ${
-              location.pathname === "/" ? css["active"] : ""
+              pathname === "/" ? css["active"] : ""
             }`}
           >
             <img
-              src={`${process.env.REACT_APP_PUBLIC_URL}/svg/home.svg`}
+              src={`${process.env.NEXT_PUBLIC_URL}/svg/home.svg`}
               className={css["icon"]}
               alt="Home icon"
             />
             <span className={css["navbar-element__text"]}>Головна</span>
           </div>
-        </Link>
+        </a>
         <div
           className={css["navbar-element"]}
           onClick={() =>
@@ -31,7 +33,7 @@ export function MobileNavbar(props) {
           }
         >
           <img
-            src={`${process.env.REACT_APP_PUBLIC_URL}/svg/cart.svg`}
+            src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
             className={css["icon"]}
             alt="Cart icon"
           />
@@ -40,7 +42,7 @@ export function MobileNavbar(props) {
           )}
           <span className={css["navbar-element__text"]}>Кошик</span>
         </div>
-        <BurgerMenu isAuthorized={props.isAuthorized} />
+        <BurgerMenu />
       </div>
     </nav>
   );

@@ -1,7 +1,10 @@
+"use client";
+
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { SearchBox } from "./SearchBox";
 import { useCart } from "../../../hooks/useCart";
+import { useAuth } from "../../../hooks/useAuth";
 import { useBurgerMenu } from "../../../hooks/useBurgerMenu";
 import { CartModal } from "../../Cart/CartModal";
 import { AuthModal } from "../../Auth/AuthModal";
@@ -11,10 +14,11 @@ import { RestorePasswordSendEmailModal } from "../../Auth/RestorePassword/Restor
 import { RestorePasswordCompletionModal } from "../../Auth/RestorePassword/RestorePasswordCompletionModal";
 import css from "./Navbar.module.css";
 
-export function Navbar(props) {
+export function Navbar() {
   const { totalQuantity } = useCart();
+  const { isAuth } = useAuth();
   const { setIsOpen } = useBurgerMenu();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [showCart, setShowCart] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showSignUpCompletion, setShowSignUpCompletion] = useState(false);
@@ -27,9 +31,9 @@ export function Navbar(props) {
       <nav className={css["navbar-wrapper"]}>
         <div className={css["navbar-content"]}>
           <div className={css["navbar-logo"]}>
-            <Link to="/" reloadDocument>
+            <a href="/">
               Shop
-            </Link>
+            </a>
           </div>
           <div className={`${css["search-wrapper"]}`}>
             <SearchBox />
@@ -41,22 +45,22 @@ export function Navbar(props) {
               id="user-button"
               className={css["navbar-user-button"]}
               onClick={() =>
-                props.isAuthorized
+                isAuth
                   ? (() => {
                       setIsOpen(false);
-                      navigate("/profile/user-info");
+                      router.push("/profile/user-info");
                     })()
                   : setShowAuth(true)
               }
             >
               <div className={css["user-icon-wrapper"]}>
                 <img
-                  src={`${process.env.REACT_APP_PUBLIC_URL}/svg/user.svg`}
+                  src={`${process.env.NEXT_PUBLIC_URL}/svg/user.svg`}
                   alt="User icon"
                 />
-                {props.isAuthorized && (
+                {isAuth && (
                   <img
-                    src={`${process.env.REACT_APP_PUBLIC_URL}/svg/check-circle.svg`}
+                    src={`${process.env.NEXT_PUBLIC_URL}/svg/check-circle.svg`}
                     alt="Authorized check icon"
                     className={css["authorized-check-icon"]}
                   />
@@ -70,7 +74,7 @@ export function Navbar(props) {
             >
               <div className={css["cart-icon-wrapper"]}>
                 <img
-                  src={`${process.env.REACT_APP_PUBLIC_URL}/svg/cart.svg`}
+                  src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
                   alt="Cart icon"
                 />
                 {totalQuantity > 0 && (

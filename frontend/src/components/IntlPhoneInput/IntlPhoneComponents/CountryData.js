@@ -63,7 +63,7 @@ function initCountries(
           areaItem.isAreaCode = true;
           areaItem.areaCodeLength = areaCode.length;
 
-          let areaCodeFormat = '';
+          let areaCodeFormat = "";
           const formattedDialCode = areaItem.dialCode
             .split("")
             .map((char) => (char === " " ? " " : "."))

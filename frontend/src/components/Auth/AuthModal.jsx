@@ -3,7 +3,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 import { useModal } from "../../hooks/useModal";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { ErrorMessage } from "@hookform/error-message";
 import validator from "validator";
@@ -26,7 +26,7 @@ export function AuthModal({
   const { login } = useAuth();
   const { setCart } = useCart();
   const { showOverlay, hideOverlay } = useModal();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
   const [activeForm, setActiveForm] = useState("signIn");
 
@@ -65,14 +65,14 @@ export function AuthModal({
   const onSubmit = async (value) => {
     await axios({
       method: "post",
-      url: `${process.env.REACT_APP_BASE_API_URL}/api/auth/token/login/`,
+      url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/token/login/`,
       data: { email: value.email, password: value.password },
     })
       .then(async (resp) => {
         const authToken = resp.data.auth_token;
         await axios({
           method: "post",
-          url: `${process.env.REACT_APP_BASE_API_URL}/api/cart/sync/`,
+          url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/sync/`,
           headers: { Authorization: `Token ${authToken}` },
           withCredentials: true,
         })
@@ -84,7 +84,7 @@ export function AuthModal({
           });
         login(authToken);
         handleClose();
-        navigate("/profile/user-info");
+        router.push("/profile/user-info");
       })
       .catch((error) => {
         if (error.response.status === 400) {
@@ -166,7 +166,7 @@ export function AuthModal({
 
     await axios({
       method: "post",
-      url: `${process.env.REACT_APP_BASE_API_URL}/api/auth/users/`,
+      url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/`,
       data: dataToSend,
     })
       .then(() => {
@@ -200,7 +200,7 @@ export function AuthModal({
           onClick={(e) => e.stopPropagation()}
         >
           <img
-            src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
+            src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
             className={css["modal-close-button"]}
             alt="Close"
             onClick={handleClose}
@@ -238,228 +238,232 @@ export function AuthModal({
                   activeForm === "signIn" ? css["active"] : ""
                 }`}
               >
-                <form onSubmit={handleSubmit(onSubmit)} noValidate>
-                  <div className={css["forms__item"]}>
-                    <div
-                      className={classnames(css["form-floating"], {
-                        [css["has-error"]]: errors.email,
-                      })}
-                    >
-                      <input
-                        id="loginform-email"
-                        type="email"
-                        autoComplete="username"
-                        {...register("email", {
-                          required: errorMessageTemplates.required,
-                          validate: (value) =>
-                            validator.isEmail(value) ||
-                            errorMessageTemplates.email,
+                <fieldset disabled={activeForm !== "signIn"}>
+                  <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errors.email,
                         })}
-                      />
-                      <label htmlFor="loginform-email">E-mail</label>
-                      <p className={css["error-message"]}>
-                        {errors.email && errors.email.message}
-                      </p>
+                      >
+                        <input
+                          id="loginform-email"
+                          type="email"
+                          autoComplete="username"
+                          {...register("email", {
+                            required: errorMessageTemplates.required,
+                            validate: (value) =>
+                              validator.isEmail(value) ||
+                              errorMessageTemplates.email,
+                          })}
+                        />
+                        <label htmlFor="loginform-email">E-mail</label>
+                        <p className={css["error-message"]}>
+                          {errors.email && errors.email.message}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className={css["forms__item"]}>
-                    <div
-                      className={classnames(css["form-floating"], {
-                        [css["has-error"]]: errors.password,
-                      })}
-                    >
-                      <input
-                        id="loginform-password"
-                        type="password"
-                        autoComplete="current-password"
-                        {...register("password", {
-                          required: errorMessageTemplates.required,
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errors.password,
                         })}
-                      />
-                      <label htmlFor="loginform-password">Пароль</label>
-                      <p className={css["error-message"]}>
-                        {errors.password && errors.password.message}
-                        {errors.unspecifiedError &&
-                          errors.unspecifiedError.message}
-                      </p>
+                      >
+                        <input
+                          id="loginform-password"
+                          type="password"
+                          autoComplete="current-password"
+                          {...register("password", {
+                            required: errorMessageTemplates.required,
+                          })}
+                        />
+                        <label htmlFor="loginform-password">Пароль</label>
+                        <p className={css["error-message"]}>
+                          {errors.password && errors.password.message}
+                          {errors.unspecifiedError &&
+                            errors.unspecifiedError.message}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div
-                    className={`${css["forms__item"]} ${css["forgot-password-wrap"]}`}
-                  >
+                    <div
+                      className={`${css["forms__item"]} ${css["forgot-password-wrap"]}`}
+                    >
+                      <button
+                        type="button"
+                        className={css["forgot-password"]}
+                        onClick={() => {
+                          handleClose();
+                          handleOpenRestorePasswordSendEmail();
+                        }}
+                      >
+                        Забув пароль
+                      </button>
+                    </div>
                     <button
-                      type="button"
-                      className={css["forgot-password"]}
-                      onClick={() => {
-                        handleClose();
-                        handleOpenRestorePasswordSendEmail();
-                      }}
+                      type="submit"
+                      disabled={disabled}
+                      className={css["signin-form__btn"]}
                     >
-                      Забув пароль
+                      Увійти
                     </button>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={disabled}
-                    className={css["signin-form__btn"]}
-                  >
-                    Увійти
-                  </button>
-                </form>
+                  </form>
+                </fieldset>
               </div>
               <div
                 className={`${css["tab-pane"]} ${
                   activeForm === "signUp" ? css["active"] : ""
                 }`}
               >
-                <form onSubmit={handleSubmitSignUp(onSubmitSignUp)} noValidate>
-                  <div className={css["forms__item"]}>
-                    <div
-                      className={classnames(css["form-floating"], {
-                        [css["has-error"]]: errorsSignUp.surname,
-                      })}
-                    >
-                      <input
-                        id="signupform-surname"
-                        type="text"
-                        {...registerSignUp("surname", {
-                          required: errorSignUpMessageTemplates.required,
-                          validate: validateNameSurname,
+                <fieldset disabled={activeForm !== "signUp"}>
+                  <form onSubmit={handleSubmitSignUp(onSubmitSignUp)} noValidate>
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errorsSignUp.surname,
                         })}
-                        maxLength={50}
-                      />
-                      <label htmlFor="signupform-surname">Прізвище</label>
-                      <p className={css["error-message"]}>
-                        {errorsSignUp.surname && errorsSignUp.surname.message}
-                      </p>
-                    </div>
-                  </div>
-                  <div className={css["forms__item"]}>
-                    <div
-                      className={classnames(css["form-floating"], {
-                        [css["has-error"]]: errorsSignUp.name,
-                      })}
-                    >
-                      <input
-                        id="signupform-name"
-                        type="text"
-                        {...registerSignUp("name", {
-                          required: errorSignUpMessageTemplates.required,
-                          validate: validateNameSurname,
-                        })}
-                        maxLength={50}
-                      />
-                      <label htmlFor="signupform-name">Ім'я</label>
-                      <p className={css["error-message"]}>
-                        {errorsSignUp.name && errorsSignUp.name.message}
-                      </p>
-                    </div>
-                  </div>
-                  <div className={css["forms__item"]}>
-                    <div
-                      className={classnames(css["form-floating"], {
-                        [css["has-error"]]: errorsSignUp.email,
-                      })}
-                    >
-                      <input
-                        id="signupform-email"
-                        type="email"
-                        {...registerSignUp("email", {
-                          required: errorSignUpMessageTemplates.required,
-                          pattern: {
-                            value: EMAIL_PATTERN,
-                            message: errorSignUpMessageTemplates.email,
-                          },
-                        })}
-                      />
-                      <label htmlFor="signupform-email">E-mail</label>
-                      <p className={css["error-message"]}>
-                        {errorsSignUp.email && errorsSignUp.email.message}
-                      </p>
-                    </div>
-                  </div>
-                  <div className={css["forms__item"]}>
-                    <div
-                      className={classnames(css["form-floating"], {
-                        [css["has-error"]]: errorsSignUp.password,
-                      })}
-                    >
-                      <input
-                        id="signupform-password"
-                        type="password"
-                        {...registerSignUp("password", {
-                          required: errorSignUpMessageTemplates.required,
-                          pattern: {
-                            value: PASSWORD_PATTERN,
-                            message: errorSignUpMessageTemplates.password,
-                          },
-                          maxLength: {
-                            value: 128,
-                            message: errorSignUpMessageTemplates.maxLength,
-                          },
-                        })}
-                      />
-                      <label htmlFor="signupform-password">Пароль</label>
-                      <div className={css["error-message"]}>
-                        <ErrorMessage
-                          errors={errorsSignUp}
-                          name={"password"}
-                          render={({ messages }) =>
-                            messages &&
-                            Object.entries(messages).map(([type, message]) => (
-                              <p key={type}>{message}</p>
-                            ))
-                          }
+                      >
+                        <input
+                          id="signupform-surname"
+                          type="text"
+                          {...registerSignUp("surname", {
+                            required: errorSignUpMessageTemplates.required,
+                            validate: validateNameSurname,
+                          })}
+                          maxLength={50}
                         />
+                        <label htmlFor="signupform-surname">Прізвище</label>
+                        <p className={css["error-message"]}>
+                          {errorsSignUp.surname && errorsSignUp.surname.message}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                  <div className={css["forms__item"]}>
-                    <div
-                      className={classnames(css["form-floating"], {
-                        [css["has-error"]]: errorsSignUp.confirmPassword,
-                      })}
-                    >
-                      <input
-                        id="signupform-password_confirm"
-                        type="password"
-                        {...registerSignUp("confirmPassword", {
-                          required: errorSignUpMessageTemplates.required,
-                          maxLength: {
-                            value: 128,
-                            message: errorSignUpMessageTemplates.maxLength,
-                          },
-                          validate: (value) =>
-                            watchSignUp("password") !== value
-                              ? errorSignUpMessageTemplates.confirmPassword
-                              : null,
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errorsSignUp.name,
                         })}
-                      />
-                      <label htmlFor="signupform-password_confirm">
-                        Підтвердження паролю
-                      </label>
-                      <div className={css["error-message"]}>
-                        <ErrorMessage
-                          errors={errorsSignUp}
-                          name={"confirmPassword"}
-                          render={({ messages }) =>
-                            messages &&
-                            Object.entries(messages).map(([type, message]) => (
-                              <p key={type}>{message}</p>
-                            ))
-                          }
+                      >
+                        <input
+                          id="signupform-name"
+                          type="text"
+                          {...registerSignUp("name", {
+                            required: errorSignUpMessageTemplates.required,
+                            validate: validateNameSurname,
+                          })}
+                          maxLength={50}
                         />
+                        <label htmlFor="signupform-name">Ім'я</label>
+                        <p className={css["error-message"]}>
+                          {errorsSignUp.name && errorsSignUp.name.message}
+                        </p>
                       </div>
                     </div>
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={disabledSignUp}
-                    className={css["signup-form__btn"]}
-                  >
-                    Зареєструватися
-                  </button>
-                </form>
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errorsSignUp.email,
+                        })}
+                      >
+                        <input
+                          id="signupform-email"
+                          type="email"
+                          {...registerSignUp("email", {
+                            required: errorSignUpMessageTemplates.required,
+                            pattern: {
+                              value: EMAIL_PATTERN,
+                              message: errorSignUpMessageTemplates.email,
+                            },
+                          })}
+                        />
+                        <label htmlFor="signupform-email">E-mail</label>
+                        <p className={css["error-message"]}>
+                          {errorsSignUp.email && errorsSignUp.email.message}
+                        </p>
+                      </div>
+                    </div>
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errorsSignUp.password,
+                        })}
+                      >
+                        <input
+                          id="signupform-password"
+                          type="password"
+                          {...registerSignUp("password", {
+                            required: errorSignUpMessageTemplates.required,
+                            pattern: {
+                              value: PASSWORD_PATTERN,
+                              message: errorSignUpMessageTemplates.password,
+                            },
+                            maxLength: {
+                              value: 128,
+                              message: errorSignUpMessageTemplates.maxLength,
+                            },
+                          })}
+                        />
+                        <label htmlFor="signupform-password">Пароль</label>
+                        <div className={css["error-message"]}>
+                          <ErrorMessage
+                            errors={errorsSignUp}
+                            name={"password"}
+                            render={({ messages }) =>
+                              messages &&
+                              Object.entries(messages).map(([type, message]) => (
+                                <p key={type}>{message}</p>
+                              ))
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className={css["forms__item"]}>
+                      <div
+                        className={classnames(css["form-floating"], {
+                          [css["has-error"]]: errorsSignUp.confirmPassword,
+                        })}
+                      >
+                        <input
+                          id="signupform-password_confirm"
+                          type="password"
+                          {...registerSignUp("confirmPassword", {
+                            required: errorSignUpMessageTemplates.required,
+                            maxLength: {
+                              value: 128,
+                              message: errorSignUpMessageTemplates.maxLength,
+                            },
+                            validate: (value) =>
+                              watchSignUp("password") !== value
+                                ? errorSignUpMessageTemplates.confirmPassword
+                                : null,
+                          })}
+                        />
+                        <label htmlFor="signupform-password_confirm">
+                          Підтвердження паролю
+                        </label>
+                        <div className={css["error-message"]}>
+                          <ErrorMessage
+                            errors={errorsSignUp}
+                            name={"confirmPassword"}
+                            render={({ messages }) =>
+                              messages &&
+                              Object.entries(messages).map(([type, message]) => (
+                                <p key={type}>{message}</p>
+                              ))
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={disabledSignUp}
+                      className={css["signup-form__btn"]}
+                    >
+                      Зареєструватися
+                    </button>
+                  </form>
+                </fieldset>
               </div>
             </div>
           </div>

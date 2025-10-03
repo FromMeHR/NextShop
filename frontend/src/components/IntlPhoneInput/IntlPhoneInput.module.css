@@ -85,6 +85,7 @@
 }
 
 .country-list.open {
+  position: absolute;
   opacity: 1;
   pointer-events: auto;
 }
@@ -155,7 +156,7 @@
   .flag {
     width: 16px;
     height: 11px;
-    background-image: url("/public/img/flags.png");
+    background-image: url("/img/flags.png");
   }
 
   .ad {

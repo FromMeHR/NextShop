@@ -8,10 +8,8 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [authToken, setAuthToken] = useState(localStorage.getItem("Token"));
-  const [isAuth, setIsAuth] = useState(
-    !!JSON.parse(localStorage.getItem("isAuth"))
-  );
+  const [authToken, setAuthToken] = useState(null);
+  const [isAuth, setIsAuth] = useState(null);
   const fetcher = ([url, authToken]) =>
     axios
       .get(url, {
@@ -28,11 +26,18 @@ export const AuthProvider = ({ children }) => {
       });
   const { data, error, mutate } = useSWR(
     authToken
-      ? [`${process.env.REACT_APP_BASE_API_URL}/api/auth/users/me/`, authToken]
+      ? [`${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/me/`, authToken]
       : null,
     fetcher,
     { revalidateOnFocus: true }
   );
+
+  useEffect(() => {
+    const token = localStorage.getItem("Token");
+    const auth = localStorage.getItem("isAuth");
+    if (token) setAuthToken(token);
+    if (auth) setIsAuth(JSON.parse(auth));
+  }, []);
 
   const login = (authToken) => {
     localStorage.setItem("Token", authToken);
@@ -59,6 +64,9 @@ export const AuthProvider = ({ children }) => {
             "Your session has expired. Please login again."
           ) {
             toast.error("Ваш сеанс завершився. Будь ласка, увійдіть ще раз.");
+          }
+          if (error.response.data.detail === "Invalid token") {
+            toast.error("Невірний токен. Будь ласка, увійдіть ще раз.");
           }
           logout();
         }

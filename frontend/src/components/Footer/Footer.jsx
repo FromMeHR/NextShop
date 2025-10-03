@@ -12,19 +12,19 @@ export function Footer() {
         <div className={css["footer-social"]}>
           <a href="#!">
             <img
-              src={`${process.env.REACT_APP_PUBLIC_URL}/svg/facebook.svg`}
+              src={`${process.env.NEXT_PUBLIC_URL}/svg/facebook.svg`}
               alt="Facebook icon link"
             />
           </a>
           <a href="#!">
             <img
-              src={`${process.env.REACT_APP_PUBLIC_URL}/svg/twitter.svg`}
+              src={`${process.env.NEXT_PUBLIC_URL}/svg/twitter.svg`}
               alt="Twitter icon link"
             />
           </a>
           <a href="#!">
             <img
-              src={`${process.env.REACT_APP_PUBLIC_URL}/svg/instagram.svg`}
+              src={`${process.env.NEXT_PUBLIC_URL}/svg/instagram.svg`}
               alt="Instagram icon link"
             />
           </a>

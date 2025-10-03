@@ -1,10 +1,13 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { usePathname, useRouter } from "next/navigation";
 import css from "./Loader.module.css";
 
 export function Loader() {
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const shortWait = setTimeout(
@@ -13,7 +16,7 @@ export function Loader() {
     );
     const longWait = setTimeout(() => setMessage("Все ще завантажується... "), 10000);
     const timeoutError = setTimeout(() => {
-      navigate("/404");
+      router.push("/404");
     }, 30000);
 
     return () => {
@@ -21,7 +24,7 @@ export function Loader() {
       clearTimeout(longWait);
       clearTimeout(timeoutError);
     };
-  }, [navigate]);
+  }, [pathname, router]);
 
   return (
     <div className={css["loader__container"]}>

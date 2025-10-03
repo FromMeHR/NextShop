@@ -35,7 +35,7 @@ export const PAYMENT_NAME = {
 export const PAYMENT_NAME_LABELS = {
   [PAYMENT_NAME.EASYPAY]: "EasyPay",
   [PAYMENT_NAME.PLATA_BY_MONO]: "plata by mono",
-}
+};
 export const PAYMENT_STATUS = {
   CREATED: "created",
   PROCESSING: "processing",

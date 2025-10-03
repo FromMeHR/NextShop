@@ -1,14 +1,16 @@
+"use client";
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import css from "./SearchBox.module.css";
 
 export function SearchBox() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = () => {
     if (searchQuery.trim() !== "") {
-      navigate(`/search/${searchQuery.trim()}/`);
+      router.push(`/search/${searchQuery.trim()}/`);
       setSearchQuery("");
     }
   };
@@ -37,7 +39,7 @@ export function SearchBox() {
           onClick={handleSearch}
         >
           <img
-            src={`${process.env.REACT_APP_PUBLIC_URL}/svg/search.svg`}
+            src={`${process.env.NEXT_PUBLIC_URL}/svg/search.svg`}
             alt="Search icon"
           />
         </button>

@@ -30,7 +30,7 @@ export function SignUpCompletionModal({
           <div className={css["modal-header"]}>
             <p className={css["modal-title"]}>Реєстрація майже завершена</p>
             <img
-              src={`${process.env.REACT_APP_PUBLIC_URL}/svg/delete.svg`}
+              src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
               className={css["modal-close-button"]}
               alt="Close"
               onClick={handleClose}
