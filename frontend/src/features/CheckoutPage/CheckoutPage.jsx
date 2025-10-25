@@ -9,6 +9,7 @@ import {
   PRODUCT_STOCK_STATUS,
 } from "../../constants/constants";
 import { useCart } from "../../hooks/useCart";
+import { useModal } from "../../hooks/useModal";
 import { useDropdownPosition } from "../../hooks/useDropdownPosition";
 import { Loader } from "../../components/Loader/Loader";
 import { debounce } from "lodash";
@@ -33,6 +34,7 @@ export function CheckoutPage() {
       null
   );
   const { cart, outOfStockItems, totalPrice, totalWeight, totalQuantity, isLoading } = useCart();
+  const { openModal } = useModal();
 
   const router = useRouter();
 
@@ -433,6 +435,19 @@ export function CheckoutPage() {
       clearErrors("delivery");
     }
   }, [watchedHouse, watchedApartment, selectedStreet, clearErrors]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsDropdownCityOpen(false);
+        setIsDropdownWarehouseOpen(false);
+        setIsDropdownStreetOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [setIsDropdownCityOpen, setIsDropdownWarehouseOpen, setIsDropdownStreetOpen]);
 
   const onSubmit = async (value) => {
     const sections = ["contact", "delivery", "payment"];
@@ -1416,9 +1431,7 @@ export function CheckoutPage() {
                     <button
                       type="button"
                       className={css["checkout__summary-edit-cart-button"]}
-                      onClick={() => {
-                        document.getElementById("cart-button").click();
-                      }}
+                      onClick={() => openModal("cart")}
                     >
                       Редагувати
                     </button>

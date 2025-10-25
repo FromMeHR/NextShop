@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useModal } from "../../hooks/useModal";
 import axios from "axios";
 import css from "./ActivateUserPage.module.css";
 
 export function ActivateUserPage({ uid, token }) {
+  const { openModal } = useModal();
   const [activationStatus, setActivationStatus] = useState("");
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function ActivateUserPage({ uid, token }) {
           <button
             type="button"
             className={css["return-to-sign-in-btn"]}
-            onClick={() => document.getElementById("user-button").click()}
+            onClick={() => openModal("auth")}
           >
             Перейти до входу
           </button>

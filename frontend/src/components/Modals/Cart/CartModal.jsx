@@ -1,13 +1,13 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { debounce } from "lodash";
-import { useCart } from "../../hooks/useCart";
-import { useModal } from "../../hooks/useModal";
-import { PRODUCT_STOCK_STATUS } from "../../constants/constants";
+import { useCart } from "../../../hooks/useCart";
+import { useModal } from "../../../hooks/useModal";
+import { PRODUCT_STOCK_STATUS } from "../../../constants/constants";
 import ReactDOM from "react-dom";
 import css from "./CartModal.module.css";
 
-export function CartModal({ show, handleClose }) {
+export function CartModal() {
   const {
     cart,
     isLoading,
@@ -18,22 +18,18 @@ export function CartModal({ show, handleClose }) {
     deleteCartItem,
     totalQuantity,
   } = useCart();
-  const { showOverlay, hideOverlay } = useModal();
-  const [isVisible, setIsVisible] = useState(false);
   const [quantities, setQuantities] = useState({});
   const debouncedMap = useRef(new Map());
   const updateQueue = useRef(Promise.resolve());
 
-  useEffect(() => {
-    setIsVisible(show);
-    show ? showOverlay() : hideOverlay();
-  }, [show, showOverlay, hideOverlay]);
+  const { modals, closeModal } = useModal();
+  const isVisible = modals.cart;
 
   useEffect(() => {
     if (!isLoading && cart.length === 0) {
-      handleClose();
+      closeModal("cart");
     }
-  }, [isLoading, cart, handleClose]);
+  }, [isLoading, cart, closeModal]);
 
   useEffect(() => {
     const newQuantities = {};
@@ -68,13 +64,14 @@ export function CartModal({ show, handleClose }) {
   return ReactDOM.createPortal(
     <div
       className={`${css["side-modal"]} ${isVisible ? css["show"] : ""}`}
-      onClick={handleClose}
+      onMouseDown={(e) => {
+        if (!e.target.closest(`.${css["modal-content"]}`)) {
+          closeModal("cart");
+        }
+      }}
     >
       <div className={css["modal-dialog"]}>
-        <div
-          className={css["modal-content"]}
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className={css["modal-content"]}>
           <div className={css["modal-header"]}>
             <div className={css["modal-title"]}>
               Кошик
@@ -87,7 +84,7 @@ export function CartModal({ show, handleClose }) {
                 src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
                 className={css["modal-close-button"]}
                 alt="Close"
-                onClick={handleClose}
+                onClick={() => closeModal("cart")}
               />
             </div>
           </div>
@@ -188,7 +185,7 @@ export function CartModal({ show, handleClose }) {
               </div>
               {inStockItems.length > 0 && (
                 <div className={css["cart-total__column"]}>
-                  <Link href="/order" onClick={handleClose}>
+                  <Link href="/order" onClick={() => closeModal("cart")}>
                     <button className={css["cart-total__btn"]}>
                       Оформити замовлення
                     </button>

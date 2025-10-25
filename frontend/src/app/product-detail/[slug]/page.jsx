@@ -1,4 +1,4 @@
-import { ProductDetailPage } from "../../../features/ProductDetail/ProductDetailPage";
+import { ProductDetailPage } from "../../../features/ProductDetailPage/ProductDetailPage";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;

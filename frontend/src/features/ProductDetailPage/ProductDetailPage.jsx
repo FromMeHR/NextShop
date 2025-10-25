@@ -3,6 +3,7 @@
 import { ErrorPage404 } from "../ErrorPage/ErrorPage404";
 import { RelatedProducts } from "./RelatedProducts/RelatedProducts";
 import { useCart } from "../../hooks/useCart";
+import { useModal } from "../../hooks/useModal";
 import {
   PRODUCT_STOCK_STATUS,
   PRODUCT_STOCK_STATUS_LABELS,
@@ -11,6 +12,7 @@ import css from "./ProductDetailPage.module.css";
 
 export function ProductDetailPage({ product }) {
   const { addToCart } = useCart();
+  const { openModal } = useModal();
 
   return !product ? (
     <ErrorPage404 />
@@ -64,7 +66,7 @@ export function ProductDetailPage({ product }) {
                     className={css["buy-now-button"]}
                     onClick={() => {
                       addToCart(product.id);
-                      document.getElementById("cart-button").click();
+                      openModal("cart");
                     }}
                   >
                     <span>

@@ -40,16 +40,18 @@
 
 .navbar-cart-badge {
     position: absolute;
+    text-align: center;
     top: 6px;
-    right: 0;
+    left: 40%;
+    line-height: 15px;
+    min-width: 18px;
     transform: translate(50%, -50%);
     font-size: 0.65rem;
-    padding: 0.25em 0.6em;
+    padding: 0.125em;
     background-color: var(--cart-badge-background-color);
     color: var(--light-text-color);
-    border-radius: 50px;
+    border-radius: 50%;
     font-weight: bold;
-    line-height: 1;
 }
 
 .navbar-element__text {

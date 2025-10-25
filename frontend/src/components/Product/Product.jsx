@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "../../hooks/useCart";
+import { useModal } from "../../hooks/useModal";
 import {
   PRODUCT_STOCK_STATUS,
   PRODUCT_STOCK_STATUS_LABELS,
@@ -10,6 +11,7 @@ import css from "./Product.module.css";
 
 export function Product({ product }) {
   const { addToCart } = useCart();
+  const { openModal } = useModal();
 
   return (
     <Link href={`/product-detail/${product.slug}`} prefetch={false}>
@@ -41,7 +43,7 @@ export function Product({ product }) {
               onClick={(e) => {
                 e.preventDefault();
                 addToCart(product.id);
-                document.getElementById("cart-button").click();
+                openModal("cart");
               }}
             >
               <img

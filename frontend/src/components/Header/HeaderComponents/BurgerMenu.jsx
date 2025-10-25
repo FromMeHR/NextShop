@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useAuth } from "../../../hooks/useAuth";
+import { useModal } from "../../../hooks/useModal";
 import { useBurgerMenu } from "../../../hooks/useBurgerMenu";
 import css from "./BurgerMenu.module.css";
 
 export function BurgerMenu() {
   const { isOpen, toggleMenu } = useBurgerMenu();
   const { isAuth } = useAuth();
+  const { openModal } = useModal();
 
   return (
     <>
@@ -25,14 +27,14 @@ export function BurgerMenu() {
       ></div>
       <div className={`${css["burger-utility-bar"]} ${isOpen ? css["open"] : ""}`}>
         <div className={css["burger-header"]}>
-          <Link href="/">
+          <a href="/">
             Shop
-          </Link>
+          </a>
         </div>
         <div className={css["burger-actions"]}>
           <div
             className={css["burger-user-button"]}
-            onClick={() => document.getElementById("user-button").click()}
+            onClick={() => openModal("auth")}
           >
             <div className={css["user-icon-wrapper"]}>
               <img

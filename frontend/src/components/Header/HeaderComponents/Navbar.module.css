@@ -64,16 +64,18 @@
 
 .navbar-cart-badge {
     position: absolute;
-    top: 0;
-    right: 0;
+    text-align: center;
+    top: 6px;
+    left: 40%;
+    line-height: 15px;
+    min-width: 18px;
     transform: translate(50%, -50%);
     font-size: 0.65rem;
-    padding: 0.35em 0.75em;
+    padding: 0.125em;
     background-color: var(--cart-badge-background-color);
     color: var(--light-text-color);
-    border-radius: 50px;
+    border-radius: 50%;
     font-weight: bold;
-    line-height: 1;
 }
 
 .search-wrapper {

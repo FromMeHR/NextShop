@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
+import { useModal } from "../../hooks/useModal";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -11,15 +12,16 @@ import css from "./ProfilePage.module.css";
 export function ProfilePage() {
   const { user, isAuth, isLoading, logout } = useAuth();
   const { setCart } = useCart();
+  const { openModal } = useModal();
   const router = useRouter();
   const manualLogout = useRef(false);
 
   useEffect(() => {
     if (!isAuth && !isLoading && !manualLogout.current) {
       router.push("/");
-      document.getElementById("user-button").click();
+      openModal("auth");
     }
-  }, [isAuth, isLoading, router]);
+  }, [isAuth, isLoading, router, openModal]);
 
   const handleLogout = async () => {
     manualLogout.current = true;

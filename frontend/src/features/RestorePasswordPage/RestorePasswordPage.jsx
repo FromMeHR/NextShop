@@ -1,17 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { PASSWORD_PATTERN } from "../../constants/constants";
-import { RestorePasswordResultModal } from "./RestorePasswordResult/RestorePasswordResultModal";
+import { useModal } from "../../hooks/useModal";
 import axios from "axios";
 import classnames from "classnames";
 import css from "./RestorePasswordPage.module.css";
 
 export function RestorePasswordPage({ uid, token }) {
-  const [restorePasswordStatus, setRestorePasswordStatus] = useState("");
-  const [showRestorePasswordResultModal, setShowRestorePasswordResultModal] = useState(false);
+  const { openModal } = useModal();
 
   const errorMessageTemplates = {
     required: "Обов'язкове поле",
@@ -31,7 +30,7 @@ export function RestorePasswordPage({ uid, token }) {
 
   const watchedPassword = watch("password");
   const watchedConfirmPassword = watch("confirmPassword");
-  const disabled = !isValid;
+  const disabled = !isValid || isSubmitting;
 
   useEffect(() => {
     const handleValidation = async () => {
@@ -57,8 +56,7 @@ export function RestorePasswordPage({ uid, token }) {
       data: dataToSend,
     })
       .then((resp) => {
-        setRestorePasswordStatus(resp.data.message);
-        setShowRestorePasswordResultModal(true);
+        openModal("restorePasswordResult", { restorePasswordStatus: resp.data.message });
       })
       .catch((error) => {
         if (
@@ -82,107 +80,98 @@ export function RestorePasswordPage({ uid, token }) {
             });
           }
         } else {
-          setRestorePasswordStatus("Restore password error");
-          setShowRestorePasswordResultModal(true);
+          openModal("restorePasswordResult", { restorePasswordStatus: "Restore password error" });
         }
       });
   };
 
   return (
-    <>
-      <div className={css["container"]}>
-        <div className={css["container__body"]}>
-          <p className={css["title"]}>Відновлення паролю</p>
-          <div className={css["content"]}>
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
-              <div className={css["forms__item"]}>
-                <div
-                  className={classnames(css["form-floating"], {
-                    [css["has-error"]]: errors.password,
-                  })}
-                >
-                  <input
-                    id="form-password"
-                    type="password"
-                    {...register("password", {
-                      required: errorMessageTemplates.required,
-                      pattern: {
-                        value: PASSWORD_PATTERN,
-                        message: errorMessageTemplates.password,
-                      },
-                      maxLength: {
-                        value: 128,
-                        message: errorMessageTemplates.maxLength,
-                      },
-                    })}
-                  />
-                  <label htmlFor="form-password">Новий пароль</label>
-                  <div className={css["error-message"]}>
-                    <ErrorMessage
-                      errors={errors}
-                      name={"password"}
-                      render={({ messages }) =>
-                        messages &&
-                        Object.entries(messages).map(([type, message]) => (
-                          <p key={type}>{message}</p>
-                        ))
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className={css["forms__item"]}>
-                <div
-                  className={classnames(css["form-floating"], {
-                    [css["has-error"]]: errors.confirmPassword,
-                  })}
-                >
-                  <input
-                    id="form-password_confirm"
-                    type="password"
-                    {...register("confirmPassword", {
-                      required: errorMessageTemplates.required,
-                      maxLength: {
-                        value: 128,
-                        message: errorMessageTemplates.maxLength,
-                      },
-                      validate: (value) =>
-                        watch("password") !== value
-                          ? errorMessageTemplates.confirmPassword
-                          : null,
-                    })}
-                  />
-                  <label htmlFor="form-password_confirm">Повторіть новий пароль</label>
-                  <div className={css["error-message"]}>
-                    <ErrorMessage
-                      errors={errors}
-                      name={"confirmPassword"}
-                      render={({ messages }) =>
-                        messages &&
-                        Object.entries(messages).map(([type, message]) => (
-                          <p key={type}>{message}</p>
-                        ))
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-              <button
-                type="submit"
-                disabled={disabled || isSubmitting}
-                className={css["save-password-form__btn"]}
+    <div className={css["container"]}>
+      <div className={css["container__body"]}>
+        <p className={css["title"]}>Відновлення паролю</p>
+        <div className={css["content"]}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <div className={css["forms__item"]}>
+              <div
+                className={classnames(css["form-floating"], {
+                  [css["has-error"]]: errors.password,
+                })}
               >
-                Зберегти пароль
-              </button>
-            </form>
-          </div>
+                <input
+                  id="form-password"
+                  type="password"
+                  {...register("password", {
+                    required: errorMessageTemplates.required,
+                    pattern: {
+                      value: PASSWORD_PATTERN,
+                      message: errorMessageTemplates.password,
+                    },
+                    maxLength: {
+                      value: 128,
+                      message: errorMessageTemplates.maxLength,
+                    },
+                  })}
+                />
+                <label htmlFor="form-password">Новий пароль</label>
+                <div className={css["error-message"]}>
+                  <ErrorMessage
+                    errors={errors}
+                    name={"password"}
+                    render={({ messages }) =>
+                      messages &&
+                      Object.entries(messages).map(([type, message]) => (
+                        <p key={type}>{message}</p>
+                      ))
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+            <div className={css["forms__item"]}>
+              <div
+                className={classnames(css["form-floating"], {
+                  [css["has-error"]]: errors.confirmPassword,
+                })}
+              >
+                <input
+                  id="form-password_confirm"
+                  type="password"
+                  {...register("confirmPassword", {
+                    required: errorMessageTemplates.required,
+                    maxLength: {
+                      value: 128,
+                      message: errorMessageTemplates.maxLength,
+                    },
+                    validate: (value) =>
+                      watch("password") !== value
+                        ? errorMessageTemplates.confirmPassword
+                        : null,
+                  })}
+                />
+                <label htmlFor="form-password_confirm">Повторіть новий пароль</label>
+                <div className={css["error-message"]}>
+                  <ErrorMessage
+                    errors={errors}
+                    name={"confirmPassword"}
+                    render={({ message, messages }) =>
+                      messages
+                        ? Object.entries(messages).map(([type, msg]) => <p key={type}>{msg}</p>)
+                        : message && <p>{message}</p>
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+            <button
+              type="submit"
+              disabled={disabled}
+              className={css["save-password-form__btn"]}
+            >
+              Зберегти пароль
+            </button>
+          </form>
         </div>
       </div>
-      <RestorePasswordResultModal
-        show={showRestorePasswordResultModal}
-        restorePasswordStatus={restorePasswordStatus}
-        handleClose={() => setShowRestorePasswordResultModal(false)}
-      />
-    </>
+    </div>
   );
 }

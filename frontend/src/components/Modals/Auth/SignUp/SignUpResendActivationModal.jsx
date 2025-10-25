@@ -1,25 +1,15 @@
-import { useEffect, useState } from "react";
-import { useModal } from "../../../hooks/useModal";
+import { useModal } from "../../../../hooks/useModal";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { EMAIL_PATTERN } from "../../../constants/constants";
+import { EMAIL_PATTERN } from "../../../../constants/constants";
 import classnames from "classnames";
 import axios from "axios";
 import ReactDOM from "react-dom";
 import css from "./SignUpResendActivationModal.module.css";
 
-export function SignUpResendActivationModal({
-  show,
-  handleClose,
-  handleOpenAuth,
-}) {
-  const { showOverlay, hideOverlay } = useModal();
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(show);
-    show ? showOverlay() : hideOverlay();
-  }, [show, showOverlay, hideOverlay]);
+export function SignUpResendActivationModal() {
+  const { modals, openModal, closeModal } = useModal();
+  const isVisible = modals.signUpResendActivation;
 
   const errorMessageTemplates = {
     required: "Обов'язкове поле",
@@ -29,10 +19,10 @@ export function SignUpResendActivationModal({
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isSubmitting },
   } = useForm({ mode: "all" });
 
-  const disabled = !isValid;
+  const disabled = !isValid || isSubmitting;
 
   const onSubmit = async (value) => {
     await axios({
@@ -41,8 +31,9 @@ export function SignUpResendActivationModal({
       data: { email: value.email },
     })
       .then(() => {
-        handleClose();
-        handleOpenAuth();
+        closeModal("signUpResendActivation");
+        openModal("auth");
+        toast.success("Лист успішно надіслано.");
       })
       .catch(() => {
         toast.error("Не вдалося надіслати лист. Спробуйте пізніше.");
@@ -52,13 +43,14 @@ export function SignUpResendActivationModal({
   return ReactDOM.createPortal(
     <div
       className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
-      onClick={handleClose}
+      onMouseDown={(e) => {
+        if (!e.target.closest(`.${css["modal-content"]}`)) {
+          closeModal("signUpResendActivation");
+        }
+      }}
     >
       <div className={css["modal-dialog"]}>
-        <div
-          className={css["modal-content"]}
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className={css["modal-content"]}>
           <div className={css["modal-header"]}>
             <p className={css["modal-title"]}>
               Повторне надсилання листа активації
@@ -67,7 +59,7 @@ export function SignUpResendActivationModal({
               src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
               className={css["modal-close-button"]}
               alt="Close"
-              onClick={handleClose}
+              onClick={() => closeModal("signUpResendActivation")}
             />
           </div>
           <div className={css["modal-body"]}>

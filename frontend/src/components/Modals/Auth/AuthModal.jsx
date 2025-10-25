@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { useCart } from "../../hooks/useCart";
-import { useModal } from "../../hooks/useModal";
+import { useAuth } from "../../../hooks/useAuth";
+import { useCart } from "../../../hooks/useCart";
+import { useModal } from "../../../hooks/useModal";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -14,26 +14,16 @@ import {
   EMAIL_PATTERN,
   PASSWORD_PATTERN,
   ALLOWED_NAME_SURNAME_SYMBOLS_PATTERN,
-} from "../../constants/constants";
+} from "../../../constants/constants";
 import css from "./AuthModal.module.css";
 
-export function AuthModal({
-  show,
-  handleClose,
-  handleOpenSignUpCompletion,
-  handleOpenRestorePasswordSendEmail,
-}) {
+export function AuthModal() {
   const { login } = useAuth();
   const { setCart } = useCart();
-  const { showOverlay, hideOverlay } = useModal();
+  const { modals, openModal, closeModal } = useModal();
+  const isVisible = modals.auth;
   const router = useRouter();
-  const [isVisible, setIsVisible] = useState(false);
   const [activeForm, setActiveForm] = useState("signIn");
-
-  useEffect(() => {
-    setIsVisible(show);
-    show ? showOverlay() : hideOverlay();
-  }, [show, showOverlay, hideOverlay]);
 
   const toggleForm = (form) => {
     setActiveForm(form);
@@ -51,12 +41,12 @@ export function AuthModal({
     watch,
     setError,
     clearErrors,
-    formState: { errors, isValid },
+    formState: { errors, isValid, isSubmitting },
   } = useForm({ mode: "all" });
 
   const watchedEmail = watch("email");
   const watchedPassword = watch("password");
-  const disabled = !isValid;
+  const disabled = !isValid || isSubmitting;
 
   useEffect(() => {
     clearErrors("unspecifiedError");
@@ -83,7 +73,7 @@ export function AuthModal({
             console.error("Cart sync failed:", error);
           });
         login(authToken);
-        handleClose();
+        closeModal("auth");
         router.push("/profile/user-info");
       })
       .catch((error) => {
@@ -93,8 +83,8 @@ export function AuthModal({
             resp.email_not_verified &&
             resp.email_not_verified[0] === "E-mail verification required"
           ) {
-            handleClose();
-            handleOpenSignUpCompletion();
+            closeModal("auth");
+            openModal("signUpCompletion");
           }
           if (
             resp.non_field_errors &&
@@ -126,7 +116,7 @@ export function AuthModal({
     watch: watchSignUp,
     setError: setErrorSignUp,
     trigger: triggerSignUp,
-    formState: { errors: errorsSignUp, isValid: isValidSignUp },
+    formState: { errors: errorsSignUp, isValid: isValidSignUp, isSubmitting: isSubmittingSignUp },
   } = useForm({ mode: "all", criteriaMode: "all" });
 
   const validateNameSurname = (value) => {
@@ -143,7 +133,7 @@ export function AuthModal({
 
   const watchedSignUpPassword = watchSignUp("password");
   const watchedSignUpConfirmPassword = watchSignUp("confirmPassword");
-  const disabledSignUp = !isValidSignUp;
+  const disabledSignUp = !isValidSignUp || isSubmittingSignUp;
 
   useEffect(() => {
     const handleValidation = async () => {
@@ -170,15 +160,15 @@ export function AuthModal({
       data: dataToSend,
     })
       .then(() => {
-        handleClose();
-        handleOpenSignUpCompletion();
+        closeModal("auth");
+        openModal("signUpCompletion");
       })
       .catch((error) => {
         if (error.response && error.response.status === 400) {
           if (error.response.data.email) {
             setErrorSignUp("email", {
               type: "manual",
-              message: "E-mail already exists",
+              message: "Цей E-mail вже зареєстровано.",
             });
           } else {
             toast.error(
@@ -192,18 +182,19 @@ export function AuthModal({
   return ReactDOM.createPortal(
     <div
       className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
-      onClick={handleClose}
+      onMouseDown={(e) => {
+        if (!e.target.closest(`.${css["modal-content"]}`)) {
+          closeModal("auth");
+        }
+      }}
     >
       <div className={css["modal-dialog"]}>
-        <div
-          className={css["modal-content"]}
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className={css["modal-content"]}>
           <img
             src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
             className={css["modal-close-button"]}
             alt="Close"
-            onClick={handleClose}
+            onClick={() => closeModal("auth")}
           />
           <div className={css["modal-body"]}>
             <div className={css["choose-tabs"]}>
@@ -292,8 +283,8 @@ export function AuthModal({
                         type="button"
                         className={css["forgot-password"]}
                         onClick={() => {
-                          handleClose();
-                          handleOpenRestorePasswordSendEmail();
+                          closeModal("auth");
+                          openModal("restorePasswordSendEmail");
                         }}
                       >
                         Забув пароль

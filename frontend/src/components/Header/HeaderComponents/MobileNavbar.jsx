@@ -1,12 +1,14 @@
 "use client";
 
 import { useCart } from "../../../hooks/useCart";
+import { useModal } from "../../../hooks/useModal";
 import { BurgerMenu } from "./BurgerMenu";
 import { usePathname } from "next/navigation";
 import css from "./MobileNavbar.module.css";
 
 export function MobileNavbar() {
   const { cart, totalQuantity } = useCart();
+  const { openModal } = useModal();
   const pathname = usePathname();
 
   return (
@@ -28,9 +30,7 @@ export function MobileNavbar() {
         </a>
         <div
           className={css["navbar-element"]}
-          onClick={() =>
-            cart.length > 0 && document.getElementById("cart-button").click()
-          }
+          onClick={() => cart.length > 0 && openModal("cart")}
         >
           <img
             src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
