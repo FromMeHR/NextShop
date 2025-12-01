@@ -240,8 +240,6 @@ class PhoneInput extends React.Component {
       debouncedQueryStingSearcher: debounce(this.searchCountry, 250),
       searchValue: "",
     };
-    if (props.onChangeValidity)
-      props.onChangeValidity(this.validateNumber(formattedNumber));
   }
 
   updateDropdownPosition = ({ scrollY = window.scrollY, scrollX = window.scrollX }) => {
@@ -270,6 +268,9 @@ class PhoneInput extends React.Component {
   };
 
   componentDidMount() {
+    if (this.props.onChangeValidity) {
+      this.props.onChangeValidity(this.validateNumber(this.state.formattedNumber));
+    }
     if (document.addEventListener) {
       document.addEventListener("mousedown", this.handleClickOutside);
       if (this.state.showDropdown) {

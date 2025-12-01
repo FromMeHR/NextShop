@@ -42,6 +42,9 @@
   --burger-menu-span-active-background-color: #000;
   --delivery-operator-background-color: #fff;
   --delivery-operator-active-background-color: #F5F8E7;
+  --order-detail-robot-card-background-color: #F5F8E7;
+  --order-detail-paid-background-color: #F5F8E7;
+  --order-detail-cancelled-background-color: #F5F5F5;
   --overlay-background-color: rgba(0, 0, 0, 0.5);
   --hover-dropdown-background-color: #f1f1f1;
   --phone-input-background-color: #fff;
@@ -61,6 +64,9 @@
   --product-out-of-stock-text-color: #707070;
   --product-low-stock-text-color: #FFB628;
   --product-in-stock-text-color: #94B80A;
+  --order-detail-price-wnum-text-color: #484F54;
+  --order-detail-paid-text-color: #94B80A;
+  --order-detail-cancelled-text-color: #707070;
 
   /* button color*/
   --main-button-color: #000;
@@ -71,4 +77,5 @@
   --back-to-top-button-color: #fff;
   --search-return-button-color: #F5F5F5;
   --search-return-button-hover-color: #ECECEC;
+  --order-detail-button-pay-color: #94B80A;
 }

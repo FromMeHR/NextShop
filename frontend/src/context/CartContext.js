@@ -32,8 +32,9 @@ export const CartProvider = ({ children }) => {
         setCart(response.data[0]?.items || []);
       } catch (error) {
         console.error("Error fetching cart:", error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     setIsLoading(true);
@@ -41,8 +42,8 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const addToCart = async (productId) => {
-    setIsLoading(true);
     if (!cart.some((item) => item.product_id === productId)) {
+      setIsLoading(true);
       try {
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/summary/`,
@@ -50,16 +51,17 @@ export const CartProvider = ({ children }) => {
           { withCredentials: true }
         );
         setCart(response.data.items);
-        setIsLoading(false);
       } catch (error) {
         console.error("Error adding to cart:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
 
   const updateCartItem = async (itemId, newQuantity, oldQuantity = 0) => {
-    setIsLoading(true);
     if (newQuantity !== oldQuantity) {
+      setIsLoading(true);
       try {
         const response = await axios.patch(
           `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/update-item/${itemId}/`,
@@ -73,9 +75,10 @@ export const CartProvider = ({ children }) => {
               : item
           )
         );
-        setIsLoading(false);
       } catch (error) {
         console.error("Error updating cart item:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -88,9 +91,10 @@ export const CartProvider = ({ children }) => {
         { withCredentials: true }
       );
       setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
-      setIsLoading(false);
     } catch (error) {
       console.error("Error deleting cart item:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
