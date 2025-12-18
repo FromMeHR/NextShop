@@ -53,6 +53,7 @@ services:
         NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
         REDIS_URL: ${REDIS_URL}
         REDIS_SINGLE_CONNECTION: ${REDIS_SINGLE_CONNECTION}
+        JWT_RSA_PUBLIC_KEY: ${JWT_RSA_PUBLIC_KEY}
     container_name: front-prod
     restart: always
     networks:

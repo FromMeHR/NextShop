@@ -1,14 +1,18 @@
 import { useEffect, useState, createContext } from "react";
+import { fetchWithAuth } from "../lib/fetchWithAuth";
 import { PRODUCT_STOCK_STATUS } from "../constants/constants";
-import axios from "axios";
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const outOfStockItems = cart.filter((item) => item.product_stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK);
-  const inStockItems = cart.filter((item) => item.product_stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK);
+  const outOfStockItems = cart.filter(
+    (item) => item.product_stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK
+  );
+  const inStockItems = cart.filter(
+    (item) => item.product_stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK
+  );
   const totalPrice = inStockItems.reduce(
     (sum, item) => sum + item.product_price * item.quantity,
     0
@@ -24,12 +28,12 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchCart = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/summary/`,
-          { withCredentials: true }
+        const response = await fetchWithAuth(
+          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/summary/`
         );
-        setCart(response.data[0]?.items || []);
+        setCart(response[0]?.items || []);
       } catch (error) {
         console.error("Error fetching cart:", error);
       } finally {
@@ -37,7 +41,6 @@ export const CartProvider = ({ children }) => {
       }
     };
 
-    setIsLoading(true);
     fetchCart();
   }, []);
 
@@ -45,12 +48,14 @@ export const CartProvider = ({ children }) => {
     if (!cart.some((item) => item.product_id === productId)) {
       setIsLoading(true);
       try {
-        const response = await axios.post(
+        const response = await fetchWithAuth(
           `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/summary/`,
-          { product_id: productId },
-          { withCredentials: true }
+          {
+            method: "POST",
+            data: { product_id: productId },
+          }
         );
-        setCart(response.data.items);
+        setCart(response.items);
       } catch (error) {
         console.error("Error adding to cart:", error);
       } finally {
@@ -63,15 +68,17 @@ export const CartProvider = ({ children }) => {
     if (newQuantity !== oldQuantity) {
       setIsLoading(true);
       try {
-        const response = await axios.patch(
+        const response = await fetchWithAuth(
           `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/update-item/${itemId}/`,
-          { quantity: newQuantity },
-          { withCredentials: true }
+          {
+            method: "PATCH",
+            data: { quantity: newQuantity },
+          }
         );
         setCart((prevCart) =>
           prevCart.map((item) =>
             item.id === itemId
-              ? { ...item, quantity: response.data.quantity }
+              ? { ...item, quantity: response.quantity }
               : item
           )
         );
@@ -86,9 +93,9 @@ export const CartProvider = ({ children }) => {
   const deleteCartItem = async (itemId) => {
     setIsLoading(true);
     try {
-      await axios.delete(
+      await fetchWithAuth(
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/update-item/${itemId}/`,
-        { withCredentials: true }
+        { method: "DELETE" }
       );
       setCart((prevCart) => prevCart.filter((item) => item.id !== itemId));
     } catch (error) {

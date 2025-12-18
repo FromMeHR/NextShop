@@ -1,6 +1,6 @@
 import { useEffect, useState, createContext } from "react";
-import { toast } from "react-toastify";
-import axios from "axios";
+import { useCookies } from "react-cookie";
+import { fetchWithAuth } from "../lib/fetchWithAuth";
 import useSWR from "swr";
 
 export const AuthContext = createContext();
@@ -8,73 +8,31 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [authToken, setAuthToken] = useState(null);
-  const [isAuth, setIsAuth] = useState(null);
-  const fetcher = ([url, authToken]) =>
-    axios
-      .get(url, {
-        headers: {
-          Authorization: `Token ${authToken}`,
-        },
-      })
-      .then((res) => res.data)
-      .catch((error) => {
-        if (error.response && error.response.status === 401) {
-          logout();
-        }
-        console.error("An error occurred while fetching data:", error);
-      });
+  const [cookies, setCookie, removeCookie] = useCookies(["isAuth"]);
+  const isAuth = Boolean(cookies.isAuth);
+
   const { data, error, mutate } = useSWR(
-    authToken
-      ? [`${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/me/`, authToken]
-      : null,
-    fetcher,
-    { revalidateOnFocus: true }
+    isAuth ? `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/me/` : null,
+    fetchWithAuth,
+    { revalidateOnFocus: true, shouldRetryOnError: false }
   );
 
-  useEffect(() => {
-    const token = localStorage.getItem("Token");
-    const auth = localStorage.getItem("isAuth");
-    if (token) setAuthToken(token);
-    if (auth) setIsAuth(JSON.parse(auth));
-  }, []);
-
-  const login = (authToken) => {
-    localStorage.setItem("Token", authToken);
-    setAuthToken(authToken);
-    localStorage.setItem("isAuth", true);
-    setIsAuth(true);
+  const login = () => {
+    setCookie("isAuth", "1", { path: "/", maxAge: 60 * 60 * 24 * 30 });
   };
 
-  const logout = () => {
-    localStorage.removeItem("Token");
-    setAuthToken("");
-    localStorage.removeItem("isAuth");
-    setIsAuth(false);
-    setUser(null);
+  const logout = async () => {
+    try {
+      await fetchWithAuth(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/jwt/logout/`,
+        { method: "POST" }
+      );
+      setUser(null);
+      removeCookie("isAuth", { path: "/" });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
-
-  useEffect(() => {
-    axios.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response && error.response.status === 401) {
-          if (
-            error.response.data.detail ===
-            "Your session has expired. Please login again."
-          ) {
-            toast.error("Ваш сеанс завершився. Будь ласка, увійдіть ще раз.");
-          }
-          if (error.response.data.detail === "Invalid token") {
-            toast.error("Невірний токен. Будь ласка, увійдіть ще раз.");
-          }
-          logout();
-        }
-        return Promise.reject(error);
-      }
-    );
-    setIsLoading(false);
-  }, []);
 
   useEffect(() => {
     if (data) {
@@ -82,36 +40,17 @@ export const AuthProvider = ({ children }) => {
     }
     if (error) {
       setUser(null);
+      removeCookie("isAuth", { path: "/" });
     }
     setIsLoading(false);
-  }, [data, error]);
-
-  useEffect(() => {
-    if (authToken) {
-      axios.defaults.headers.common["Authorization"] = `Token ${authToken}`;
-    } else {
-      delete axios.defaults.headers.common["Authorization"];
-    }
-  }, [authToken]);
-
-  useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === "Token") {
-        setIsAuth(!!e.newValue);
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
+  }, [data, error, removeCookie]);
 
   const value = {
-    login,
-    logout,
     user,
     isAuth,
     isLoading,
-    authToken,
-    error,
+    login,
+    logout,
     mutate,
   };
 

@@ -1,5 +1,6 @@
 import { useModal } from "../../../../hooks/useModal";
 import { useForm } from "react-hook-form";
+import { useStopwatch } from "react-timer-hook";
 import { toast } from "react-toastify";
 import { EMAIL_PATTERN } from "../../../../constants/constants";
 import classnames from "classnames";
@@ -10,6 +11,10 @@ import css from "./SignUpResendActivationModal.module.css";
 export function SignUpResendActivationModal() {
   const { modals, openModal, closeModal } = useModal();
   const isVisible = modals.signUpResendActivation;
+
+  const { minutes, isRunning, start, reset } = useStopwatch({
+    autoStart: false,
+  });
 
   const errorMessageTemplates = {
     required: "Обов'язкове поле",
@@ -22,22 +27,36 @@ export function SignUpResendActivationModal() {
     formState: { errors, isValid, isSubmitting },
   } = useForm({ mode: "all" });
 
-  const disabled = !isValid || isSubmitting;
+  const disabled = !isValid || isSubmitting || (isRunning && minutes < 1);
 
   const onSubmit = async (value) => {
-    await axios({
-      method: "post",
-      url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/resend_activation/`,
-      data: { email: value.email },
-    })
-      .then(() => {
-        closeModal("signUpResendActivation");
-        openModal("auth");
-        toast.success("Лист успішно надіслано.");
-      })
-      .catch(() => {
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/resend_activation/`,
+        { email: value.email }
+      );
+      closeModal("signUpResendActivation");
+      openModal("auth");
+      toast.success("Лист успішно надіслано.");
+    } catch (error) {
+      if (error.response?.status === 429) {
+        const resp = error.response.data;
+        let waitSeconds = 600;
+        if (resp.detail) {
+          const match = resp.detail.match(/(\d+)\s*seconds/);
+          if (match) {
+            waitSeconds = parseInt(match[1], 10);
+          }
+        }
+        const m = Math.floor(waitSeconds / 60);
+        const s = waitSeconds % 60;
+        isRunning ? reset() : start();
+        toast.error(`Дуже багато запитів. Спробуйте пізніше через ${m} хв ${s} сек`);
+      } else {
         toast.error("Не вдалося надіслати лист. Спробуйте пізніше.");
-      });
+      }
+      console.error("Resend activation failed:", error);
+    }
   };
 
   return ReactDOM.createPortal(

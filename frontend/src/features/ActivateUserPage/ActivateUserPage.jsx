@@ -11,17 +11,16 @@ export function ActivateUserPage({ uid, token }) {
 
   useEffect(() => {
     const handleActivation = async () => {
-      await axios({
-        method: "post",
-        url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/activation/`,
-        data: { uid: uid, token: token },
-      })
-        .then((resp) => {
-          setActivationStatus(resp.data.message);
-        })
-        .catch(() => {
-          setActivationStatus("Activation error");
-        });
+      try {
+        const resp = await axios.post(
+          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/activation/`,
+          { uid: uid, token: token }
+        );
+        setActivationStatus(resp.data.message);
+      } catch (error) {
+        console.error("Activation failed:", error);
+        setActivationStatus("Activation error");
+      }
     };
 
     handleActivation();

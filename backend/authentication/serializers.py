@@ -1,11 +1,9 @@
 from collections import defaultdict
-from djoser.conf import settings as djoser_settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from djoser.serializers import (
     UserCreatePasswordRetypeSerializer,
     UserSerializer,
-    TokenCreateSerializer,
 )
 from rest_framework import serializers
 
@@ -73,20 +71,3 @@ class UserListSerializer(UserSerializer):
             "is_staff",
             "is_superuser",
         )
-
-
-class CustomTokenCreateSerializer(TokenCreateSerializer):
-    def validate(self, attrs):
-        email = attrs.get(djoser_settings.LOGIN_FIELD)
-        password = attrs.get("password")
-
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return super().validate({"email": email, "password": password })
-
-        if not user.is_active and user.check_password(password):
-            raise serializers.ValidationError({
-                "email_not_verified": "E-mail verification required"
-            }, code=400)
-        return super().validate({"email": email, "password": password })

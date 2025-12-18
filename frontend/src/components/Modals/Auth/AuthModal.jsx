@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useCart } from "../../../hooks/useCart";
 import { useModal } from "../../../hooks/useModal";
+import { fetchWithAuth } from "../../../lib/fetchWithAuth";
 import { useForm } from "react-hook-form";
+import { useStopwatch } from "react-timer-hook";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { ErrorMessage } from "@hookform/error-message";
@@ -18,7 +20,7 @@ import {
 import css from "./AuthModal.module.css";
 
 export function AuthModal() {
-  const { login } = useAuth();
+  const { login, mutate } = useAuth();
   const { setCart } = useCart();
   const { modals, openModal, closeModal } = useModal();
   const isVisible = modals.auth;
@@ -29,10 +31,19 @@ export function AuthModal() {
     setActiveForm(form);
   };
 
+  const { minutes, isRunning, start, reset } = useStopwatch({
+    autoStart: false,
+  });
+
   const errorMessageTemplates = {
     required: "Обов'язкове поле",
     email: "Введіть E-mail у форматі name@example.com",
     unspecifiedError: "E-mail або пароль вказані некоректно",
+    rateError: (sec) => {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `Дуже багато запитів. Спробуйте пізніше через ${m} хв ${s} сек`;
+    },
   };
 
   const {
@@ -46,59 +57,80 @@ export function AuthModal() {
 
   const watchedEmail = watch("email");
   const watchedPassword = watch("password");
-  const disabled = !isValid || isSubmitting;
+  const disabled = !isValid || isSubmitting || (isRunning && minutes < 1);
 
   useEffect(() => {
     clearErrors("unspecifiedError");
   }, [watchedEmail, watchedPassword, clearErrors]);
 
   const onSubmit = async (value) => {
-    await axios({
-      method: "post",
-      url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/token/login/`,
-      data: { email: value.email, password: value.password },
-    })
-      .then(async (resp) => {
-        const authToken = resp.data.auth_token;
-        await axios({
-          method: "post",
-          url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/sync/`,
-          headers: { Authorization: `Token ${authToken}` },
-          withCredentials: true,
-        })
-          .then((syncResp) => {
-            setCart(syncResp.data.items || []);
-          })
-          .catch((error) => {
-            console.error("Cart sync failed:", error);
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/jwt/create/`,
+        { email: value.email, password: value.password }
+      );
+
+      try {
+        const syncResp = await fetchWithAuth(
+          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/sync/`,
+          { method: "POST" }
+        );
+        setCart(syncResp.items || []);
+      } catch (syncError) {
+        console.error("Cart sync failed:", syncError);
+      }
+
+      login();
+      mutate();
+      closeModal("auth");
+      router.push("/profile/user-info");
+    } catch (error) {
+      if (error.response?.status === 401) {
+        const resp = error.response.data;
+        if (
+          resp.email_not_verified &&
+          resp.email_not_verified === "E-mail verification required"
+        ) {
+          closeModal("auth");
+          openModal("signUpCompletion");
+          return;
+        }
+        if (
+          resp.detail &&
+          resp.detail === "No active account found with the given credentials"
+        ) {
+          setError("unspecifiedError", {
+            type: "manual",
+            message: errorMessageTemplates.unspecifiedError,
           });
-        login(authToken);
-        closeModal("auth");
-        router.push("/profile/user-info");
-      })
-      .catch((error) => {
-        if (error.response.status === 400) {
-          const resp = error.response.data;
-          if (
-            resp.email_not_verified &&
-            resp.email_not_verified[0] === "E-mail verification required"
-          ) {
-            closeModal("auth");
-            openModal("signUpCompletion");
-          }
-          if (
-            resp.non_field_errors &&
-            resp.non_field_errors[0] ===
-              "Unable to log in with provided credentials."
-          ) {
-            setError("unspecifiedError", {
-              type: "manual",
-              message: errorMessageTemplates.unspecifiedError,
-            });
+          return;
+        }
+      } else if (error.response?.status === 429) {
+        const resp = error.response.data;
+        let waitSeconds = 600;
+        if (resp.detail) {
+          const match = resp.detail.match(/(\d+)\s*seconds/);
+          if (match) {
+            waitSeconds = parseInt(match[1], 10);
           }
         }
-      });
+        isRunning ? reset() : start();
+        toast.error(errorMessageTemplates.rateError(waitSeconds));
+        return;
+      }
+      console.error("Login failed:", error);
+      toast.error("Під час авторизації сталася помилка. Спробуйте пізніше.");
+    }
   };
+
+  const {
+    minutes: minutesSignUp,
+    isRunning: isRunningSignUp,
+    start: startSignUp,
+    reset: resetSignUp,
+  } = useStopwatch({
+    autoStart: false,
+  });
 
   const errorSignUpMessageTemplates = {
     required: "Обов'язкове поле",
@@ -108,6 +140,11 @@ export function AuthModal() {
     confirmPassword: "Паролі не співпадають",
     notAllowedSymbols: "Поле містить недопустимі символи та/або цифри",
     maxLength: "Кількість символів перевищує максимально допустиму (128 символів)",
+    rateError: (sec) => {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `Дуже багато запитів. Спробуйте пізніше через ${m} хв ${s} сек`;
+    },
   };
 
   const {
@@ -133,7 +170,7 @@ export function AuthModal() {
 
   const watchedSignUpPassword = watchSignUp("password");
   const watchedSignUpConfirmPassword = watchSignUp("confirmPassword");
-  const disabledSignUp = !isValidSignUp || isSubmittingSignUp;
+  const disabledSignUp = !isValidSignUp || isSubmittingSignUp || (isRunningSignUp && minutesSignUp < 1);
 
   useEffect(() => {
     const handleValidation = async () => {
@@ -154,29 +191,36 @@ export function AuthModal() {
       re_password: value.confirmPassword,
     };
 
-    await axios({
-      method: "post",
-      url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/`,
-      data: dataToSend,
-    })
-      .then(() => {
-        closeModal("auth");
-        openModal("signUpCompletion");
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 400) {
-          if (error.response.data.email) {
-            setErrorSignUp("email", {
-              type: "manual",
-              message: "Цей E-mail вже зареєстровано.",
-            });
-          } else {
-            toast.error(
-              "Під час реєстрації сталася помилка. Спробуйте пізніше."
-            );
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/`,
+        dataToSend
+      );
+      closeModal("auth");
+      openModal("signUpCompletion");
+    } catch (error) {
+      if (error.response?.status === 400 && error.response.data.email) {
+        setErrorSignUp("email", {
+          type: "manual",
+          message: "Цей E-mail вже зареєстровано.",
+        });
+        return;
+      } else if (error.response?.status === 429) {
+        const resp = error.response.data;
+        let waitSeconds = 600;
+        if (resp.detail) {
+          const match = resp.detail.match(/(\d+)\s*seconds/);
+          if (match) {
+            waitSeconds = parseInt(match[1], 10);
           }
         }
-      });
+        isRunningSignUp ? resetSignUp() : startSignUp();
+        toast.error(errorSignUpMessageTemplates.rateError(waitSeconds));
+        return;
+      }
+      console.error("Sign up failed:", error);
+      toast.error("Під час реєстрації сталася помилка. Спробуйте пізніше.");
+    }
   };
 
   return ReactDOM.createPortal(

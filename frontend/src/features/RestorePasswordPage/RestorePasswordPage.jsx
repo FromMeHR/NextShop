@@ -50,39 +50,30 @@ export function RestorePasswordPage({ uid, token }) {
       re_new_password: value.confirmPassword,
     };
 
-    await axios({
-      method: "post",
-      url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/reset_password_confirm/`,
-      data: dataToSend,
-    })
-      .then((resp) => {
-        openModal("restorePasswordResult", { restorePasswordStatus: resp.data.message });
-      })
-      .catch((error) => {
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.new_password
-        ) {
-          const newPasswordError = error.response.data.new_password[0];
-          if (newPasswordError === "This password is too common.") {
-            setError("confirmPassword", {
-              type: "manual",
-              message: "Пароль занадто поширений.",
-            });
-          } else if (
-            newPasswordError.startsWith("The password is too similar to the")
-          ) {
-            setError("confirmPassword", {
-              type: "manual",
-              message:
-                "Пароль подібний до персональної інформації акаунту.",
-            });
-          }
-        } else {
-          openModal("restorePasswordResult", { restorePasswordStatus: "Restore password error" });
+    try {
+      const resp = await axios.post(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/reset_password_confirm/`,
+        dataToSend
+      );
+      openModal("restorePasswordResult", { restorePasswordStatus: resp.data.message });
+    } catch (error) {
+      const newPasswordError = error.response?.data?.new_password?.[0];
+      if (newPasswordError) {
+        if (newPasswordError === "This password is too common.") {
+          setError("confirmPassword", {
+            type: "manual",
+            message: "Пароль занадто поширений.",
+          });
+        } else if (newPasswordError.startsWith("The password is too similar to the")) {
+          setError("confirmPassword", {
+            type: "manual",
+            message: "Пароль подібний до персональної інформації акаунту.",
+          });
         }
-      });
+      } else {
+        openModal("restorePasswordResult", { restorePasswordStatus: "Restore password error" });
+      }
+    }
   };
 
   return (

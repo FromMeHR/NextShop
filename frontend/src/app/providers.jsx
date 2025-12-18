@@ -1,6 +1,7 @@
 "use client";
 
 import { ConfigProvider } from "antd";
+import { CookiesProvider } from "react-cookie";
 import { customTheme } from "../constants/customTheme";
 import { AuthProvider } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
@@ -30,9 +31,11 @@ function AuthGate({ children }) {
 export function Providers({ children }) {
   return (
     <ConfigProvider theme={customTheme}>
-      <AuthProvider>
-        <AuthGate>{children}</AuthGate>
-      </AuthProvider>
+      <CookiesProvider>
+        <AuthProvider>
+          <AuthGate>{children}</AuthGate>
+        </AuthProvider>
+      </CookiesProvider>
     </ConfigProvider>
   );
 }

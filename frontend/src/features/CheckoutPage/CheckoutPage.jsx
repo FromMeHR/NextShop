@@ -3,6 +3,7 @@
 import React from "react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { useStopwatch } from "react-timer-hook";
 import {
   EMAIL_PATTERN,
   ALLOWED_NAME_SURNAME_SYMBOLS_PATTERN,
@@ -10,12 +11,15 @@ import {
 } from "../../constants/constants";
 import { useCart } from "../../hooks/useCart";
 import { useModal } from "../../hooks/useModal";
+import { useAuth } from "../../hooks/useAuth";
 import { useDropdownPosition } from "../../hooks/useDropdownPosition";
 import { Loader } from "../../components/Loader/Loader";
 import { debounce } from "lodash";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { PAYMENT_NAME } from "../../constants/constants";
+import { fetchWithAuth } from "../../lib/fetchWithAuth";
+import { redirectToAuth } from "../../lib/redirectToAuth";
 import useSWR from "swr";
 import axios from "axios";
 import classnames from "classnames";
@@ -35,6 +39,7 @@ export function CheckoutPage() {
   );
   const { cart, outOfStockItems, totalPrice, totalWeight, totalQuantity, isLoading } = useCart();
   const { openModal } = useModal();
+  const { isAuth } = useAuth();
 
   const router = useRouter();
 
@@ -59,6 +64,10 @@ export function CheckoutPage() {
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
 
+  const { minutes, isRunning, start, reset } = useStopwatch({
+    autoStart: false,
+  });
+
   const errorMessageTemplates = {
     requiredContact: "Заповніть правильно ваші контактні дані",
     requiredDelivery: "Заповніть правильно спосіб доставки",
@@ -76,6 +85,8 @@ export function CheckoutPage() {
     trigger,
     formState: { errors, isSubmitted, isSubmitting },
   } = useForm({ mode: "all" });
+
+  const disabled = isSubmitting || outOfStockItems.length > 0 || (isRunning && minutes < 1);
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem("checkoutData")) || {};
@@ -476,32 +487,54 @@ export function CheckoutPage() {
       selected_payment_method: selectedPaymentMethod.name,
     };
 
-    await axios({
-      method: "post",
-      url: `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/create-order/`,
-      data: dataToSend,
-      withCredentials: true,
-    })
-      .then((resp) => {
-        const forwardUrl = resp.data?.forward_url;
-        const redirectUrl = resp.data?.redirect_url;
-        if (redirectUrl && forwardUrl) {
-          localStorage.setItem("forwardUrl", forwardUrl);
-          router.push(new URL(redirectUrl).pathname);
+    if (isAuth) {
+      try {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/jwt/refresh/`,
+          {},
+          { withCredentials: true }
+        );
+      } catch {
+        redirectToAuth();
+        return;
+      }
+    }
+    try {
+      const resp = await fetchWithAuth(
+        `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/create-order/`,
+        {
+          method: "POST",
+          data: dataToSend,
         }
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 400) {
-          const errorMessage = error.response.data[0];
-          if (errorMessage) {
-            toast.error(errorMessage);
+      );
+      const forwardUrl = resp?.forward_url;
+      const redirectUrl = resp?.redirect_url;
+      if (redirectUrl && forwardUrl) {
+        localStorage.setItem("forwardUrl", forwardUrl);
+        router.push(new URL(redirectUrl).pathname);
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.[0];
+      if (error.response?.status === 400 && errorMessage) {
+        toast.error(errorMessage);
+      } else if (error.response?.status === 429) {
+        const resp = error.response.data;
+        let waitSeconds = 600;
+        if (resp.detail) {
+          const match = resp.detail.match(/(\d+)\s*seconds/);
+          if (match) {
+            waitSeconds = parseInt(match[1], 10);
           }
-          console.error(error);
-        } else {
-          console.error(error);
-          toast.error("Сталася помилка. Будь ласка, спробуйте пізніше.");
         }
-      });
+        const m = Math.floor(waitSeconds / 60);
+        const s = waitSeconds % 60;
+        isRunning ? reset() : start();
+        toast.error(`Дуже багато запитів. Спробуйте пізніше через ${m} хв ${s} сек`);
+      } else {
+        toast.error("Сталася помилка. Будь ласка, спробуйте пізніше.");
+      }
+      console.error(error);
+    }
   };
 
   return (
@@ -1528,7 +1561,7 @@ export function CheckoutPage() {
                   </div>
                   <button
                     type="submit"
-                    disabled={isSubmitting || outOfStockItems.length > 0}
+                    disabled={disabled}
                     className={`${css["checkout__content-button"]} ${css["full"]}`}
                   >
                     Підтвердити замовлення

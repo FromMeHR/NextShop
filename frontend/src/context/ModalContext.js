@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AuthModal } from "../components/Modals/Auth/AuthModal";
 import { CartModal } from "../components/Modals/Cart/CartModal";
 import { SignUpCompletionModal } from "../components/Modals/Auth/SignUp/SignUpCompletionModal";
@@ -7,6 +8,7 @@ import { RestorePasswordSendEmailModal } from "../components/Modals/Auth/Restore
 import { RestorePasswordCompletionModal } from "../components/Modals/Auth/RestorePassword/RestorePasswordCompletionModal";
 import { RestorePasswordResultModal } from "../components/Modals/Auth/RestorePassword/RestorePasswordResultModal";
 import { BackdropModal } from "../components/Modals/Backdrop/BackdropModal";
+import { toast } from "react-toastify";
 
 export const ModalContext = createContext();
 
@@ -22,6 +24,8 @@ export const ModalProvider = ({ children }) => {
   });
   const [modalProps, setModalProps] = useState({});
   const isOverlayVisible = Object.values(modals).some(Boolean);
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   const openModal = useCallback((key, props = {}) => {
     setModals((prev) => ({ ...prev, [key]: true }));
@@ -49,6 +53,18 @@ export const ModalProvider = ({ children }) => {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [modals, closeAllModals]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (params.get("showAuthModal") === "1") {
+      params.delete("showAuthModal");
+      openModal("auth");
+      router.replace(`/?${params.toString()}`);
+      toast.info("Сесія закінчилась. Будь ласка, увійдіть ще раз.", {
+        toastId: "auth-expired",
+      });
+    }
+  }, [searchParams, router, openModal]);
 
   return (
     <ModalContext.Provider value={{ modals, openModal, closeModal }}>

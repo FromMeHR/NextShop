@@ -6,9 +6,6 @@ const nextConfig = {
   cacheHandler:
     process.env.NODE_ENV === "production" ? "./cache-handler.mjs" : undefined,
   cacheMaxMemorySize: process.env.NODE_ENV === "production" ? 0 : undefined,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
 };
 
 export default nextConfig;

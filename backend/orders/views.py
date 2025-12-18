@@ -39,6 +39,7 @@ from .serializers import (
     NovaPoshtaStreetSerializer,
     OrderDetailSerializer
 )
+from shop.throttling import CreateOrderThrottle
 
 
 class SearchCityView(ListAPIView):
@@ -121,6 +122,8 @@ class StreetListView(APIView):
 
 
 class CreateOrderView(APIView):
+    throttle_classes = [CreateOrderThrottle]
+
     def post(self, request):
         data = request.data
         required_fields = [
