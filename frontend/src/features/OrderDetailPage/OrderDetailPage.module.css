@@ -129,10 +129,11 @@
     align-items: center;
 }
 
-.order-detail__btn-back {
+.order-detail__btn-back,
+.order-detail__btn-profile {
     text-decoration: none;
-    padding: 10px 50px;
-    background-color: var(--search-return-button-color);
+    padding: 10px 25px;
+    background-color: var(--main-button-grey-color);
     transition: background-color 0.3s ease-in-out;
     border: none;
     color: var(--main-text-color);
@@ -142,15 +143,26 @@
 }
 
 .order-detail__btn-back:hover {
-    background-color: var(--search-return-button-hover-color);
+    background-color: var(--main-button-grey-hover-color);
+    cursor: pointer;
+}
+
+.order-detail__btn-profile {
+    margin-bottom: 10px;
+    background-color: var(--main-button-color);
+    color: var(--light-text-color);
+}
+
+.order-detail__btn-profile:hover {
+    background-color: var(--main-button-hover-color);
     cursor: pointer;
 }
 
 .order-detail__btn-pay {
     text-decoration: none;
-    height: 45px;
+    min-height: 45px;
     padding: 10px 30px;
-    background-color: var(--order-detail-button-pay-color);
+    background-color: var(--main-green-color);
     transition: background-color 0.3s ease-in-out;
     border: none;
     color: var(--light-text-color);
@@ -162,6 +174,14 @@
 .order-detail__btn-pay:hover {
     background-color: var(--main-dark-green-color);
     cursor: pointer;
+}
+
+.order-detail__btn-back:focus, .order-detail__btn-back:active:focus,
+.order-detail__btn-profile:focus, .order-detail__btn-profile:active:focus,
+.order-detail__btn-pay:focus, .order-detail__btn-pay:active:focus {
+    background-color: var(--main-button-focus-color);
+    color: var(--main-button-focus-text-color);
+    border: 1px solid var(--main-button-focus-border-color);
 }
 
 .cart-wrapper {
@@ -217,17 +237,6 @@
     word-break: break-word;
 }
 
-.cart__product-col-info a {
-    text-decoration: none;
-    color: var(--main-text-color);
-    cursor: pointer;
-    transition: color 0.3s ease-in-out;
-}
-
-.cart__product-col-info a:hover {
-    color: var(--secondary-text-color);
-}
-
 .cart__product-title {
     font-size: 0.875rem;
     font-weight: 500;
@@ -245,7 +254,7 @@
     font-weight: 500;
     text-align: right;
     margin-right: 10px;
-    min-width: 80px;
+    min-width: 90px;
 }
 
 .cart__product-price-wnum span {
@@ -257,7 +266,7 @@
     font-weight: 500;
     text-align: right;
     margin-right: 10px;
-    min-width: 80px;
+    min-width: 90px;
 }
 
 .order-detail__cart-total-info {
@@ -285,14 +294,8 @@
     flex-basis: 55%;
 }
 
-.order-detail__cart-total-amount {
-    font-size: 1.875rem;
-    line-height: 1;
-    font-weight: 400;
-}
-
-.order-detail__cart-total-amount span {
-    font-size: 1.375rem;
+.order-detail__cart-total-info-column-right.total {
+    font-size: 1rem;
 }
 
 .order-detail__payment-status {
@@ -304,13 +307,13 @@
 }
 
 .order-detail__payment-status.paid {
-    background-color: var(--order-detail-paid-background-color);
-    color: var(--order-detail-paid-text-color);
+    background-color: var(--status-green-background-color);
+    color: var(--status-green-text-color);
 }
 
 .order-detail__payment-status.cancelled {
-    background-color: var(--order-detail-cancelled-background-color);
-    color: var(--order-detail-cancelled-text-color);
+    background-color: var(--status-grey-background-color);
+    color: var(--status-grey-text-color);
 }
 
 .order-detail__summary-header {
@@ -342,13 +345,12 @@
     }
 
     .order-detail__left .order-detail__block {
-        border: 2px solid var(--border-color);
-        border-bottom: 1px solid var(--border-color);
+        border: 1px solid var(--border-color);
     }
 
     .order-detail__right .order-detail__block {
-        border: 2px solid var(--border-color);
-        border-top: 1px solid var(--border-color);
+        border: 1px solid var(--border-color);
+        border-top: none;
     }
 
     .order-detail__block {
@@ -369,7 +371,8 @@
         color: var(--main-text-color);
     }
 
-    .order-detail__btn-back {
+    .order-detail__btn-back,
+    .order-detail__btn-profile {
         width: 100%;
     }
 }

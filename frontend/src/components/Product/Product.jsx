@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCart } from "../../hooks/useCart";
 import { useModal } from "../../hooks/useModal";
+import { formatPrice } from "../../utils/formatPrice";
 import {
   PRODUCT_STOCK_STATUS,
   PRODUCT_STOCK_STATUS_LABELS,
@@ -35,7 +36,7 @@ export function Product({ product }) {
         {product.stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK ? (
           <div className={css["product-card-footer"]}>
             <p className={css["product-card-price"]}>
-              {product.price} <span>₴</span>
+              {formatPrice(product.price)} <span>₴</span>
             </p>
             <button
               type="button"

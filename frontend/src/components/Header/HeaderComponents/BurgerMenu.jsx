@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../../hooks/useAuth";
 import { useModal } from "../../../hooks/useModal";
 import { useBurgerMenu } from "../../../hooks/useBurgerMenu";
@@ -10,6 +11,7 @@ export function BurgerMenu() {
   const { isOpen, toggleMenu } = useBurgerMenu();
   const { isAuth } = useAuth();
   const { openModal } = useModal();
+  const router = useRouter();
 
   return (
     <>
@@ -34,7 +36,14 @@ export function BurgerMenu() {
         <div className={css["burger-actions"]}>
           <div
             className={css["burger-user-button"]}
-            onClick={() => openModal("auth")}
+            onClick={() =>
+              isAuth
+                ? (() => {
+                    toggleMenu();
+                    router.push("/profile/user-info");
+                  })()
+                : openModal("auth")
+            }
           >
             <div className={css["user-icon-wrapper"]}>
               <img

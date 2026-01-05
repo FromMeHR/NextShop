@@ -127,7 +127,6 @@ class Order(models.Model):
     PAYMENT_DECLINED = "payment_declined"
     PREPARING = "preparing"
     SENT = "sent"
-    DELIVERED = "delivered"
     RECEIVED = "received"
     RETURNED = "returned"
     DECLINED = "declined"
@@ -136,7 +135,6 @@ class Order(models.Model):
         (PAYMENT_DECLINED, "Payment Declined"),
         (PREPARING, "Preparing"),
         (SENT, "Sent"),
-        (DELIVERED, "Delivered"),
         (RECEIVED, "Received"),
         (RETURNED, "Returned"),
         (DECLINED, "Declined"),
@@ -162,6 +160,7 @@ class Order(models.Model):
     delivery_apartment = models.PositiveIntegerField(blank=True, null=True)
     delivery_notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.order_code
@@ -170,7 +169,10 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name="order_items", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
-    quantity = models.PositiveIntegerField(default=0)
+    product_name = models.CharField(max_length=255)
+    product_price = models.DecimalField(max_digits=10, decimal_places=2)
+    product_weight = models.DecimalField(max_digits=10, decimal_places=2)
+    product_quantity = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f"{self.product.name} - {self.quantity}"
+        return f"{self.product_name} - {self.product_quantity}"

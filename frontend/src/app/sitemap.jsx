@@ -1,11 +1,10 @@
-import { notFound } from "next/navigation";
-
 export async function generateSitemaps() {
   return [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }];
 }
 
-export default async function sitemap({ id }) {
-  if (id === "0") {
+export default async function sitemap(props) {
+  const page = Number(await props.id);
+  if (page === 0) {
     const routes = [
       "",
     ];
@@ -15,11 +14,7 @@ export default async function sitemap({ id }) {
       priority: 1,
     }));
   }
-  const validIds = ["1", "2", "3"];
-  if (!validIds.includes(id)) {
-    return notFound();
-  }
-  const start = (id - 1) * 50000;
+  const start = (page - 1) * 50000;
   const end = start + 50000;
   try {
     const res = await fetch(

@@ -40,14 +40,13 @@ def check_expired_orders():
                 product_ids = [item.product.id for item in order.order_items.all() if item.product]
                 products = {
                     product.id: product for product in Product.objects
-                    .prefetch_related("categories")
                     .select_for_update()
                     .filter(id__in=product_ids)
                 }
 
                 for item in order.order_items.all():
                     product = products.get(item.product.id)
-                    product.quantity_in_orders = max(product.quantity_in_orders - item.quantity, 0)
+                    product.quantity_in_orders = max(product.quantity_in_orders - item.product_quantity, 0)
                     product.save()
 
                 order.status = Order.PAYMENT_DECLINED

@@ -16,6 +16,10 @@ from shop.throttling import (
     UserRegisterThrottle,
     UserResendActivationThrottle,
     UserResetPasswordThrottle,
+    UserSetPasswordThrottle,
+    UserResetEmailThrottle,
+    UserSetEmailThrottle,
+    UserProfileUpdateThrottle,
     TokenObtainThrottle,
     TokenRefreshThrottle,
 )
@@ -31,6 +35,14 @@ class UserViewSet(BaseUserViewSet):
             self.throttle_classes = [UserResendActivationThrottle]
         elif self.action == "reset_password":
             self.throttle_classes = [UserResetPasswordThrottle]
+        elif self.action == "set_password":
+            self.throttle_classes = [UserSetPasswordThrottle]
+        elif self.action == "reset_email":
+            self.throttle_classes = [UserResetEmailThrottle]
+        elif self.action == "set_email":
+            self.throttle_classes = [UserSetEmailThrottle]
+        elif self.action == "me" and self.request.method in ("PUT", "PATCH"):
+            self.throttle_classes = [UserProfileUpdateThrottle]
         return super().get_throttles()
 
 

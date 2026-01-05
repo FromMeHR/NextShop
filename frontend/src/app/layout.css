@@ -18,6 +18,10 @@ a {
   text-decoration: none;
 }
 
+a:focus {
+  outline: none;
+}
+
 p {
   margin-bottom: 1rem;
 }
@@ -32,6 +36,11 @@ input {
 
 button {
   font-family: inherit;
+  user-select: none;
+}
+
+button:focus {
+  outline: none;
 }
 
 button:not(:disabled) {

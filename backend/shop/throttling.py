@@ -62,6 +62,30 @@ class UserResetPasswordThrottle(RedisFixedWindowThrottle):
     scope = "reset_password"
 
 
+class UserSetPasswordThrottle(RedisFixedWindowThrottle):
+    calls = 5
+    period = 600
+    scope = "set_password"
+
+
+class UserResetEmailThrottle(RedisFixedWindowThrottle):
+    calls = 5
+    period = 600
+    scope = "reset_email"
+
+
+class UserSetEmailThrottle(RedisFixedWindowThrottle):
+    calls = 5
+    period = 600
+    scope = "set_email"
+
+
+class UserProfileUpdateThrottle(RedisFixedWindowThrottle):
+    calls = 10
+    period = 600
+    scope = "profile_update"
+
+
 class TokenObtainThrottle(RedisFixedWindowThrottle):
     calls = 10
     period = 600

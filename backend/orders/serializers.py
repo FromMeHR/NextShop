@@ -69,11 +69,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_id = serializers.ReadOnlyField(source="product.id")
-    product_name = serializers.ReadOnlyField(source="product.name")
     product_slug = serializers.ReadOnlyField(source="product.slug")
-    product_price = serializers.ReadOnlyField(source="product.price")
-    product_stock_status = serializers.ReadOnlyField(source="product.stock_status")
-    product_weight = serializers.ReadOnlyField(source="product.weight")
     product_image = serializers.SerializerMethodField()
 
     class Meta:
@@ -81,13 +77,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "product_id",
-            "product_name",
             "product_slug",
-            "product_price",
-            "product_stock_status",
-            "product_weight",
             "product_image",
-            "quantity",
+            "product_name",
+            "product_price",
+            "product_weight",
+            "product_quantity",
         ]
 
     def get_product_image(self, obj):
@@ -122,6 +117,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             "delivery_apartment",
             "delivery_notes",
             "created_at",
+            "sent_at",
             "total_price",
             "total_quantity",
             "total_weight",

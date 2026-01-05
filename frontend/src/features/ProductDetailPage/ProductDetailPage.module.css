@@ -65,18 +65,18 @@
 }
 
 .product-detail__status.out-of-stock {
-    background-color: var(--product-out-of-stock-background-color);
-    color: var(--product-out-of-stock-text-color);
+    background-color: var(--status-grey-background-color);
+    color: var(--status-grey-text-color);
 }
 
 .product-detail__status.low-stock {
-    background-color: var(--product-low-stock-background-color);
-    color: var(--product-low-stock-text-color);
+    background-color: var(--status-orange-background-color);
+    color: var(--status-orange-text-color);
 }
 
 .product-detail__status.in-stock {
-    background-color: var(--product-in-stock-background-color);
-    color: var(--product-in-stock-text-color);
+    background-color: var(--status-green-background-color);
+    color: var(--status-green-text-color);
 }
 
 .buy-now-button {
@@ -102,6 +102,12 @@
     cursor: pointer;
 }
 
+.buy-now-button:focus, .buy-now-button:active:focus {
+    background-color: var(--main-button-focus-color);
+    color: var(--main-button-focus-text-color);
+    border: 1px solid var(--main-button-focus-border-color);
+}
+
 .buy-now-button span {
     position: relative;
     padding-left: 20px;
@@ -116,6 +122,11 @@
     top: 50%;
     left: 0;
     translate: -50% -50%;
+    filter: brightness(0) invert(1);
+}
+
+.buy-now-button:focus span img, .buy-now-button:active:focus span img {
+    filter: none;
 }
 
 @media only screen and (max-width: 768px) {

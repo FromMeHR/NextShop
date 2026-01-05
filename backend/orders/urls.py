@@ -7,7 +7,8 @@ from .views import (
     CreateOrderView,
     MonobankPaymentStatusView,
     EasyPayPaymentStatusView,
-    OrderDetailView
+    OrderDetailView,
+    OrderListView
 )
 
 app_name = "orders"
@@ -18,7 +19,8 @@ urlpatterns = [
     path("warehouses/", WarehouseListView.as_view(), name="warehouse_list"),
     path("streets/", StreetListView.as_view(), name="street_list"),
     path("create-order/", CreateOrderView.as_view(), name="create_order"),
-    path("order/<str:order_code>/", OrderDetailView.as_view(), name="order_detail"),
+    path("orders/", OrderListView.as_view(), name="order_list"),
+    path("orders/<str:order_code>/", OrderDetailView.as_view(), name="order_detail"),
     path("monobank/payment-status/", MonobankPaymentStatusView.as_view(), name="monobank_payment_status"),
     path("easypay/payment-status/", EasyPayPaymentStatusView.as_view(), name="easypay_payment_status"),
 ]

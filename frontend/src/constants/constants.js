@@ -36,6 +36,7 @@ export const PAYMENT_NAME_LABELS = {
   [PAYMENT_NAME.EASYPAY]: "EasyPay",
   [PAYMENT_NAME.PLATA_BY_MONO]: "plata by mono",
 };
+
 export const PAYMENT_STATUS = {
   CREATED: "created",
   PROCESSING: "processing",
@@ -45,6 +46,25 @@ export const PAYMENT_STATUS = {
   REVERSED: "reversed",
   EXPIRED: "expired",
 };
+export const PAYMENT_STATUS_LABELS = {
+  [PAYMENT_STATUS.CREATED]: "Створено",
+  [PAYMENT_STATUS.PROCESSING]: "Обробляється",
+  [PAYMENT_STATUS.HOLD]: "Сума заблокована",
+  [PAYMENT_STATUS.SUCCESS]: "Оплачено",
+  [PAYMENT_STATUS.FAILURE]: "Помилка оплати",
+  [PAYMENT_STATUS.REVERSED]: "Оплата повернена",
+  [PAYMENT_STATUS.EXPIRED]: "Скасовано",
+};
+export const PAYMENT_STATUS_CLASSES = {
+  [PAYMENT_STATUS.CREATED]: "orange",
+  [PAYMENT_STATUS.PROCESSING]: "orange",
+  [PAYMENT_STATUS.HOLD]: "grey",
+  [PAYMENT_STATUS.FAILURE]: "grey",
+  [PAYMENT_STATUS.REVERSED]: "grey",
+  [PAYMENT_STATUS.EXPIRED]: "grey",
+  [PAYMENT_STATUS.SUCCESS]: "green",
+};
+
 export const PAYMENT_METHOD = {
   PAN: "pan",
   APPLE: "apple",
@@ -53,17 +73,36 @@ export const PAYMENT_METHOD = {
   WALLET: "wallet",
   DIRECT: "direct",
 };
+
 export const PAYMENT_SYSTEM = {
   VISA: "visa",
   MASTERCARD: "mastercard",
 };
+
 export const ORDER_STATUS = {
   AWAITING_PAYMENT: "awaiting_payment",
   PAYMENT_DECLINED: "payment_declined",
   PREPARING: "preparing",
   SENT: "sent",
-  DELIVERED: "delivered",
   RECEIVED: "received",
   RETURNED: "returned",
   DECLINED: "declined",
+};
+export const ORDER_STATUS_LABELS = {
+  [ORDER_STATUS.AWAITING_PAYMENT]: "Очікується оплата",
+  [ORDER_STATUS.PAYMENT_DECLINED]: "Скасовано",
+  [ORDER_STATUS.PREPARING]: "Обробляється",
+  [ORDER_STATUS.SENT]: "Відправлено",
+  [ORDER_STATUS.RECEIVED]: "Отримано",
+  [ORDER_STATUS.RETURNED]: "Повернено",
+  [ORDER_STATUS.DECLINED]: "Скасовано",
+};
+export const ORDER_STATUS_CLASSES = {
+  [ORDER_STATUS.AWAITING_PAYMENT]: "orange",
+  [ORDER_STATUS.PREPARING]: "orange",
+  [ORDER_STATUS.RETURNED]: "orange",
+  [ORDER_STATUS.PAYMENT_DECLINED]: "grey",
+  [ORDER_STATUS.DECLINED]: "grey",
+  [ORDER_STATUS.SENT]: "green",
+  [ORDER_STATUS.RECEIVED]: "green",
 };

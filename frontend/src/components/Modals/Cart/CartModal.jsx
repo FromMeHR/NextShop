@@ -3,6 +3,7 @@ import Link from "next/link";
 import { debounce } from "lodash";
 import { useCart } from "../../../hooks/useCart";
 import { useModal } from "../../../hooks/useModal";
+import { formatPrice } from "../../../utils/formatPrice";
 import { PRODUCT_STOCK_STATUS } from "../../../constants/constants";
 import ReactDOM from "react-dom";
 import css from "./CartModal.module.css";
@@ -77,7 +78,9 @@ export function CartModal() {
               Кошик
               <span className={css["cart-products-count"]}>
                 {totalQuantity > 1
-                  ? `${totalQuantity} товарів`
+                  ? totalQuantity < 5
+                    ? `${totalQuantity} товари`
+                    : `${totalQuantity} товарів`
                   : `${totalQuantity} товар`}
               </span>
               <img
@@ -120,12 +123,13 @@ export function CartModal() {
                       </div>
                       <div className={css["cart-page__product-column-wrapper"]}>
                         <div className={css["cart-page__product-column"]}>
-                          <a
+                          <Link
                             href={`/product-detail/${item.product_slug}`}
                             className={css["cart-page__product-title"]}
+                            onClick = {() => closeModal("cart")}
                           >
                             {item.product_name}
-                          </a>
+                          </Link>
                         </div>
                         <div className={css["cart-page__product-column__row"]}>
                           <div className={css["product-counter"]}>
@@ -157,7 +161,7 @@ export function CartModal() {
                           <div className={css["cart-page__product-price"]}>
                             <span>
                               {item.product_stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK
-                                ? `${item.product_price * (quantities[item.id] || item.quantity)} ₴`
+                                ? `${formatPrice(item.product_price)} ₴`
                                 : "- ₴"}
                             </span>
                           </div>
@@ -179,7 +183,7 @@ export function CartModal() {
                 <div className={css["cart-total__row"]}>
                   <span className={css["cart-total__label"]}>Разом:</span>
                   <span className={css["cart-total__value"]}>
-                    {totalPrice > 0 ? `${totalPrice} ₴` : "- ₴"}
+                    {totalPrice > 0 ? `${formatPrice(totalPrice)} ₴` : "- ₴"}
                   </span>
                 </div>
               </div>

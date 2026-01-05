@@ -16,9 +16,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from .models import (
@@ -199,7 +197,6 @@ class CreateOrderView(APIView):
             product_ids = [item.product.id for item in cart_items if item.product]
             products = {
                 product.id: product for product in Product.objects
-                .prefetch_related("categories")
                 .select_for_update()
                 .filter(id__in=product_ids)
             }
@@ -214,7 +211,14 @@ class CreateOrderView(APIView):
                     raise ValidationError(
                         f"Товар «{product.name}» замовляється багатьма користувачами. Спробуйте пізніше."
                     )
-                OrderItem.objects.create(order=order, product=product, quantity=item.quantity)
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    product_name=product.name,
+                    product_price=product.price,
+                    product_weight=product.weight,
+                    product_quantity=item.quantity,
+                )
                 product.quantity_in_orders += item.quantity
                 product.save()
 
@@ -227,7 +231,7 @@ class CreateOrderView(APIView):
             order.total_weight = total_weight
 
             redirect_url = (
-                f"http://{config("ALLOWED_ENV_HOST")}/profile/user-info" 
+                f"http://{config("ALLOWED_ENV_HOST")}/profile/orders" 
                 if request.user.is_authenticated 
                 else f"http://{config("ALLOWED_ENV_HOST")}/order/{order.order_code}"
             )
@@ -358,6 +362,7 @@ class CreateOrderView(APIView):
                     "urls": {
                         "success": redirect_url,
                         "failed": redirect_url,
+                        "back": redirect_url,
                     }
                 }
 
@@ -440,7 +445,6 @@ class MonobankPaymentStatusView(APIView):
             product_ids = [item.product.id for item in order.order_items.all() if item.product]
             products = {
                 product.id: product for product in Product.objects
-                .prefetch_related("categories")
                 .select_for_update()
                 .filter(id__in=product_ids)
             }
@@ -455,7 +459,7 @@ class MonobankPaymentStatusView(APIView):
             if new_status == Payment.REVERSED and payment.status == Payment.SUCCESS:
                 for item in order.order_items.all():
                     product = products.get(item.product.id)
-                    product.quantity = product.quantity + item.quantity
+                    product.quantity = product.quantity + item.product_quantity
                     product.save()
                 order.status = Order.DECLINED
                 order.save()
@@ -471,8 +475,8 @@ class MonobankPaymentStatusView(APIView):
                 for item in order.order_items.all():
                     product = products.get(item.product.id)
                     if order.status != Order.PAYMENT_DECLINED:
-                        product.quantity_in_orders = max(product.quantity_in_orders - item.quantity, 0)
-                    product.quantity = max(product.quantity - item.quantity, 0)
+                        product.quantity_in_orders = max(product.quantity_in_orders - item.product_quantity, 0)
+                    product.quantity = max(product.quantity - item.product_quantity, 0)
                     product.save()
                 order.status = Order.PREPARING
                 order.save()
@@ -529,7 +533,6 @@ class EasyPayPaymentStatusView(APIView):
             product_ids = [item.product.id for item in order.order_items.all() if item.product]
             products = {
                 product.id: product for product in Product.objects
-                .prefetch_related("categories")
                 .select_for_update()
                 .filter(id__in=product_ids)
             }
@@ -545,7 +548,7 @@ class EasyPayPaymentStatusView(APIView):
                 if data.get("OperationType") == "Refund" and payment.status == Payment.SUCCESS:
                     for item in order.order_items.all():
                         product = products.get(item.product.id)
-                        product.quantity = product.quantity + item.quantity
+                        product.quantity = product.quantity + item.product_quantity
                         product.save()
                     order.status = Order.DECLINED
                     order.save()
@@ -562,8 +565,8 @@ class EasyPayPaymentStatusView(APIView):
                 for item in order.order_items.all():
                     product = products.get(item.product.id)
                     if order.status != Order.PAYMENT_DECLINED:
-                        product.quantity_in_orders = max(product.quantity_in_orders - item.quantity, 0)
-                    product.quantity = max(product.quantity - item.quantity, 0)
+                        product.quantity_in_orders = max(product.quantity_in_orders - item.product_quantity, 0)
+                    product.quantity = max(product.quantity - item.product_quantity, 0)
                     product.save()
                 order.status = Order.PREPARING
                 order.save()
@@ -579,10 +582,44 @@ class EasyPayPaymentStatusView(APIView):
 
 
 class OrderDetailView(RetrieveAPIView):
+    serializer_class = OrderDetailSerializer
+
     def get(self, request, order_code):
         if not order_code:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        
-        order = get_object_or_404(Order.objects.select_related("payment"), order_code=order_code)
-        serializer = OrderDetailSerializer(order, context={"request": request})
+
+        order = get_object_or_404(
+            Order.objects.select_related(
+                "payment",
+                "delivery_warehouse_type__operator",
+                "delivery_warehouse_type__delivery_type",
+            ).prefetch_related("order_items__product"),
+            order_code=order_code,
+        )
+
+        if (
+            request.user.is_authenticated
+            and order.user is None
+            and not (request.user.is_superuser or request.user.is_staff)
+        ):
+            order.user = request.user
+            order.save(update_fields=["user"])
+
+        serializer = self.get_serializer(order, context={"request": request})
         return Response(serializer.data)
+
+class OrderListView(ListAPIView):
+    serializer_class = OrderDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return (
+            Order.objects.filter(user=self.request.user)
+            .select_related(
+                "payment",
+                "delivery_warehouse_type__operator",
+                "delivery_warehouse_type__delivery_type",
+            )
+            .prefetch_related("order_items__product")
+            .order_by("-created_at")
+        )

@@ -229,7 +229,15 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.AllowAny",
     ),
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ]
 }
+
+if DEBUG:
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"].append(
+        "rest_framework.renderers.BrowsableAPIRenderer"
+    )
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
@@ -289,9 +297,12 @@ DJOSER = {
     "HIDE_USERS": False,
     "LOGIN_FIELD": "email",
     "USER_CREATE_PASSWORD_RETYPE": True,
+    "SET_PASSWORD_RETYPE": True,
     "PERMISSIONS": {
         "user_delete": ["rest_framework.permissions.IsAdminUser"],
         "user_list": ["rest_framework.permissions.IsAdminUser"],
+        "set_username": ["rest_framework.permissions.IsAdminUser"],
+        "username_reset" : ["rest_framework.permissions.IsAdminUser"],
     },
     "SERIALIZERS": {
         "user_create_password_retype": "authentication.serializers.UserRegistrationSerializer",

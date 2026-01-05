@@ -106,7 +106,7 @@
 .search-no-results__btn-back {
     text-decoration: none;
     padding: 10px 25px;
-    background-color: var(--search-return-button-color);
+    background-color: var(--main-button-grey-color);
     transition: background-color 0.3s ease-in-out;
     border: none;
     color: var(--main-text-color);
@@ -116,8 +116,14 @@
 }
 
 .search-no-results__btn-back:hover {
-    background-color: var(--search-return-button-hover-color);
+    background-color: var(--main-button-grey-hover-color);
     cursor: pointer;
+}
+
+.search-no-results__btn-back:focus, .search-no-results__btn-back:active:focus {
+    background-color: var(--main-button-focus-color);
+    color: var(--main-button-focus-text-color);
+    border: 1px solid var(--main-button-focus-border-color);
 }
 
 @media only screen and (max-width: 768px) {

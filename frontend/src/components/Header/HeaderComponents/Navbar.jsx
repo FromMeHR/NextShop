@@ -39,6 +39,7 @@ export function Navbar() {
             <div className={css["user-icon-wrapper"]}>
               <img
                 src={`${process.env.NEXT_PUBLIC_URL}/svg/user.svg`}
+                className={css["user-icon"]}
                 alt="User icon"
               />
               {isAuth && (
@@ -57,6 +58,7 @@ export function Navbar() {
             <div className={css["cart-icon-wrapper"]}>
               <img
                 src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
+                className={css["cart-icon"]}
                 alt="Cart icon"
               />
               {totalQuantity > 0 && (

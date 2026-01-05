@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useStopwatch } from "react-timer-hook";
 import {
@@ -18,35 +18,36 @@ import { debounce } from "lodash";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { PAYMENT_NAME } from "../../constants/constants";
+import { formatPrice } from "../../utils/formatPrice";
 import { fetchWithAuth } from "../../lib/fetchWithAuth";
 import { redirectToAuth } from "../../lib/redirectToAuth";
 import useSWR from "swr";
 import axios from "axios";
 import classnames from "classnames";
-import PhoneInput from "../../components/IntlPhoneInput/IntlPhoneInput";
-import ua from "../../components/IntlPhoneInput/IntlPhoneComponents/lang/ua";
+import { PhoneInput } from "../../components/Inputs/IntlPhoneInput/IntlPhoneInput";
+import ua from "../../components/Inputs/IntlPhoneInput/IntlPhoneComponents/lang/ua";
 import ReactDOM from "react-dom";
 import css from "./CheckoutPage.module.css";
 
 export function CheckoutPage() {
   const [openedSections, setOpenedSections] = useState(["contact"]);
-  const [isValidPhone, setIsValidPhone] = useState(false);
-  const [phoneUnhovered, setPhoneUnhovered] = useState(false);
-  const [phoneData, setPhoneData] = useState(
-    (localStorage.getItem("checkoutData") &&
-      JSON.parse(localStorage.getItem("checkoutData")).phoneData) ||
-      null
-  );
   const { cart, outOfStockItems, totalPrice, totalWeight, totalQuantity, isLoading } = useCart();
   const { openModal } = useModal();
-  const { isAuth } = useAuth();
-
+  const { isAuth, user } = useAuth();
   const router = useRouter();
+
+  const savedData = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem("checkoutData")) || {};
+    } catch {
+      return {};
+    }
+  }, []);
 
   const [cities, setCities] = useState([]);
   const [searchCity, setSearchCity] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(savedData.selectedCity || null);
 
   const [warehouseTypes, setWarehouseTypes] = useState([]);
   const [selectedDeliveryType, setSelectedDeliveryType] = useState(null);
@@ -76,41 +77,32 @@ export function CheckoutPage() {
 
   const {
     register,
+    control,
     handleSubmit,
-    setValue,
     getValues,
     setError,
     clearErrors,
     watch,
     trigger,
-    formState: { errors, isSubmitted, isSubmitting },
-  } = useForm({ mode: "all" });
+    formState: { errors, isSubmitting },
+  } = useForm({
+    mode: "all",
+    defaultValues: {
+      surname: savedData.surname || user?.surname,
+      name: savedData.name || user?.name,
+      email: savedData.email || user?.email,
+      phone: savedData.phone || user?.phone,
+    }
+  });
 
   const disabled = isSubmitting || outOfStockItems.length > 0 || (isRunning && minutes < 1);
-
-  useEffect(() => {
-    const savedData = JSON.parse(localStorage.getItem("checkoutData")) || {};
-    if (savedData.surname) setValue("surname", savedData.surname);
-    if (savedData.name) setValue("name", savedData.name);
-    if (savedData.email) setValue("email", savedData.email);
-    if (savedData.selectedCity) setSelectedCity(savedData.selectedCity);
-  }, [setValue]);
 
   const saveToLocalStorage = async (field, value) => {
     const isValid = await trigger(field);
     if (!isValid) return;
 
-    const savedData = JSON.parse(localStorage.getItem("checkoutData")) || {};
     savedData[field] = value;
     localStorage.setItem("checkoutData", JSON.stringify(savedData));
-  };
-
-  const handlePhoneChange = (countryData, e, formattedNumber, isValid) => {
-    setPhoneData({ countryData, formattedNumber });
-
-    if (isValid) {
-      saveToLocalStorage("phoneData", { countryData, formattedNumber });
-    }
   };
 
   const toggleSection = (sectionId) => {
@@ -134,15 +126,13 @@ export function CheckoutPage() {
     }
   };
 
-  const isValidSection = (sectionId) => {
+  const isValidSection = async (sectionId) => {
     let fieldsToValidate = [];
 
     if (sectionId === "contact") {
-      fieldsToValidate = ["surname", "name", "email"];
-      const isValid = trigger(fieldsToValidate);
-      const isPhoneValid = validatePhone();
-      if (!isPhoneValid) setPhoneUnhovered(true);
-      return isValid && isPhoneValid;
+      fieldsToValidate = ["surname", "name", "email", "phone"];
+      const isValid = await trigger(fieldsToValidate, { shouldFocus: true });
+      return isValid;
     } else if (sectionId === "delivery") {
       if (selectedCity && selectedDeliveryType && selectedWarehouseType &&
         (selectedWarehouse || selectedStreet)) {
@@ -183,13 +173,13 @@ export function CheckoutPage() {
 
   const handleToggleSection = async (sectionId) => {
     if (sectionId === "contact") {
-      if (isValidSection("contact")) toggleSection(sectionId);
+      if (await isValidSection("contact")) toggleSection(sectionId);
     } else if (sectionId === "delivery") {
-      if (!openedSections.includes("delivery") || isValidSection("delivery")) {
+      if (!openedSections.includes("delivery") || await isValidSection("delivery")) {
         toggleSection(sectionId);
       }
     } else if (sectionId === "payment") {
-      if (!openedSections.includes("payment") || isValidSection("payment")) {
+      if (!openedSections.includes("payment") || await isValidSection("payment")) {
         toggleSection(sectionId);
       }
     }
@@ -203,28 +193,6 @@ export function CheckoutPage() {
     }
     return true;
   };
-
-  const validatePhone = useCallback(() => {
-    if (!isValidPhone) {
-      setError("phone", {
-        type: "manual",
-        message: errorMessageTemplates.requiredContact,
-      });
-    } else {
-      clearErrors("phone");
-    }
-    return isValidPhone;
-  }, [
-    isValidPhone,
-    setError,
-    clearErrors,
-    errorMessageTemplates.requiredContact,
-  ]);
-
-  useEffect(() => {
-    if (!phoneUnhovered) return;
-    validatePhone();
-  }, [isValidPhone, phoneUnhovered, validatePhone]);
 
   const debouncedSetSearch = useMemo(() => {
     return debounce((value) => {
@@ -276,8 +244,6 @@ export function CheckoutPage() {
       return data || [];
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        const savedData =
-          JSON.parse(localStorage.getItem("checkoutData")) || {};
         delete savedData.selectedCity;
         localStorage.setItem("checkoutData", JSON.stringify(savedData));
         setSelectedCity(null);
@@ -322,8 +288,6 @@ export function CheckoutPage() {
       return data || [];
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        const savedData =
-          JSON.parse(localStorage.getItem("checkoutData")) || {};
         delete savedData.selectedCity;
         localStorage.setItem("checkoutData", JSON.stringify(savedData));
         setSelectedCity(null);
@@ -383,8 +347,6 @@ export function CheckoutPage() {
       return data || [];
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        const savedData =
-          JSON.parse(localStorage.getItem("checkoutData")) || {};
         delete savedData.selectedCity;
         localStorage.setItem("checkoutData", JSON.stringify(savedData));
         setSelectedCity(null);
@@ -462,21 +424,24 @@ export function CheckoutPage() {
 
   const onSubmit = async (value) => {
     const sections = ["contact", "delivery", "payment"];
-    let isValid = true;
-    sections.forEach((section) => {
-      if (!isValidSection(section)) {
-        !openedSections.includes(section) && toggleSection(section);
-        isValid = false;
-        return;
+    let allSectionsValid = true;
+    for (const section of sections) {
+      const isCurrentSectionValid = await isValidSection(section);
+      if (!isCurrentSectionValid) {
+        if (!openedSections.includes(section)) {
+          toggleSection(section);
+        }
+        allSectionsValid = false;
+        break;
       }
-    });
-    if (!isValid || outOfStockItems.length > 0) return;
+    }
+    if (!allSectionsValid || outOfStockItems.length > 0) return;
 
     const dataToSend = {
       surname: value.surname.trim(),
       name: value.name.trim(),
       email: value.email.trim(),
-      formatted_number: phoneData.formattedNumber,
+      formatted_number: value.phone.trim(),
       selected_city_ref: selectedCity?.ref,
       selected_warehouse_type_id: selectedWarehouseType?.id,
       selected_warehouse_ref: selectedWarehouse?.ref,
@@ -608,7 +573,7 @@ export function CheckoutPage() {
                           errors.surname ||
                           errors.name ||
                           errors.email ||
-                          ((phoneUnhovered || isSubmitted) && !isValidPhone)
+                          errors.phone
                         ) && !openedSections.includes("contact")
                           ? css["show"]
                           : ""
@@ -618,7 +583,7 @@ export function CheckoutPage() {
                         {getValues("surname")} {getValues("name")}
                       </div>
                       <div className={css["checkout__header-selected-item"]}>
-                        {phoneData && phoneData.formattedNumber}
+                        {getValues("phone")}
                       </div>
                       <div className={css["checkout__header-selected-item"]}>
                         {getValues("email")}
@@ -631,7 +596,7 @@ export function CheckoutPage() {
                         {(errors.surname ||
                           errors.name ||
                           errors.email ||
-                          ((phoneUnhovered || isSubmitted) && !isValidPhone)) && (
+                          errors.phone) && (
                           <div className={css["checkout__msg-error"]}>
                             {errorMessageTemplates.requiredContact}
                           </div>
@@ -689,23 +654,21 @@ export function CheckoutPage() {
                         <div className={css["checkout__content-item"]}>
                           <div className={css["form-floating"]}>
                             <PhoneInput
-                              onChange={handlePhoneChange}
-                              onChangeValidity={setIsValidPhone}
-                              localStorageNumberData={phoneData}
+                              name="phone"
+                              control={control}
+                              rules={{
+                                required: errorMessageTemplates.requiredContact,
+                              }}
+                              externalOnChange={(val) => saveToLocalStorage("phone", val)}
                               country="ua"
                               localization={ua}
                               preferredCountries={["ua"]}
                               excludeCountries={["ru"]}
-                              countryCodeEditable={false}
                               enableSearch={true}
                               enableTerritories={true}
                               enableAreaCodes={true}
-                              inputError={
-                                (phoneUnhovered || isSubmitted) && !isValidPhone
-                              }
                               inputProps={{
                                 id: "form-phone",
-                                onBlur: () => setPhoneUnhovered(true),
                               }}
                             />
                             <label
@@ -753,14 +716,13 @@ export function CheckoutPage() {
                             errors.surname ||
                             errors.name ||
                             errors.email ||
-                            !isValidPhone
+                            errors.phone
                           }
-                          onClick={() =>
+                          onClick={async () => {
                             handleToggleSection("contact") &&
-                            isValidSection("contact") &&
-                            !openedSections.includes("delivery") &&
-                            handleToggleSection("delivery")
-                          }
+                            await isValidSection("contact") &&
+                            handleToggleSection("delivery");
+                          }}
                         >
                           Обрати спосіб доставки
                         </button>
@@ -864,7 +826,7 @@ export function CheckoutPage() {
                                   >
                                     <img
                                       src={`${process.env.NEXT_PUBLIC_URL}/svg/search.svg`}
-                                      className="checkout__search-img"
+                                      className={css["checkout__search-img"]}
                                       alt="Search icon"
                                     />
                                   </div>
@@ -1057,7 +1019,7 @@ export function CheckoutPage() {
                                                         >
                                                           <img
                                                             src={`${process.env.NEXT_PUBLIC_URL}/svg/search.svg`}
-                                                            className="checkout__search-img"
+                                                            className={css["checkout__search-img"]}
                                                             alt="Search icon"
                                                           />
                                                         </div>
@@ -1103,12 +1065,11 @@ export function CheckoutPage() {
                                                 type="button"
                                                 className={css["checkout__content-button"]}
                                                 disabled={errors.delivery}
-                                                onClick={() =>
+                                                onClick={async () => {
                                                   handleToggleSection("delivery") &&
-                                                  isValidSection("delivery") &&
-                                                  !openedSections.includes("payment") &&
-                                                  handleToggleSection("payment")
-                                                }
+                                                  await isValidSection("delivery") &&
+                                                  handleToggleSection("payment");
+                                                }}
                                               >
                                                 Обрати спосіб оплати
                                               </button>
@@ -1215,7 +1176,7 @@ export function CheckoutPage() {
                                                         >
                                                           <img
                                                             src={`${process.env.NEXT_PUBLIC_URL}/svg/search.svg`}
-                                                            className="checkout__search-img"
+                                                            className={css["checkout__search-img"]}
                                                             alt="Search icon"
                                                           />
                                                         </div>
@@ -1282,10 +1243,9 @@ export function CheckoutPage() {
                                                 type="button"
                                                 className={css["checkout__content-button"]}
                                                 disabled={errors.delivery}
-                                                onClick={() => {
+                                                onClick={async () => {
                                                   handleToggleSection("delivery") &&
-                                                  isValidSection("delivery") &&
-                                                  !openedSections.includes("payment") &&
+                                                  await isValidSection("delivery") &&
                                                   handleToggleSection("payment");
                                                 }}
                                               >
@@ -1508,7 +1468,7 @@ export function CheckoutPage() {
                                 <div className={css["cart__product-price"]}>
                                   <span>
                                     {item.product_stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK
-                                      ? `${item.quantity > 1 ? `${item.quantity} x` : ""} ${item.product_price} ₴`
+                                      ? `${item.quantity > 1 ? `${item.quantity} x` : ""} ${formatPrice(item.product_price)} ₴`
                                       : "- ₴"}
                                   </span>
                                 </div>
@@ -1522,12 +1482,14 @@ export function CheckoutPage() {
                   <div className={css["checkout__cart-total-info"]}>
                     <div className={css["checkout__cart-total-info-row"]}>
                       <div className={css["checkout__cart-total-info-column-left"]}>
-                        {totalQuantity > 1 ?
-                          `${totalQuantity} товарів`
+                        {totalQuantity > 1
+                          ? totalQuantity < 5
+                            ? `${totalQuantity} товари`
+                            : `${totalQuantity} товарів`
                           : `${totalQuantity} товар`} на суму
                       </div>
                       <div className={css["checkout__cart-total-info-column-right"]}>
-                        {totalPrice} ₴
+                        {formatPrice(totalPrice)} ₴
                       </div>
                     </div>
                     <div className={css["checkout__cart-total-info-row"]}>
@@ -1554,7 +1516,7 @@ export function CheckoutPage() {
                       </div>
                       <div className={css["checkout__cart-total-info-column-right"]}>
                         <div className={css["checkout__cart-total-amount"]}>
-                          {totalPrice} <span>₴</span>
+                          {formatPrice(totalPrice)} <span>₴</span>
                         </div>
                       </div>
                     </div>

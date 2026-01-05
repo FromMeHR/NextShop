@@ -1,20 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Loader } from "../../components/Loader/Loader";
 import { ErrorPage404 } from "../ErrorPage/ErrorPage404";
+import { formatPrice } from "../../utils/formatPrice";
+import { useAuth } from "../../hooks/useAuth";
 import {
   ORDER_STATUS,
   PAYMENT_NAME_LABELS,
   PAYMENT_STATUS,
+  PAYMENT_STATUS_LABELS,
 } from "../../constants/constants";
 import useSWR from "swr";
 import axios from "axios";
 import css from "./OrderDetailPage.module.css";
 
 export function OrderDetailPage({ orderCode }) {
-  const [timeLeft, setTimeLeft] = useState(null);
+  const [now, setNow] = useState(Date.now());
   const [isCopied, setIsCopied] = useState(false);
+  const { isAuth } = useAuth();
+  const router = useRouter();
 
   const fetchOrder = async (url) => {
     const resp = await axios.get(url);
@@ -26,17 +32,8 @@ export function OrderDetailPage({ orderCode }) {
     error,
     isLoading,
   } = useSWR(
-    `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/order/${orderCode}/`,
+    `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/orders/${orderCode}/`,
     fetchOrder
-  );
-
-  const totalPrice = order?.items.reduce(
-    (sum, item) => sum + item.product_price * item.quantity,
-    0
-  );
-  const totalQuantity = order?.items.reduce(
-    (sum, item) => sum + item.quantity,
-    0
   );
 
   useEffect(() => {
@@ -50,25 +47,33 @@ export function OrderDetailPage({ orderCode }) {
   useEffect(() => {
     if (
       order &&
-      order.payment.expires_at &&
-      order.status === ORDER_STATUS.AWAITING_PAYMENT
+      order.status === ORDER_STATUS.AWAITING_PAYMENT &&
+      order.payment?.expires_at
     ) {
-      const expiresAt = new Date(order.payment.expires_at).getTime();
       const interval = setInterval(() => {
-        const now = new Date().getTime();
-        const diff = Math.max(0, expiresAt - now);
-        if (diff === 0) {
-          clearInterval(interval);
-          setTimeLeft(null);
-        } else {
-          const minutes = Math.floor(diff / 1000 / 60);
-          const seconds = Math.floor((diff / 1000) % 60);
-          setTimeLeft(`${minutes}:${seconds.toString().padStart(2, "0")}`);
-        }
-      });
+        setNow(Date.now());
+      }, 1000);
       return () => clearInterval(interval);
     }
   }, [order]);
+
+  const timeLeft = useMemo(() => {
+    if (
+      !order ||
+      order.status !== ORDER_STATUS.AWAITING_PAYMENT ||
+      !order.payment?.expires_at
+    ) {
+      return null;
+    }
+
+    const expiresAt = new Date(order.payment.expires_at).getTime();
+    const diff = Math.max(0, expiresAt - now);
+    if (diff === 0) return null;
+
+    const minutes = Math.floor(diff / 1000 / 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  }, [order, now]);
 
   const handleCopyOrderNumber = () => {
     navigator.clipboard.writeText(order.id.toString()).then(() => {
@@ -143,16 +148,14 @@ export function OrderDetailPage({ orderCode }) {
                         Доставка:
                       </p>
                       <p className={css["order-detail__row-order-info--desc"]}>
-                        {order.delivery_warehouse_type && (
-                          <>
-                            <img
-                              src={order.delivery_warehouse_type.image}
-                              alt="Delivery warehouse type icon"
-                              className={css["order-detail__delivery-warehouse-type-image"]}
-                            />
-                            {order.delivery_warehouse_type.name} <br />
-                          </>
+                        {order.delivery_warehouse_type.image && (
+                          <img
+                            src={order.delivery_warehouse_type.image}
+                            alt="Delivery warehouse type icon"
+                            className={css["order-detail__delivery-warehouse-type-image"]}
+                          />
                         )}
+                        {order.delivery_warehouse_type.name} <br />
                         {order.delivery_warehouse}
                         {order.delivery_street &&
                           `${order.delivery_street}, ${order.delivery_house}, ${order.delivery_apartment}`}
@@ -197,13 +200,13 @@ export function OrderDetailPage({ orderCode }) {
                               </div>
                               <div className={css["cart__product-col-price"]}>
                                 <div className={css["cart__product-price-wnum"]}>
-                                  <span>{item.quantity} x </span>
-                                  {item.product_price}
+                                  <span>{item.product_quantity} x </span>
+                                  {formatPrice(item.product_price)}
                                   <span> ₴</span>
                                 </div>
                                 <div className={css["cart__product-price-total"]}>
                                   <span>
-                                    {item.product_price * item.quantity} ₴
+                                    {formatPrice(item.product_price * item.product_quantity)} ₴
                                   </span>
                                 </div>
                               </div>
@@ -216,12 +219,14 @@ export function OrderDetailPage({ orderCode }) {
                   <div className={css["order-detail__cart-total-info"]}>
                     <div className={css["order-detail__cart-total-info-row"]}>
                       <div className={css["order-detail__cart-total-info-column-left"]}>
-                        {totalQuantity > 1
-                          ? `${totalQuantity} товарів`
-                          : `${totalQuantity} товар`} на суму
+                        {order.total_quantity > 1
+                          ? order.total_quantity < 5
+                            ? `${order.total_quantity} товари`
+                            : `${order.total_quantity} товарів`
+                          : `${order.total_quantity} товар`} на суму:
                       </div>
                       <div className={css["order-detail__cart-total-info-column-right"]}>
-                        {totalPrice} ₴
+                        {formatPrice(order.total_price)} ₴
                       </div>
                     </div>
                     <div className={css["order-detail__cart-total-info-row"]}>
@@ -236,10 +241,8 @@ export function OrderDetailPage({ orderCode }) {
                       <div className={css["order-detail__cart-total-info-column-left"]}>
                         Сума до оплати без доставки:
                       </div>
-                      <div className={css["order-detail__cart-total-info-column-right"]}>
-                        <div className={css["corder-detail__cart-total-amount"]}>
-                          {totalPrice} ₴
-                        </div>
+                      <div className={`${css["order-detail__cart-total-info-column-right"]} ${css["total"]}`}>
+                        {formatPrice(order.total_price)} ₴
                       </div>
                     </div>
                     {timeLeft &&
@@ -267,15 +270,27 @@ export function OrderDetailPage({ orderCode }) {
                     )}
                     {order.payment.status === PAYMENT_STATUS.SUCCESS ? (
                       <div className={`${css["order-detail__payment-status"]} ${css["paid"]}`}>
-                        Cплачено
+                        {PAYMENT_STATUS_LABELS[PAYMENT_STATUS.SUCCESS]}
                       </div>
                     ) : (
                       !timeLeft &&
                       <div className={`${css["order-detail__payment-status"]} ${css["cancelled"]}`}>
-                        Скасовано
+                        {PAYMENT_STATUS_LABELS[PAYMENT_STATUS.EXPIRED]}
                       </div>
                     )}
                   </div>
+                  {isAuth &&
+                    <div className={css["order-detail__btn-wrapper"]}>
+                      <button
+                        className={css["order-detail__btn-profile"]}
+                        onClick={() => {
+                          router.push("/profile/orders");
+                        }}
+                      >
+                        Перейти до особистого кабінету
+                      </button>
+                    </div>
+                  }
                   <a href="/">
                     <div className={css["order-detail__btn-wrapper"]}>
                       <button className={css["order-detail__btn-back"]}>

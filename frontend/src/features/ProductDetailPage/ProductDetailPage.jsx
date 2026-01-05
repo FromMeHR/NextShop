@@ -4,6 +4,7 @@ import { ErrorPage404 } from "../ErrorPage/ErrorPage404";
 import { RelatedProducts } from "./RelatedProducts/RelatedProducts";
 import { useCart } from "../../hooks/useCart";
 import { useModal } from "../../hooks/useModal";
+import { formatPrice } from "../../utils/formatPrice";
 import {
   PRODUCT_STOCK_STATUS,
   PRODUCT_STOCK_STATUS_LABELS,
@@ -38,7 +39,7 @@ export function ProductDetailPage({ product }) {
                 {product.description}
               </p>
               <div className={css["product-detail__price"]}>
-                <span>{product.price} ₴</span>
+                <span>{formatPrice(product.price)} ₴</span>
               </div>
               {product.stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK ? (
                 <div

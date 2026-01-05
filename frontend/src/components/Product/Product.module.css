@@ -5,6 +5,7 @@
     justify-content: space-between;
     width: calc(100% + 1px);
     height: calc(100% + 1px);
+    min-width: 175px;
     border: 1px solid var(--border-color);
     transition: all 0.3s ease-in-out;
     background-color: var(--product-card-background-color);
@@ -93,9 +94,20 @@
     cursor: pointer;
 }
 
+.product-cart-button:focus, .product-cart-button:active:focus {
+    background-color: var(--main-button-focus-color);
+    color: var(--main-button-focus-text-color);
+    border: 1px solid var(--main-button-focus-border-color);
+}
+
 .product-cart-button img {
     width: 20px;
     height: 20px;
+    filter: brightness(0) invert(1);
+}
+
+.product-cart-button:focus img, .product-cart-button:active:focus img {
+    filter: none;
 }
 
 .product-card-out-of-stock-text {

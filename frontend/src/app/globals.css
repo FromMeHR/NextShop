@@ -14,8 +14,12 @@
   /* border color */
   --border-color: #e3e3e3;
   --grey-border-color: #CACACA;
+  --disabled-border-color: #f2f2f2;
+  --main-button-focus-border-color: #94B80A;
   --delivery-item-border-color: #000;
   --phone-input-arrow-border-color: #555;
+  --profile-order-item__btn-border-color: #000;
+  --profile-order-item__btn-active-border-color: #94B80A;
 
   /* background color*/
   --header-background-color: #000;
@@ -26,9 +30,6 @@
   --related-products-background-color: #f8f9fa;
   --product-card-background-color: #fff;
   --product-counter-background-color: #fff;
-  --product-out-of-stock-background-color: #F5F5F5;
-  --product-low-stock-background-color: #FFF7E9;
-  --product-in-stock-background-color: #F5F8E7;
   --label-background-color: #fff;
   --error-background-color: #FFF3F0;
   --red-error-background-color: red;
@@ -43,8 +44,13 @@
   --delivery-operator-background-color: #fff;
   --delivery-operator-active-background-color: #F5F8E7;
   --order-detail-robot-card-background-color: #F5F8E7;
-  --order-detail-paid-background-color: #F5F8E7;
-  --order-detail-cancelled-background-color: #F5F5F5;
+  --profile-link-background-color: #F5F8E7;
+  --profile-mobile-block-background-color: #F5F5F5;
+  --profile-order-item__btn-active-background-color: #F5F8E7;
+
+  --status-grey-background-color: #F5F5F5;
+  --status-orange-background-color: #FFF7E9;
+  --status-green-background-color: #F5F8E7;
   --overlay-background-color: rgba(0, 0, 0, 0.5);
   --hover-dropdown-background-color: #f1f1f1;
   --phone-input-background-color: #fff;
@@ -54,6 +60,7 @@
   --error-input-color: red;
   --focus-input-color: #94B80A;
   --hover-input-color: #000;
+  --disabled-input-color: #bdbdbd;
 
   /* text color*/
   --main-text-color: #000;
@@ -61,21 +68,24 @@
   --light-text-color: #fff;
   --link-text-color: #212529;
   --error-text-color: red;
-  --product-out-of-stock-text-color: #707070;
-  --product-low-stock-text-color: #FFB628;
-  --product-in-stock-text-color: #94B80A;
+  --main-button-focus-text-color: #94B80A;
   --order-detail-price-wnum-text-color: #484F54;
   --order-detail-paid-text-color: #94B80A;
   --order-detail-cancelled-text-color: #707070;
+  --profile-order-item-text-color: #484F54;
+
+  --status-grey-text-color: #707070;
+  --status-orange-text-color: #FFB628;
+  --status-green-text-color: #94B80A;
 
   /* button color*/
   --main-button-color: #000;
   --main-button-hover-color: #333;
+  --main-button-focus-color: #F5F8E7;
   --main-button-disabled-color: #CACACA;
+  --main-button-grey-color: #F5F5F5;
+  --main-button-grey-hover-color: #ECECEC;
 
   --modal-close-button-color: #fff;
   --back-to-top-button-color: #fff;
-  --search-return-button-color: #F5F5F5;
-  --search-return-button-hover-color: #ECECEC;
-  --order-detail-button-pay-color: #94B80A;
 }

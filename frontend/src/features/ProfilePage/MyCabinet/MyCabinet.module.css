@@ -1,0 +1,214 @@
+.cabinet__header {
+    padding-bottom: 30px;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.cabinet__section:not(:last-child) {
+    padding-bottom: 30px;
+}
+
+.cabinet__section-title {
+    padding-bottom: 20px;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.cabinet__section-my-data-box {
+    border: 1px solid var(--border-color);
+    padding: 30px;
+}
+
+.my-data-box__row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.my-data-box__item {
+    flex: 0 0 auto;
+    width: 25%;
+    padding-bottom: 30px;
+}
+
+.my-data-box__item:last-child {
+    padding-bottom: 20px;
+}
+
+.my-data-box__item-label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1;
+    color: var(--secondary-text-color);
+    padding-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.my-data-box__item-value {
+    font-weight: 500;
+    font-size: 0.875rem;
+    line-height: 1.3;
+    word-break: break-all;
+}
+
+.tab-content {
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-content>.tab-pane {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.tab-content>.tab-pane.active {
+    position: relative;
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.tab-pane fieldset {
+    border: none;
+}
+
+.forms__item {
+    margin: 0 0 15px 0;
+}
+
+.forms__item:first-child {
+    margin: 5px 0 15px 0;
+}
+
+.form-floating {
+    position: relative;
+}
+
+.form-floating .form-input {
+    height: 44px;
+    padding: 0 18px;
+    border: 1px solid var(--grey-border-color);
+    border-radius: 10px;
+    font-size: 0.875rem;
+    width: 100%;
+    outline: none;
+    transition: border 0.3s ease-in-out;
+}
+
+.form-floating.disabled .form-input {
+    pointer-events: none;
+    color: var(--disabled-input-color);
+    border-color: var(--disabled-border-color);
+    background: none;
+}
+
+.has-error .form-input {
+    border: 1px solid var(--error-input-color);
+}
+
+.form-floating .form-input:focus {
+    border: 1px solid var(--focus-input-color);
+}
+
+.form-floating:not(.has-error) .form-input:hover:not(:focus) {
+    border: 1px solid var(--hover-input-color)
+}
+
+.form-floating label {
+    position: absolute;
+    display: flex;
+    pointer-events: none;
+    align-items: center;
+    justify-content: center;
+    height: 14px;
+    top: -8px;
+    background: var(--label-background-color);
+    color: var(--secondary-text-color);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0 5px;
+    left: 13px;
+}
+
+.error-message {
+    color: var(--error-input-color);
+    margin: 0;
+    padding: 5px 19px 0 19px;
+    font-size: 80%;
+}
+
+.error-message p {
+    margin: 0;
+}
+
+.my-data__buttons {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.my-data__btn-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.my-data__btn-edit,
+.my-data__btn-cancel,
+.my-data__btn-save {
+    text-decoration: none;
+    padding: 10px 25px;
+    background-color: var(--main-button-grey-color);
+    transition: background-color 0.3s ease-in-out;
+    border: none;
+    color: var(--main-text-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 50px;
+}
+
+.my-data__btn-edit:hover,
+.my-data__btn-cancel:hover {
+    background-color: var(--main-button-grey-hover-color);
+    cursor: pointer;
+}
+
+.my-data__btn-save {
+    margin-right: 20px;
+    background-color: var(--main-button-color);
+    color: var(--light-text-color);
+}
+
+.my-data__btn-save:disabled {
+    background-color: var(--main-button-disabled-color);
+}
+
+.my-data__btn-save:hover:not(:disabled) {
+    background-color: var(--main-button-hover-color);
+    cursor: pointer;
+}
+
+.my-data__btn-save:focus, .my-data__btn-save:active:focus,
+.my-data__btn-cancel:focus, .my-data__btn-cancel:active:focus,
+.my-data__btn-edit:focus, .my-data__btn-edit:active:focus {
+    background-color: var(--main-button-focus-color);
+    color: var(--main-button-focus-text-color);
+    border: 1px solid var(--main-button-focus-border-color);
+}
+
+@media only screen and (max-width: 968px) {
+    .my-data-box__item {
+        width: 100%;
+        padding-bottom: 20px;
+    }
+
+    .cabinet__section-my-data-box {
+        border-left: none;
+        border-right: none;
+        padding: 25px 0;
+    }
+}

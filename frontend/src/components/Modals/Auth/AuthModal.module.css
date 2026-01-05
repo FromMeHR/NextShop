@@ -244,6 +244,13 @@
     cursor: pointer;
 }
 
+.signin-form__btn:focus, .signin-form__btn:active:focus,
+.signup-form__btn:focus, .signup-form__btn:active:focus {
+    background-color: var(--main-button-focus-color);
+    color: var(--main-button-focus-text-color);
+    border: 1px solid var(--main-button-focus-border-color);
+}
+
 @media only screen and (max-width: 768px) {
     .modal-close-button {
         right: 10px;

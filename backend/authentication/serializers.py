@@ -71,3 +71,4 @@ class UserListSerializer(UserSerializer):
             "is_staff",
             "is_superuser",
         )
+        read_only_fields = ("email", "is_staff", "is_superuser")

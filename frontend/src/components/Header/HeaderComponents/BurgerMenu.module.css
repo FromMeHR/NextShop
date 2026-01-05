@@ -108,7 +108,7 @@
 }
 
 .icon {
-    filter: brightness(100%) invert(1);
+    filter: brightness(0) invert(0);
 }
 
 .burger-user-button {
