@@ -7,14 +7,7 @@ export function RestorePasswordCompletionModal() {
   const isVisible = modals.restorePasswordCompletion;
 
   return ReactDOM.createPortal(
-    <div
-      className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
-      onMouseDown={(e) => {
-        if (!e.target.closest(`.${css["modal-content"]}`)) {
-          closeModal("restorePasswordCompletion");
-        }
-      }}
-    >
+    <div className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}>
       <div className={css["modal-dialog"]}>
         <div className={css["modal-content"]}>
           <div className={css["modal-header"]}>

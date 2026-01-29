@@ -4,12 +4,12 @@ export function MainBanner() {
   return (
     <div className={css["banner__main"]}>
       <div className={css["banner__content"]}>
-        <h2 className={css["banner__title"]}>Shop</h2>
+        <h2 className={css["banner__title"]}>Voltio</h2>
         <p className={css["banner__subtitle"]}>
-          Відкрийте для себе останні тенденції
+          Обирайте найкращі девайси для роботи та розваг
         </p>
-        <a href="#products" className={css["banner__button"]}>
-          Купити зараз
+        <a href="#categories" className={css["banner__button"]}>
+          До покупок
         </a>
       </div>
     </div>

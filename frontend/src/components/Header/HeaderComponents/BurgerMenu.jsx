@@ -30,7 +30,7 @@ export function BurgerMenu() {
       <div className={`${css["burger-utility-bar"]} ${isOpen ? css["open"] : ""}`}>
         <div className={css["burger-header"]}>
           <a href="/">
-            Shop
+            Voltio
           </a>
         </div>
         <div className={css["burger-actions"]}>

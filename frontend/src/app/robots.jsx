@@ -3,7 +3,12 @@ export default function robots() {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: "",
+      disallow: [
+        "/search",
+        "/order",
+        "/profile",
+        "/*?ordering=*"
+      ],
     },
     sitemap: `${process.env.NEXT_PUBLIC_URL}/sitemap.xml`,
   };

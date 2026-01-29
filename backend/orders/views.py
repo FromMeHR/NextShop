@@ -2,6 +2,7 @@ import requests
 import json
 import base64
 import hashlib
+import django_filters
 from ipware import get_client_ip
 from decouple import config
 from datetime import timedelta
@@ -9,7 +10,6 @@ from pytz import timezone as tz
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.db import transaction
-from django.db.models import Q
 from django.utils.crypto import get_random_string
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
@@ -28,6 +28,7 @@ from .models import (
     Order, 
     OrderItem
 )
+from .filters import SearchCityFilter
 from carts.models import Cart, CartItem
 from products.models import Product
 from .serializers import (
@@ -41,18 +42,10 @@ from shop.throttling import CreateOrderThrottle
 
 
 class SearchCityView(ListAPIView):
-    queryset = NovaPoshtaCity.objects.all().order_by("position")
+    queryset = NovaPoshtaCity.objects.all()
     serializer_class = NovaPoshtaCitySerializer
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        search_query = self.request.query_params.get("name")
-        if search_query and len(search_query) > 1:
-            queryset = queryset.filter(
-                Q(name_ukr__icontains=search_query) | 
-                Q(name_ru__icontains=search_query)
-            )
-            return queryset[:50]
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_class = SearchCityFilter
 
 
 class WarehouseTypeListView(APIView):

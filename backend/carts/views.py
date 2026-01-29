@@ -32,9 +32,9 @@ class CartList(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         cart_code = request.COOKIES.get("cart_code")
-        product_id = request.data.get("product_id")
+        product_code = request.data.get("product_code")
         try:
-            product = get_object_or_404(Product, id=int(product_id))
+            product = get_object_or_404(Product, code=product_code)
         except (ValueError, TypeError):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -52,7 +52,7 @@ class CartList(ListCreateAPIView):
             )
 
         cart, created = Cart.objects.get_or_create(cart_code=cart_code)
-        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product_id=product_id)
+        cart_item, item_created = CartItem.objects.get_or_create(cart=cart, product=product)
 
         if request.user.is_authenticated and not cart.user:
             Cart.objects.filter(user=request.user).exclude(id=cart.id).delete()

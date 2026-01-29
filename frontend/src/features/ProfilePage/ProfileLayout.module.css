@@ -5,7 +5,8 @@
 }
 
 .profile__content {
-    padding: 30px;
+    padding: 20px;
+    min-width: 0;
 }
 
 .profile__row {
@@ -20,8 +21,12 @@
     flex-basis: 65%;
 }
 
-.profile__block {
-    padding: 0 15px;
+.profile__left .profile__block {
+    padding-right: 15px;
+}
+
+.profile__right .profile__block {
+    padding-left: 15px;
 }
 
 .profile__section--content-wrapper {
@@ -123,10 +128,6 @@
         display: block;
     }
 
-    .profile__content {
-        padding: 20px;
-    }
-
     .profile__row {
         flex-wrap: wrap;
     }
@@ -138,7 +139,8 @@
         width: 100%;
     }
 
-    .profile__block {
+    .profile__left .profile__block,
+    .profile__right .profile__block {
         padding: 0;
     }
 

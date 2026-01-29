@@ -14,16 +14,33 @@ const myFont = localFont({
 });
 
 export const metadata = {
-  title: "NextShop",
-  description: "Shop using next",
+  title: "Voltio",
+  description: "Інтернет-магазин цифрової техніки та аксесуарів - Voltio",
 };
 
-export default function RootLayout({ children }) {
+async function getCategories() {
+  const baseUrl = process.env.BASE_INTERNAL_API_URL;
+  try {
+    const res = await fetch(`${baseUrl}/api/categories/`, {
+      next: { revalidate: 60 * 60 },
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return [];
+  }
+}
+
+export default async function RootLayout({ children }) {
+  const categories = await getCategories();
+
   return (
     <html lang="en" data-scroll-behavior="smooth" className={myFont.className}>
       <body>
         <div className="App">
-          <Providers>
+          <Providers initialCategories={categories}>
             <Header />
             <PageWrapper>{children}</PageWrapper>
             <Footer />

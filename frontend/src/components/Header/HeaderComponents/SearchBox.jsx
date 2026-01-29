@@ -9,8 +9,10 @@ export function SearchBox() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = () => {
-    if (searchQuery.trim() !== "") {
-      router.push(`/search/${searchQuery.trim()}/`);
+    const trimmedQuery = searchQuery.trim();
+    if (trimmedQuery !== "") {
+      const encodedQuery = encodeURIComponent(trimmedQuery);
+      router.push(`/search/${encodedQuery}/`);
       setSearchQuery("");
     }
   };

@@ -4,31 +4,37 @@
   --main-light-green-color: #afd809;
 
   /* shadow color */
-  --main-shadow-color: #000;
+  --main-shadow-color: #282828;
   --product-card-shadow-color: #d3d3d3;
+  --category-card-shadow-color: #d3d3d3;
   --back-to-top-shadow-color: rgba(0, 0, 0, 0.05);
+  --scroll-btn-shadow-color: rgba(0, 0, 0, 0.1);
   --auth-modal-tabs-shadow-color: #f1f1f1;
-  --loader-shadow-color: #000;
+  --loader-shadow-color: #282828;
   --phone-input-country-list-shadow-color: #d3d3d3;
+  --header-catalog-box-dropdown-shadow-color: #d3d3d3;
+  --category__item-image-wrapper-shadow-color: rgba(255, 255, 255, 0.5);
 
   /* border color */
   --border-color: #e3e3e3;
   --grey-border-color: #CACACA;
   --disabled-border-color: #f2f2f2;
   --main-button-focus-border-color: #94B80A;
-  --delivery-item-border-color: #000;
+  --delivery-item-border-color: #282828;
   --phone-input-arrow-border-color: #555;
-  --profile-order-item__btn-border-color: #000;
+  --profile-order-item__btn-border-color: #282828;
   --profile-order-item__btn-active-border-color: #94B80A;
 
   /* background color*/
-  --header-background-color: #000;
-  --footer-background-color: #000;
+  --header-background-color: #282828;
+  --header-catalog-box-dropdown-background-color: #fff;
+  --footer-background-color: #282828;
   --modal-background-color: #fff;
   --banner-background-color: #f8f9fa;
   --error-page-background-color: #f8f9fa;
   --related-products-background-color: #f8f9fa;
   --product-card-background-color: #fff;
+  --category-card-background-color: #fff;
   --product-counter-background-color: #fff;
   --label-background-color: #fff;
   --error-background-color: #FFF3F0;
@@ -37,16 +43,23 @@
   --cart-total-background-color: #F2F2F2;
   --checkout-number-background-color: #f0f0f0;
   --search-background-color: #fff;
-  --search-counter-background-color: #000;
+  --search-counter-background-color: #282828;
   --burger-menu-background-color: #fff;
   --burger-menu-span-background-color: #fff;
-  --burger-menu-span-active-background-color: #000;
+  --burger-menu-span-active-background-color: #282828;
   --delivery-operator-background-color: #fff;
   --delivery-operator-active-background-color: #F5F8E7;
   --order-detail-robot-card-background-color: #F5F8E7;
   --profile-link-background-color: #F5F8E7;
   --profile-mobile-block-background-color: #F5F5F5;
   --profile-order-item__btn-active-background-color: #F5F8E7;
+  --select-sort-box-background-color: #F5F5F5;
+  --catalog-box-dropdown__item-active-background-color: #F5F8E7;
+  --filter-item__checkbox-mark-disabled-background-color: #F5F5F5;
+  --catalog-slider-background-color: #e3e3e3;
+  --catalog-search-results__filters-col-background-color: #fff;
+  --search-available-categories__link-background-color: #F5F5F5;
+  --search-available-categories__link-active-background-color: #F5F8E7;
 
   --status-grey-background-color: #F5F5F5;
   --status-orange-background-color: #FFF7E9;
@@ -72,14 +85,16 @@
   --order-detail-price-wnum-text-color: #484F54;
   --order-detail-paid-text-color: #94B80A;
   --order-detail-cancelled-text-color: #707070;
+  --product-detail-price-text-color: rgba(255, 64, 0, 0.750);
   --profile-order-item-text-color: #484F54;
+  --filter-item_header-text-color: #484F54;
 
   --status-grey-text-color: #707070;
   --status-orange-text-color: #FFB628;
   --status-green-text-color: #94B80A;
 
   /* button color*/
-  --main-button-color: #000;
+  --main-button-color: #282828;
   --main-button-hover-color: #333;
   --main-button-focus-color: #F5F8E7;
   --main-button-disabled-color: #CACACA;
@@ -88,4 +103,6 @@
 
   --modal-close-button-color: #fff;
   --back-to-top-button-color: #fff;
+  --scroll-btn-color: #fff;
+  --filter-item__reset-btn-color:#de315c;
 }

@@ -8,11 +8,12 @@
 }
 
 .banner__content {
-    padding: 30px;
+    padding: 20px;
+    min-width: 0;
 }
 
 .banner__title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     margin-bottom: 10px;
     color: var(--main-text-color);
@@ -54,26 +55,20 @@
     border: 1px solid var(--main-button-focus-border-color);
 }
 
-@media only screen and (max-width: 768px) {
-    .related-products__content {
-        padding: 20px;
-    }
-}
-
 @media only screen and (min-width: 768px) {
-    .related-products__content {
+    .banner__content {
         width: 720px;
     }
 }
 
 @media only screen and (min-width: 1200px) {
-    .related-products__content {
+    .banner__content {
         width: 1136px;
     }
 }
 
 @media only screen and (min-width: 1512px) {
-    .related-products__content {
+    .banner__content {
         width: 1304px;
     }
 }

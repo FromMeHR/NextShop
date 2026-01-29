@@ -10,6 +10,8 @@
     display: none;
     position: sticky;
     top: 0;
+    left: 0;
+    right: 0;
     width: 100%;
     box-sizing: border-box;
     padding: 16px 23px;

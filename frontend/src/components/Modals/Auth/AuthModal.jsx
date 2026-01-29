@@ -224,14 +224,7 @@ export function AuthModal() {
   };
 
   return ReactDOM.createPortal(
-    <div
-      className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
-      onMouseDown={(e) => {
-        if (!e.target.closest(`.${css["modal-content"]}`)) {
-          closeModal("auth");
-        }
-      }}
-    >
+    <div className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}>
       <div className={css["modal-dialog"]}>
         <div className={css["modal-content"]}>
           <img

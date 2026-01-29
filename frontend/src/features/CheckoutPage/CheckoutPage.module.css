@@ -3,7 +3,7 @@
     flex-wrap: nowrap;
     justify-content: flex-start;
     align-items: center;
-    padding: 30px;
+    padding: 20px;
     border: 2px solid var(--border-color);
 }
 
@@ -90,7 +90,8 @@
 .checkout__content {
     display: flex;
     flex-direction: column;
-    padding: 30px;
+    padding: 20px;
+    min-width: 0;
 }
 
 .checkout__row {
@@ -419,7 +420,7 @@
 }
 
 .checkout__select-arrow.open {
-    transform: translateY(-50%) rotate(180deg);
+    transform: translateY(-50%) rotate(-180deg);
 }
 
 .checkout__select-arrow img {
@@ -947,7 +948,6 @@
 
     .checkout__content {
         width: 100%;
-        padding: 20px;
     }
 
     .checkout__row {

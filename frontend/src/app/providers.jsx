@@ -5,6 +5,7 @@ import { CookiesProvider } from "react-cookie";
 import { customTheme } from "../constants/customTheme";
 import { AuthProvider } from "../context/AuthContext";
 import { CartProvider } from "../context/CartContext";
+import { CategoriesProvider } from "../context/CategoriesContext";
 import { BurgerMenuProvider } from "../context/BurgerMenuContext";
 import { ModalProvider } from "../context/ModalContext";
 import { useAuth } from "../hooks/useAuth";
@@ -28,13 +29,15 @@ function AuthGate({ children }) {
   );
 }
 
-export function Providers({ children }) {
+export function Providers({ children, initialCategories }) {
   return (
     <ConfigProvider theme={customTheme}>
       <CookiesProvider>
-        <AuthProvider>
-          <AuthGate>{children}</AuthGate>
-        </AuthProvider>
+        <CategoriesProvider initialCategories={initialCategories}>
+          <AuthProvider>
+            <AuthGate>{children}</AuthGate>
+          </AuthProvider>
+        </CategoriesProvider>
       </CookiesProvider>
     </ConfigProvider>
   );

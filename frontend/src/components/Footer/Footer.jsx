@@ -31,7 +31,7 @@ export function Footer() {
         </div>
         <div className={css["footer-credits"]}>
           <p className={css["footer-text"]}>
-            &copy; Shop 2025
+            &copy; Voltio 2025-2026
           </p>
         </div>
       </div>

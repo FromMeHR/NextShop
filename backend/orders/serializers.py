@@ -68,7 +68,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    product_id = serializers.ReadOnlyField(source="product.id")
+    product_code = serializers.ReadOnlyField(source="product.code")
     product_slug = serializers.ReadOnlyField(source="product.slug")
     product_image = serializers.SerializerMethodField()
 
@@ -76,7 +76,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = [
             "id",
-            "product_id",
+            "product_code",
             "product_slug",
             "product_image",
             "product_name",

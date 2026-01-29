@@ -12,6 +12,7 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    z-index: 2;
 }
 
 .btn_back-to-top.visible {
@@ -20,9 +21,11 @@
 }
 
 .btn_back-to-top img {
+    position: absolute;
     width: 32px;
     height: 20px;
-    margin-top: -5px;
+    top: 50%;
+    transform: translate(-50%, -50%);
     filter: brightness(0) invert(0);
 }
 

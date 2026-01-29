@@ -16,7 +16,6 @@
 .modal.show {
     opacity: 1;
     transform: translate(-50%, -50%);
-    pointer-events: auto;
 }
 
 .modal-dialog {
@@ -38,6 +37,10 @@
     border-radius: 10px;
     display: block;
     padding: 1rem;
+}
+
+.modal.show .modal-content {
+    pointer-events: auto;
 }
 
 .modal-body {

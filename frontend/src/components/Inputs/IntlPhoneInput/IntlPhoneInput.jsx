@@ -2,14 +2,13 @@ import React, { useRef } from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import { useController } from "react-hook-form";
-import { debounce, memoize, reduce, startsWith } from "lodash";
+import { memoize, reduce, startsWith } from "lodash";
 import classNames from "classnames";
 import css from "./IntlPhoneInput.module.css";
 
 import CountryData from "./IntlPhoneComponents/CountryData.js";
 
 export const PhoneInput = ({ control, name, rules, externalOnChange, ...props }) => {
-  const isMounted = useRef(false);
   const isPhoneValid = useRef(false);
   const {
     field: { onChange, onBlur, value, ref },
@@ -30,24 +29,26 @@ export const PhoneInput = ({ control, name, rules, externalOnChange, ...props })
     <PhoneInputEngine
       {...props}
       value={value}
-      onChange={(countryData, formattedNumber, inputNumber, isValid) => {
-        if (!isMounted.current) {
-          isMounted.current = true;
-          isPhoneValid.current = isValid;
+      onMount={(inputNumberField, isValid) => {
+        if (!inputNumberField) {
+          isPhoneValid.current = !rules.required;
         } else {
-          let finalValue = "";
-          if (!inputNumber) {
-            isPhoneValid.current = !rules.required;
-            finalValue = "";
-          } else {
-            isPhoneValid.current = isValid;
-            finalValue = formattedNumber;
-          }
+          isPhoneValid.current = isValid;
+        }
+      }}
+      onChange={(formattedNumber, inputNumberField, isValid) => {
+        let finalValue = "";
+        if (!inputNumberField) {
+          isPhoneValid.current = !rules.required;
+          finalValue = "";
+        } else {
+          isPhoneValid.current = isValid;
+          finalValue = formattedNumber;
+        }
 
-          onChange(finalValue);
-          if (isValid && externalOnChange) {
-            externalOnChange(finalValue);
-          }
+        onChange(finalValue);
+        if (isValid && externalOnChange) {
+          externalOnChange(finalValue);
         }
       }}
       inputError={error}
@@ -87,11 +88,9 @@ class PhoneInputEngine extends React.Component {
       PropTypes.arrayOf(PropTypes.string),
     ]),
 
-    disableCountryCode: PropTypes.bool,
     disableDropdown: PropTypes.bool,
     enableLongNumbers: PropTypes.oneOfType([PropTypes.bool, PropTypes.number]),
     enableSearch: PropTypes.bool,
-    disableInitialCountryGuess: PropTypes.bool,
     disableCountryGuess: PropTypes.bool,
 
     regions: PropTypes.oneOfType([
@@ -113,7 +112,6 @@ class PhoneInputEngine extends React.Component {
     autocompleteSearch: PropTypes.bool,
     jumpCursorToEnd: PropTypes.bool,
     priority: PropTypes.object,
-    enableAreaCodeStretch: PropTypes.bool,
     showDropdown: PropTypes.bool,
 
     onChange: PropTypes.func,
@@ -143,11 +141,9 @@ class PhoneInputEngine extends React.Component {
     autoFormat: true,
     enableAreaCodes: false,
     enableTerritories: false,
-    disableCountryCode: false,
     disableDropdown: false,
     enableLongNumbers: false,
     enableSearch: false,
-    disableInitialCountryGuess: false,
     disableCountryGuess: false,
 
     regions: "",
@@ -167,7 +163,6 @@ class PhoneInputEngine extends React.Component {
     copyNumbersOnly: true,
     autocompleteSearch: false,
     jumpCursorToEnd: true,
-    enableAreaCodeStretch: false,
     showDropdown: false,
 
     onEnterKeyPress: null, // null or function
@@ -211,9 +206,7 @@ class PhoneInputEngine extends React.Component {
     let formattedNumber = "";
 
     const inputNumber = props.value ? props.value.replace(/\D/g, "") : "";
-    if (props.disableInitialCountryGuess) {
-      countryGuess = 0;
-    } else if (inputNumber.length > 1) {
+    if (inputNumber.length > 1) {
       // Country detect by phone
       countryGuess =
         this.guessSelectedCountry(
@@ -240,8 +233,7 @@ class PhoneInputEngine extends React.Component {
     formattedNumber =
       inputNumber === "" && countryGuess === 0
         ? ""
-        : this.formatNumber(
-            (props.disableCountryCode ? "" : dialCode) + inputNumber,
+        : this.formatNumber(dialCode + inputNumber,
             countryGuess.name ? countryGuess : undefined
           );
 
@@ -262,7 +254,6 @@ class PhoneInputEngine extends React.Component {
       queryString: "",
       inputNumberField: this.getInputNumberField(formattedNumber, countryGuess),
       inputFocused: false,
-      debouncedQueryStingSearcher: debounce(this.searchCountry, 250),
       searchValue: "",
     };
   }
@@ -293,10 +284,8 @@ class PhoneInputEngine extends React.Component {
   };
 
   componentDidMount() {
-    if (this.props.onChange)
-      this.props.onChange(
-        this.getCountryData(),
-        this.state.formattedNumber,
+    if (this.props.onMount)
+      this.props.onMount(
         this.state.inputNumberField,
         this.validateNumber(this.state.formattedNumber)
       );
@@ -307,13 +296,6 @@ class PhoneInputEngine extends React.Component {
         window.addEventListener("resize", this.updateDropdownPosition);
         window.addEventListener("scroll", this.updateDropdownPosition);
       }
-    }
-    if (this.props.onMount) {
-      this.props.onMount(
-        this.state.formattedNumber.replace(/[^0-9]+/g, ""),
-        this.getCountryData(),
-        this.state.formattedNumber
-      );
     }
   }
 
@@ -423,9 +405,7 @@ class PhoneInputEngine extends React.Component {
     if (newSelectedCountry && newSelectedCountry.dialCode) {
       this.setState({
         selectedCountry: newSelectedCountry,
-        formattedNumber: this.props.disableCountryCode
-          ? ""
-          : this.formatNumber(newSelectedCountry.dialCode, newSelectedCountry),
+        formattedNumber: this.formatNumber(newSelectedCountry.dialCode, newSelectedCountry),
       });
     }
   };
@@ -444,13 +424,10 @@ class PhoneInputEngine extends React.Component {
   };
 
   updateFormattedNumber(value) {
-    if (value === null)
-      return this.setState({ selectedCountry: 0, formattedNumber: "", inputNumberField: "" });
-
     const { onlyCountries, selectedCountry, hiddenAreaCodes } = this.state;
     const { country, prefix } = this.props;
 
-    if (value === "")
+    if (value === null || value === "")
       return this.setState({ selectedCountry, formattedNumber: "", inputNumberField: "" });
 
     let inputNumber = value.replace(/\D/g, "");
@@ -484,8 +461,7 @@ class PhoneInputEngine extends React.Component {
           ? newSelectedCountry.dialCode
           : "";
 
-      formattedNumber = this.formatNumber(
-        (this.props.disableCountryCode ? "" : dialCode) + inputNumber,
+      formattedNumber = this.formatNumber(dialCode + inputNumber,
         newSelectedCountry ? newSelectedCountry : undefined
       );
       this.setState({
@@ -547,39 +523,18 @@ class PhoneInputEngine extends React.Component {
     if (!country) return text;
 
     const { format } = country;
-    const {
-      disableCountryCode,
-      enableAreaCodeStretch,
-      enableLongNumbers,
-      autoFormat,
-    } = this.props;
+    const { enableLongNumbers, autoFormat } = this.props;
 
-    let pattern;
-    if (disableCountryCode) {
-      pattern = format.split(" ");
-      pattern.shift();
-      pattern = pattern.join(" ");
-    } else {
-      if (enableAreaCodeStretch && country.isAreaCode) {
-        pattern = format.split(" ");
-        pattern[1] = pattern[1].replace(
-          /\.+/,
-          "".padEnd("", country.areaCodeLength, ".")
-        );
-        pattern = pattern.join(" ");
-      } else {
-        pattern = format;
-      }
-    }
+    const pattern = format;
 
     if (!text || text.length === 0) {
-      return disableCountryCode ? "" : this.props.prefix;
+      return this.props.prefix;
     }
 
     // for all strings with length less than 3, just return it (1, 2 etc.)
     // also return the same text if the selected country has no fixed format
     if ((text && text.length < 2) || !pattern || !autoFormat) {
-      return disableCountryCode ? text : this.props.prefix + text;
+      return this.props.prefix + text;
     }
 
     const formattedObject = reduce(
@@ -674,12 +629,12 @@ class PhoneInputEngine extends React.Component {
     const { prefix, onChange, country } = this.props;
     const { onlyCountries, selectedCountry, hiddenAreaCodes } = this.state;
 
-    let formattedNumber = this.props.disableCountryCode ? "" : prefix;
+    let formattedNumber = prefix;
     let newSelectedCountry = selectedCountry;
 
     if (value === prefix) {
       // we should handle change when we delete the last digit
-      if (onChange) onChange(this.getCountryData(), "", "", false);
+      if (onChange) onChange("", "", false);
       return this.setState({ formattedNumber: "" });
     }
 
@@ -766,7 +721,6 @@ class PhoneInputEngine extends React.Component {
 
         if (onChange)
           onChange(
-            this.getCountryData(),
             formattedNumber,
             this.state.inputNumberField,
             this.validateNumber(formattedNumber)
@@ -777,8 +731,12 @@ class PhoneInputEngine extends React.Component {
 
   validateNumber = (formattedNumber) => {
     const { selectedCountry } = this.state;
-    if (!selectedCountry) return false;
-    const regex = new RegExp(selectedCountry.format.replace(/^\+\./g, "\\d"));
+    if (!selectedCountry || !selectedCountry.format) return false;
+    const regexString = "^" + selectedCountry.format
+      .replace(/\+/g, "\\+")
+      .replace(/\./g, "\\d")
+      + "$";
+    const regex = new RegExp(regexString);
     return regex.test(formattedNumber);
   };
 
@@ -828,7 +786,6 @@ class PhoneInputEngine extends React.Component {
         this.cursorToEnd();
         if (this.props.onChange)
           this.props.onChange(
-            this.getCountryData(),
             formattedNumber,
             this.state.inputNumberField,
             this.validateNumber(formattedNumber)
@@ -842,8 +799,7 @@ class PhoneInputEngine extends React.Component {
     if (
       this.numberInputRef &&
       this.numberInputRef.value === this.props.prefix &&
-      this.state.selectedCountry &&
-      !this.props.disableCountryCode
+      this.state.selectedCountry
     ) {
       const formattedNumber =
         this.props.prefix + this.state.selectedCountry.dialCode;
@@ -1007,13 +963,9 @@ class PhoneInputEngine extends React.Component {
           (e.which >= keys.A && e.which <= keys.Z) ||
           e.which === keys.SPACE
         ) {
-          this.setState(
-            {
-              queryString:
-                this.state.queryString + String.fromCharCode(e.which),
-            },
-            this.state.debouncedQueryStingSearcher
-          );
+          this.setState({
+            queryString: this.state.queryString + String.fromCharCode(e.which),
+          });
         }
     }
   };

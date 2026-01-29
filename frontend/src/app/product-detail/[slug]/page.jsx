@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
     if (res.ok) {
       const product = await res.json();
       return {
-        title: `${product.name} - NextShop`,
+        title: `${product.name} - Voltio`,
         description: product.description,
       };
     }

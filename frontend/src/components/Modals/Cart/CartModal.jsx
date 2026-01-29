@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { debounce } from "lodash";
 import { useCart } from "../../../hooks/useCart";
+import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
 import { useModal } from "../../../hooks/useModal";
 import { formatPrice } from "../../../utils/formatPrice";
 import { PRODUCT_STOCK_STATUS } from "../../../constants/constants";
@@ -19,6 +20,7 @@ export function CartModal() {
     deleteCartItem,
     totalQuantity,
   } = useCart();
+  const { lock, unlock } = useBodyScrollLock();
   const [quantities, setQuantities] = useState({});
   const debouncedMap = useRef(new Map());
   const updateQueue = useRef(Promise.resolve());
@@ -62,15 +64,29 @@ export function CartModal() {
     debouncedMap.current.get(itemId)(newQuantity, prevQuantity);
   }, [enqueueUpdate]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (isVisible && window.innerWidth <= 768)   {
+        lock("cart");
+      } else {
+        unlock("cart");
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isVisible, lock, unlock]);
+
+  useEffect(() => {
+    if (isVisible && window.innerWidth <= 768) {
+      lock("cart");
+    } else {
+      unlock("cart");
+    }
+  }, [isVisible, lock, unlock]);
+
   return ReactDOM.createPortal(
-    <div
-      className={`${css["side-modal"]} ${isVisible ? css["show"] : ""}`}
-      onMouseDown={(e) => {
-        if (!e.target.closest(`.${css["modal-content"]}`)) {
-          closeModal("cart");
-        }
-      }}
-    >
+    <div className={`${css["side-modal"]} ${isVisible ? css["show"] : ""}`}>
       <div className={css["modal-dialog"]}>
         <div className={css["modal-content"]}>
           <div className={css["modal-header"]}>

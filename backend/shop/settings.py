@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "django_filters",
     "djoser",
     "debug_toolbar",
+    "mptt",
     "authentication",
     "products",
     "carts",
@@ -209,7 +210,7 @@ else:
     AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME")
     AWS_S3_CUSTOM_DOMAIN = config("AWS_S3_CUSTOM_DOMAIN")
     AWS_S3_FILE_OVERWRITE = False
-    AWS_QUERYSTRING_EXPIRE = 3600
+    AWS_QUERYSTRING_EXPIRE = 86400
 
     AWS_CLOUDFRONT_KEY_ID = config("AWS_CLOUDFRONT_KEY_ID")
     AWS_CLOUDFRONT_KEY = config("AWS_CLOUDFRONT_KEY").replace('\\n', '\n').encode("ascii")

@@ -60,14 +60,7 @@ export function SignUpResendActivationModal() {
   };
 
   return ReactDOM.createPortal(
-    <div
-      className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}
-      onMouseDown={(e) => {
-        if (!e.target.closest(`.${css["modal-content"]}`)) {
-          closeModal("signUpResendActivation");
-        }
-      }}
-    >
+    <div className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}>
       <div className={css["modal-dialog"]}>
         <div className={css["modal-content"]}>
           <div className={css["modal-header"]}>

@@ -1,4 +1,4 @@
-import { PAGE_SIZE } from "../constants/constants.js";
+import { PAGE_SIZE } from "../constants/constants";
 
 export function defineServerPageSize(userAgent) {
   const ua = userAgent.toLowerCase();

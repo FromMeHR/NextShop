@@ -10,22 +10,18 @@
     transition: all 0.3s ease-in-out;
     background-color: var(--product-card-background-color);
     cursor: pointer;
+    scroll-snap-align: start;
     box-sizing: border-box;
     z-index: 0;
 }
 
 .product-card:hover {
     box-shadow: 0 0 8px var(--product-card-shadow-color);
-    transform: translateY(-5px);
     z-index: 1;
 }
 
-.product-card.product-card-out-of-stock {
+.product-card.product-card-out-of-stock>* {
     opacity: 0.5;
-}
-
-.product-card.product-card-out-of-stock:hover {
-    transform: none;
 }
 
 .product-card-image-wrapper {
@@ -48,7 +44,6 @@
 .product-card-title {
     font-size: 0.875rem;
     font-weight: 500;
-    height: 40px;
     color: var(--main-text-color);
     margin-bottom: 0.25rem;
     display: -webkit-box;

@@ -44,15 +44,15 @@ export const CartProvider = ({ children }) => {
     fetchCart();
   }, []);
 
-  const addToCart = async (productId) => {
-    if (!cart.some((item) => item.product_id === productId)) {
+  const addToCart = async (productCode) => {
+    if (!cart.some((item) => item.product_code === productCode)) {
       setIsLoading(true);
       try {
         const response = await fetchWithAuth(
           `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/cart/summary/`,
           {
             method: "POST",
-            data: { product_id: productId },
+            data: { product_code: productCode },
           }
         );
         setCart(response.items);

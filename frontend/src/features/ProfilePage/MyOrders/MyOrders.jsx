@@ -296,6 +296,9 @@ export function MyOrders() {
                                         >
                                           {item.product_name}
                                         </Link>
+                                        <div className={css["cart__product-code"]}>
+                                          Код: <span>{item.product_code}</span>
+                                        </div>
                                       </div>
                                       <div className={css["cart__product-col-price"]}>
                                         <div className={css["cart__product-price-wnum"]}>

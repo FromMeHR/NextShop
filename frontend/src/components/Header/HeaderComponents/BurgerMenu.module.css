@@ -59,7 +59,7 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
     cursor: pointer;
 }
 
@@ -76,7 +76,6 @@
     justify-content: space-between;
     width: 25px;
     height: 15px;
-    margin-top: 8px;
     cursor: pointer;
     z-index: 2;
 }

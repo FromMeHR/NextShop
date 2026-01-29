@@ -1,9 +1,11 @@
 import { createContext, useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 export const BurgerMenuContext = createContext();
 
 export const BurgerMenuProvider = ({ children }) => {
+  const { lock, unlock } = useBodyScrollLock();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -13,23 +15,25 @@ export const BurgerMenuProvider = ({ children }) => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth > 768) {
+      if (isOpen && window.innerWidth <= 768)   {
+        lock("burger-menu");
+      } else {
+        unlock("burger-menu");
         setIsOpen(false);
-        document.body.style.overflow = "auto";
       }
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [isOpen, lock, unlock]);
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
+    if (isOpen && window.innerWidth <= 768) {
+      lock("burger-menu");
     } else {
-      document.body.style.overflow = "auto";
+      unlock("burger-menu");
     }
-  }, [isOpen]);
+  }, [isOpen, lock, unlock]);
 
   useEffect(() => {
     setIsOpen(false);

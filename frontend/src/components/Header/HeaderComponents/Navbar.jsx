@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { CatalogBox } from "./CatalogBox";
 import { SearchBox } from "./SearchBox";
 import { useCart } from "../../../hooks/useCart";
 import { useAuth } from "../../../hooks/useAuth";
@@ -19,7 +20,10 @@ export function Navbar() {
     <nav className={css["navbar-wrapper"]}>
       <div className={css["navbar-content"]}>
         <div className={css["navbar-logo"]}>
-          <a href="/">Shop</a>
+          <a href="/">Voltio</a>
+        </div>
+        <div className={css["navbar-catalog-box"]}>
+          <CatalogBox />
         </div>
         <div className={`${css["search-wrapper"]}`}>
           <SearchBox />

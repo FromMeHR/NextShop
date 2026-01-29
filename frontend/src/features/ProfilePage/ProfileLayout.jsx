@@ -7,6 +7,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../hooks/useCart";
 import { fetchWithAuth } from "../../lib/fetchWithAuth";
 import { Loader } from "../../components/Loader/Loader";
+import { Breadcrumbs } from "../../components/Breadcrumbs/Breadcrumbs";
 import css from "./ProfileLayout.module.css";
 
 export function ProfileLayout({ children }) {
@@ -61,6 +62,7 @@ export function ProfileLayout({ children }) {
   ) : (
     <div className={css["profile__main"]}>
       <div className={css["profile__content"]}>
+        <Breadcrumbs items={[{ name: "Особистий кабінет" }]} />
         <div className={css["profile__row"]}>
           <div className={css["profile__left"]}>
             <div className={css["profile__block"]}>

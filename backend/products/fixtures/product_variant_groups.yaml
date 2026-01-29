@@ -1,0 +1,11 @@
+[
+  {
+    "model": "products.productvariantgroup",
+    "pk": 2,
+    "fields":
+      {
+        "internal_name": "ram-190009-190010-190011",
+        "public_name": "Загальний обсяг, ГБ",
+      },
+  },
+]

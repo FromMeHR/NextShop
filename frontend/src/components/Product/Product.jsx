@@ -43,7 +43,7 @@ export function Product({ product }) {
               className={css["product-cart-button"]}
               onClick={(e) => {
                 e.preventDefault();
-                addToCart(product.id);
+                addToCart(product.code);
                 openModal("cart");
               }}
             >

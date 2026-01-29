@@ -82,7 +82,7 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     restart: always
     volumes:
-      - redis_data:/data
+      - redis_data_prod:/data
     networks:
       - shop_net
 
@@ -126,4 +126,4 @@ volumes:
   pgadmin_data:
   static:
   media:
-  redis_data:
+  redis_data_prod:

@@ -1,0 +1,35 @@
+.custom-scrollbar {
+    position: relative;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    touch-action: none;
+}
+
+.custom-scrollbar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--disabled-border-color);
+    border-radius: 20px;
+}
+
+.custom-scrollbar__thumb {
+    position: relative;
+    height: 2px;
+    background-color: var(--main-button-color);
+    border-radius: 4px;
+    width: 40px;
+    cursor: pointer;
+    touch-action: none;
+    transition: background-color 0.3s ease-in-out, height 0.3s ease-in-out;
+}
+
+.custom-scrollbar__thumb.active {
+    background-color: var(--main-green-color);
+    height: 6px;
+}

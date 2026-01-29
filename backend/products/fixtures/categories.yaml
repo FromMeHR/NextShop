@@ -1,16 +1,467 @@
-- model: products.category
-  pk: 1
-  fields:
-    name: Electronics
-- model: products.category
-  pk: 2
-  fields:
-    name: Groceries
-- model: products.category
-  pk: 3
-  fields:
-    name: Clothing
-- model: products.category
-  pk: 4
-  fields:
-    name: Other Products
+[
+  {
+    "model": "products.category",
+    "pk": 1,
+    "fields":
+      {
+        "name": "Комп'ютери",
+        "slug": "pc",
+        "image": "categories_images/компютери.png",
+        "parent": null,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 2,
+        "level": 0,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 2,
+    "fields":
+      {
+        "name": "Ноутбуки",
+        "slug": "laptops",
+        "image": "categories_images/ноутбуки.png",
+        "parent": null,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 3,
+        "level": 0,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 3,
+    "fields":
+      {
+        "name": "Комплектуючі для ПК",
+        "slug": "komplektuyuchi",
+        "image": "categories_images/комплектуючі_для_пк.png",
+        "parent": null,
+        "lft": 1,
+        "rght": 30,
+        "tree_id": 1,
+        "level": 0,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 8,
+    "fields":
+      {
+        "name": "Монітори",
+        "slug": "monitors",
+        "image": "categories_images/монітори.png",
+        "parent": null,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 4,
+        "level": 0,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 9,
+    "fields":
+      {
+        "name": "Периферія",
+        "slug": "periferiya",
+        "image": "categories_images/периферія.png",
+        "parent": null,
+        "lft": 1,
+        "rght": 18,
+        "tree_id": 7,
+        "level": 0,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 11,
+    "fields":
+      {
+        "name": "Мережеве обладнання",
+        "slug": "merezheve-obladnannya",
+        "image": "categories_images/мережеве_обладнання.png",
+        "parent": null,
+        "lft": 1,
+        "rght": 6,
+        "tree_id": 6,
+        "level": 0,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 38,
+    "fields":
+      {
+        "name": "Основні компоненти",
+        "slug": null,
+        "image": "",
+        "parent": 3,
+        "lft": 2,
+        "rght": 23,
+        "tree_id": 1,
+        "level": 1,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 39,
+    "fields":
+      {
+        "name": "Процесори",
+        "slug": "processor",
+        "image": "categories_images/процесори.png",
+        "parent": 38,
+        "lft": 3,
+        "rght": 4,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 40,
+    "fields":
+      {
+        "name": "Материнські плати",
+        "slug": "motherboard",
+        "image": "categories_images/материнські_плати.png",
+        "parent": 38,
+        "lft": 5,
+        "rght": 6,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 41,
+    "fields":
+      {
+        "name": "Відеокарти",
+        "slug": "videocard",
+        "image": "categories_images/відеокарти.png",
+        "parent": 38,
+        "lft": 7,
+        "rght": 8,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 42,
+    "fields":
+      {
+        "name": "Оперативна пам'ять",
+        "slug": "ram",
+        "image": "categories_images/оперативна_память.png",
+        "parent": 38,
+        "lft": 9,
+        "rght": 10,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 43,
+    "fields":
+      {
+        "name": "Накопичувачі SSD",
+        "slug": "ssd",
+        "image": "categories_images/ssd.png",
+        "parent": 38,
+        "lft": 11,
+        "rght": 12,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 44,
+    "fields":
+      {
+        "name": "Накопичувачі HDD",
+        "slug": "hard-drive",
+        "image": "categories_images/hdd.png",
+        "parent": 38,
+        "lft": 13,
+        "rght": 14,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 45,
+    "fields":
+      {
+        "name": "Блоки живлення",
+        "slug": "power-supply",
+        "image": "categories_images/блоки_живлення.png",
+        "parent": 38,
+        "lft": 15,
+        "rght": 16,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 46,
+    "fields":
+      {
+        "name": "Корпуси",
+        "slug": "case",
+        "image": "categories_images/корпуси.png",
+        "parent": 38,
+        "lft": 17,
+        "rght": 18,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 47,
+    "fields":
+      {
+        "name": "Повітряне охолодження для CPU",
+        "slug": "povitriane-okholodzhennia",
+        "image": "categories_images/повітряне_охолодження_для_cpu.png",
+        "parent": 38,
+        "lft": 19,
+        "rght": 20,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 48,
+    "fields":
+      {
+        "name": "Водяне охолодження для CPU",
+        "slug": "vodiane-okholodzhennia",
+        "image": "categories_images/водяне_охолодження_для_cpu.png",
+        "parent": 38,
+        "lft": 21,
+        "rght": 22,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 66,
+    "fields":
+      {
+        "name": "Клавіатури",
+        "slug": "keyboards",
+        "image": "categories_images/клавіатури.png",
+        "parent": 9,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 7,
+        "level": 1,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 67,
+    "fields":
+      {
+        "name": "Мишки",
+        "slug": "mouse",
+        "image": "categories_images/мишки.png",
+        "parent": 9,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 7,
+        "level": 1,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 68,
+    "fields":
+      {
+        "name": "Килимки",
+        "slug": "kovriki",
+        "image": "categories_images/килимки.png",
+        "parent": 9,
+        "lft": 6,
+        "rght": 7,
+        "tree_id": 7,
+        "level": 1,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 69,
+    "fields":
+      {
+        "name": "Aудіо",
+        "slug": "audio",
+        "image": "categories_images/аудио.png",
+        "parent": 9,
+        "lft": 8,
+        "rght": 17,
+        "tree_id": 7,
+        "level": 1,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 70,
+    "fields":
+      {
+        "name": "Навушники",
+        "slug": "earphones",
+        "image": "categories_images/навушники.png",
+        "parent": 69,
+        "lft": 9,
+        "rght": 10,
+        "tree_id": 7,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 71,
+    "fields":
+      {
+        "name": "Мікрофони",
+        "slug": "microphones",
+        "image": "categories_images/мікрофони.png",
+        "parent": 69,
+        "lft": 11,
+        "rght": 12,
+        "tree_id": 7,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 72,
+    "fields":
+      {
+        "name": "Акустичні системи",
+        "slug": "akustichni-sistemi",
+        "image": "categories_images/акустичні_системи.png",
+        "parent": 69,
+        "lft": 13,
+        "rght": 14,
+        "tree_id": 7,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 73,
+    "fields":
+      {
+        "name": "Портативна акустика",
+        "slug": "portable-speakers",
+        "image": "categories_images/портативна_акустика.png",
+        "parent": 69,
+        "lft": 15,
+        "rght": 16,
+        "tree_id": 7,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 74,
+    "fields":
+      {
+        "name": "Роутери",
+        "slug": "wi-fi-routers",
+        "image": "categories_images/роутери.png",
+        "parent": 11,
+        "lft": 2,
+        "rght": 3,
+        "tree_id": 6,
+        "level": 1,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 78,
+    "fields":
+      {
+        "name": "Аксесуари для збирання",
+        "slug": "aksesuari-dlya-zbirannya",
+        "image": "categories_images/аксесуари_для_збирання_пк.png",
+        "parent": 3,
+        "lft": 24,
+        "rght": 29,
+        "tree_id": 1,
+        "level": 1,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 79,
+    "fields":
+      {
+        "name": "Термопаста",
+        "slug": "thermalpaste",
+        "image": "categories_images/термопаста.png",
+        "parent": 78,
+        "lft": 25,
+        "rght": 26,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 80,
+    "fields":
+      {
+        "name": "Вентилятори для корпусу",
+        "slug": "case-fan",
+        "image": "categories_images/вентилятори_для_корпусу.png",
+        "parent": 78,
+        "lft": 27,
+        "rght": 28,
+        "tree_id": 1,
+        "level": 2,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 81,
+    "fields":
+      {
+        "name": "Телевізори",
+        "slug": "tv",
+        "image": "categories_images/телевізори.png",
+        "parent": null,
+        "lft": 1,
+        "rght": 2,
+        "tree_id": 5,
+        "level": 0,
+      },
+  },
+  {
+    "model": "products.category",
+    "pk": 82,
+    "fields":
+      {
+        "name": "Wi-Fi адаптери",
+        "slug": "wi-fi-adapters",
+        "image": "categories_images/wi-fi_адаптери.png",
+        "parent": 11,
+        "lft": 4,
+        "rght": 5,
+        "tree_id": 6,
+        "level": 1,
+      },
+  },
+]

@@ -1,11 +1,11 @@
 import { MainBanner } from "./Banner/Banner";
-import { Products } from "./Products/Products";
+import { Categories } from "./Categories/Categories";
 
-export function MainPage({ data, page, pageSize }) {
+export function MainPage() {
   return (
     <>
       <MainBanner />
-      <Products data={data} page={page} pageSize={pageSize} />
+      <Categories />
     </>
   );
 }
