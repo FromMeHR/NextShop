@@ -1,11 +1,13 @@
 import { MainBanner } from "./Banner/Banner";
 import { Categories } from "./Categories/Categories";
 
-export function MainPage() {
+export function MainPage({ categories }) {
   return (
     <>
       <MainBanner />
-      <Categories />
+      {categories && categories.length > 0 && (
+        <Categories categories={categories} />
+      )}
     </>
   );
 }

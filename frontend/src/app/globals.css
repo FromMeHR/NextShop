@@ -1,7 +1,7 @@
 :root {
-  --main-green-color: #94B80A;
-  --main-dark-green-color: #7a9b0a;
-  --main-light-green-color: #afd809;
+  --main-green-color: #9abe0a;
+  --main-dark-green-color: #77980a;
+  --main-light-green-color: #aed709;
 
   /* shadow color */
   --main-shadow-color: #282828;
@@ -19,11 +19,11 @@
   --border-color: #e3e3e3;
   --grey-border-color: #CACACA;
   --disabled-border-color: #f2f2f2;
-  --main-button-focus-border-color: #94B80A;
+  --main-button-focus-border-color: #9abe0a;
   --delivery-item-border-color: #282828;
   --phone-input-arrow-border-color: #555;
   --profile-order-item__btn-border-color: #282828;
-  --profile-order-item__btn-active-border-color: #94B80A;
+  --profile-order-item__btn-active-border-color: #9abe0a;
 
   /* background color*/
   --header-background-color: #282828;
@@ -68,10 +68,11 @@
   --hover-dropdown-background-color: #f1f1f1;
   --phone-input-background-color: #fff;
   --phone-input-country-hover-color: #f1f1f1;
+  --pagination-hover-background-color: #F5F5F5;
 
   /* input color*/
   --error-input-color: red;
-  --focus-input-color: #94B80A;
+  --focus-input-color: #9abe0a;
   --hover-input-color: #000;
   --disabled-input-color: #bdbdbd;
 
@@ -81,9 +82,9 @@
   --light-text-color: #fff;
   --link-text-color: #212529;
   --error-text-color: red;
-  --main-button-focus-text-color: #94B80A;
+  --main-button-focus-text-color: #9abe0a;
   --order-detail-price-wnum-text-color: #484F54;
-  --order-detail-paid-text-color: #94B80A;
+  --order-detail-paid-text-color: #9abe0a;
   --order-detail-cancelled-text-color: #707070;
   --product-detail-price-text-color: rgba(255, 64, 0, 0.750);
   --profile-order-item-text-color: #484F54;
@@ -91,7 +92,7 @@
 
   --status-grey-text-color: #707070;
   --status-orange-text-color: #FFB628;
-  --status-green-text-color: #94B80A;
+  --status-green-text-color: #9abe0a;
 
   /* button color*/
   --main-button-color: #282828;

@@ -12,13 +12,6 @@
     min-width: 0;
 }
 
-.banner__title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: var(--main-text-color);
-}
-
 .banner__subtitle {
     font-size: 1.25rem;
     font-weight: 400;

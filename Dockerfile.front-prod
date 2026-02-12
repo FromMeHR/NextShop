@@ -19,23 +19,9 @@ COPY ./frontend/eslint.config.mjs .
 COPY ./frontend/jsconfig.json .
 COPY ./frontend/next.config.mjs .
 
-# Environment variables must be present at build time
-ARG BASE_INTERNAL_API_URL
-ARG NEXT_PUBLIC_BASE_API_URL
-ARG NEXT_PUBLIC_URL
-ARG REDIS_URL
-ARG REDIS_SINGLE_CONNECTION
-ARG JWT_RSA_PUBLIC_KEY
-
-ENV BASE_INTERNAL_API_URL=$BASE_INTERNAL_API_URL
-ENV NEXT_PUBLIC_BASE_API_URL=$NEXT_PUBLIC_BASE_API_URL
-ENV NEXT_PUBLIC_URL=$NEXT_PUBLIC_URL
-ENV REDIS_URL=$REDIS_URL
-ENV REDIS_SINGLE_CONNECTION=$REDIS_SINGLE_CONNECTION
-ENV JWT_RSA_PUBLIC_KEY=$JWT_RSA_PUBLIC_KEY
-
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN \
+RUN --mount=type=secret,id=front_build_env \
+    set -a && . /run/secrets/front_build_env && set +a && \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
@@ -56,21 +42,6 @@ USER nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Environment variables must be redefined at run time
-ARG BASE_INTERNAL_API_URL
-ARG NEXT_PUBLIC_BASE_API_URL
-ARG NEXT_PUBLIC_URL
-ARG REDIS_URL
-ARG REDIS_SINGLE_CONNECTION
-ARG JWT_RSA_PUBLIC_KEY
-
-ENV BASE_INTERNAL_API_URL=$BASE_INTERNAL_API_URL
-ENV NEXT_PUBLIC_BASE_API_URL=$NEXT_PUBLIC_BASE_API_URL
-ENV NEXT_PUBLIC_URL=$NEXT_PUBLIC_URL
-ENV REDIS_URL=$REDIS_URL
-ENV REDIS_SINGLE_CONNECTION=$REDIS_SINGLE_CONNECTION
-ENV JWT_RSA_PUBLIC_KEY=$JWT_RSA_PUBLIC_KEY
 
 EXPOSE 3000
 ENV PORT=3000

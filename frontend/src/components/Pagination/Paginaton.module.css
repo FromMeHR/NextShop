@@ -1,0 +1,126 @@
+.pagination {
+    display: flex;
+    align-items: center;
+    margin: 16px 0;
+    list-style: none;
+    padding: 1px 5px;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.pagination::-webkit-scrollbar {
+    display: none;
+}
+
+.pagination::before,
+.pagination::after {
+    content: '';
+    margin: auto;
+}
+
+.pagination-item {
+    display: inline-block;
+    color: var(--main-text-color);
+    font-size: 0.875rem;
+    min-width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-family: 'Geologica';
+    text-align: center;
+    border-radius: 2px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+    margin-inline-end: 8px;
+    transition: all 0.3s ease;
+}
+
+.pagination-item a {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+}
+
+.pagination-item:hover:not(.active):not(.disabled) {
+    background-color: var(--pagination-hover-background-color);
+}
+
+.pagination-item.active {
+    border: 1px solid var(--grey-border-color);
+    font-weight: 600;
+}
+
+.pagination-item.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.jump-item {
+    border-color: transparent;
+}
+
+.jump-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.ellipsis {
+    color: var(--grey-border-color);
+    letter-spacing: 2px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.pagination__double-arrow,
+.pagination__arrow {
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    line-height: 0.9;
+    transform: translateY(-50%) translateX(50%);
+    transition: transform 0.3s ease-in-out;
+}
+
+.pagination__double-arrow {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.pagination__arrow.left {
+    transform: translateY(-50%) translateX(50%) rotate(90deg);
+}
+
+.pagination__arrow.right {
+    transform: translateY(-50%) translateX(50%) rotate(-90deg);
+}
+
+.pagination__double-arrow.left {
+    transform: translateY(-50%) translateX(50%);
+}
+
+.pagination__double-arrow.right {
+    transform: translateY(-50%) translateX(50%) rotate(180deg);
+}
+
+.pagination__arrow img {
+    width: 16px;
+    height: 16px;
+}
+
+.pagination__double-arrow img {
+    width: 14px;
+    height: 14px;
+}
+
+.jump-item:hover .ellipsis {
+    opacity: 0;
+}
+
+.jump-item:hover .pagination__double-arrow {
+    opacity: 1;
+}

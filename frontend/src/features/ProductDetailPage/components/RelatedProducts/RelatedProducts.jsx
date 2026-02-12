@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Product } from "../../../components/Product/Product";
+import { Product } from "../../../../components/Product/Product";
 import css from "./RelatedProducts.module.css";
 
 export function RelatedProducts({ relatedProducts }) {

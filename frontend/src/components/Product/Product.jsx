@@ -1,28 +1,22 @@
-"use client";
-
-import Link from "next/link";
-import { useCart } from "../../hooks/useCart";
-import { useModal } from "../../hooks/useModal";
 import { formatPrice } from "../../utils/formatPrice";
 import {
   PRODUCT_STOCK_STATUS,
   PRODUCT_STOCK_STATUS_LABELS,
 } from "../../constants/constants";
+import { AddToCartButton } from "./ProductComponents/AddToCartButton";
+import Link from "next/link";
 import css from "./Product.module.css";
 
 export function Product({ product }) {
-  const { addToCart } = useCart();
-  const { openModal } = useModal();
+  const isOutOfStock = product.stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK;
 
   return (
-    <Link href={`/product-detail/${product.slug}`} prefetch={false}>
-      <div
-        className={`${css["product-card"]} ${
-          product.stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK
-            ? css["product-card-out-of-stock"]
-            : ""
-        }`}
-      >
+    <article
+      className={`${css["product-card"]} ${
+        isOutOfStock ? css["product-card-out-of-stock"] : ""
+      }`}
+    >
+      <Link href={`/product-detail/${product.slug}`} prefetch={false}>
         <div className={css["product-card-image-wrapper"]}>
           <img
             src={product.image}
@@ -31,34 +25,32 @@ export function Product({ product }) {
           />
         </div>
         <div className={css["product-card-body"]}>
-          <p className={css["product-card-title"]}>{product.name}</p>
-        </div>
-        {product.stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK ? (
-          <div className={css["product-card-footer"]}>
-            <p className={css["product-card-price"]}>
-              {formatPrice(product.price)} <span>₴</span>
-            </p>
-            <button
-              type="button"
-              className={css["product-cart-button"]}
-              onClick={(e) => {
-                e.preventDefault();
-                addToCart(product.code);
-                openModal("cart");
-              }}
-            >
-              <img
-                src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
-                alt="Cart icon link"
-              />
-            </button>
-          </div>
-        ) : (
-          <p className={css["product-card-out-of-stock-text"]}>
-            {PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
+          <p className={css["product-card-title"]}>
+            {product.name}
           </p>
-        )}
-      </div>
-    </Link>
+        </div>
+        <footer className={css["product-card-footer"]}>
+          {!isOutOfStock ? (
+            <>
+              <p
+                className={css["product-card-price"]}
+                itemProp="price"
+                content={parseFloat(product.price)}
+              >
+                {formatPrice(product.price)}
+                <span itemProp="priceCurrency" content="UAH"> ₴</span>
+              </p>
+              <AddToCartButton productCode={product.code} />
+            </>
+            ) : (
+            <>
+              <p className={css["product-card-out-of-stock-text"]}>
+                {PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
+              </p>
+            </>
+          )}
+        </footer>
+      </Link>
+    </article>
   );
 }

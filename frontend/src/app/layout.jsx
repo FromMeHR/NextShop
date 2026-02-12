@@ -8,36 +8,77 @@ import { Header } from "../components/Header/Header";
 import { Footer } from "../components/Footer/Footer";
 import { PageWrapper } from "../components/PageWrapper/PageWrapper";
 import { Providers } from "./providers";
+import { getCategories } from "../lib/categories";
 
 const myFont = localFont({
   src: "../../public/fonts/Montserrat-VariableFont.ttf",
 });
 
-export const metadata = {
-  title: "Voltio",
-  description: "Інтернет-магазин цифрової техніки та аксесуарів - Voltio",
+export const viewport = {
+  themeColor: "#191919",
 };
 
-async function getCategories() {
-  const baseUrl = process.env.BASE_INTERNAL_API_URL;
-  try {
-    const res = await fetch(`${baseUrl}/api/categories/`, {
-      next: { revalidate: 60 * 60 },
-    });
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    return [];
-  }
-}
+export const metadata = {
+  metadataBase: new URL(`${process.env.NEXT_PUBLIC_URL}`),
+  openGraph: {
+    siteName: "voltio.click",
+    locale: "uk_UA",
+    type: "website",
+    images: [
+      {
+        url: "/img/opengraph-image.jpg",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+  },
+};
 
 export default async function RootLayout({ children }) {
   const categories = await getCategories();
+  const publicUrl = process.env.NEXT_PUBLIC_URL;
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": `${publicUrl}/`,
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": `${publicUrl}/search/{search_term_string}`,
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Voltio — інтернет-магазин цифрової техніки",
+      "url": `${publicUrl}/`,
+      "logo": `${publicUrl}/svg/logo.svg`,
+      "image": `${publicUrl}/svg/logo.svg`,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "вул. Старокозацька, 28А",
+        "addressLocality": "Дніпро",
+        "postalCode": "49000",
+        "addressCountry": "UA"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+380995544422",
+        "contactType": "customer service"
+      }
+    }
+  ];
 
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={myFont.className}>
+    <html lang="uk" data-scroll-behavior="smooth" className={myFont.className}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body>
         <div className="App">
           <Providers initialCategories={categories}>

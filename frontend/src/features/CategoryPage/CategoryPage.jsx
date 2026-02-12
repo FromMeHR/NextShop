@@ -7,24 +7,24 @@ export function CategoryPage({ categoryPath }) {
 
   const renderCategoryItem = (item) => {
     if (!item.slug && item.children) {
-      return item.children.map(child => renderCategoryItem(child));
+      return item.children.map((child) => renderCategoryItem(child));
     }
 
     const hasChildren = item.children && item.children.length > 0;
-    const currentUrlPath = categoryPath.map(c => c.slug).filter(Boolean).join("/");
+    const currentUrlPath = categoryPath.map((c) => c.slug).filter(Boolean).join("/");
     const url = hasChildren
       ? `/category/${currentUrlPath}/${item.slug}`
       : `/catalog/${item.slug}`;
 
     return (
-      <Link key={item.id} href={url} prefetch={false}>
-        <div className={css["category-card"]}>
+      <article key={item.id} className={css["category-card"]}>
+        <Link href={url} prefetch={false}>
           <div className={css["category-card__image-wrapper"]}>
             {item.image && <img src={item.image} alt={item.name} />}
           </div>
           <span className={css["category-card__name"]}>{item.name}</span>
-        </div>
-      </Link>
+        </Link>
+      </article>
     );
   };
 
@@ -33,7 +33,7 @@ export function CategoryPage({ categoryPath }) {
       const isLast = index === categoryPath.length - 1;
       const fullPath = categoryPath
         .slice(0, index + 1)
-        .map(c => c.slug)
+        .map((c) => c.slug)
         .filter(Boolean)
         .join("/");
       return {

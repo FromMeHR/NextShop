@@ -3,7 +3,7 @@ import { SearchPage } from "../../../features/SearchPage/SearchPage";
 export async function generateMetadata({ params }) {
   const { query } = await params;
   return {
-    title: `Результати пошуку за запитом ${decodeURIComponent(query)} - Voltio`,
+    title: `Результати пошуку за запитом «${decodeURIComponent(query)}» | Voltio`,
   };
 }
 

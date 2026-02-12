@@ -8,11 +8,14 @@ class ShopPagination(PageNumberPagination):
     max_page_size = 16
     
     def get_page_number(self, request, paginator):
-        page_number = super().get_page_number(request, paginator)
-        if int(page_number) > paginator.num_pages:
-            page_number = paginator.num_pages or 1
-        return page_number
-    
+        try:
+            page_number = super().get_page_number(request, paginator)
+            if int(page_number) > paginator.num_pages:
+                page_number = paginator.num_pages or 1
+            return page_number
+        except (TypeError, ValueError):
+            return 1
+
     def get_paginated_response(self, data):
         return Response({
             'total_items': self.page.paginator.count,

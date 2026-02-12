@@ -34,7 +34,7 @@ class CategoryListSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "slug", "image", "children")
 
     def get_children(self, obj):
-        return CategoryListSerializer(obj.get_children(), many=True).data
+        return CategoryListSerializer(getattr(obj, "_cached_children", []), many=True).data
 
     def get_image(self, obj):
         request = self.context.get("request")
@@ -52,7 +52,7 @@ class CategoryFiltersSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "children")
 
     def get_children(self, obj):
-        return AttributeValueSerializer(obj.get_children(), many=True).data
+        return AttributeValueSerializer(getattr(obj, "_cached_children", []), many=True).data
 
 
 class ProductAttributesSerializer(serializers.ModelSerializer):
@@ -60,10 +60,10 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductAttribute
-        fields = ("id", "name", "slug", "show_in_filters", "children")
+        fields = ("id", "name", "slug", "show_in_filters", "show_in_short_info", "children")
 
     def get_children(self, obj):
-        return ProductAttributesSerializer(obj.get_children(), many=True).data
+        return ProductAttributesSerializer(getattr(obj, "_cached_children", []), many=True).data
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -71,6 +71,8 @@ class ProductAttributesSerializer(serializers.ModelSerializer):
             data.pop("slug", None)
         if instance.level != 2:
             data.pop("show_in_filters", None)
+        if instance.level not in [1, 2]:
+            data.pop("show_in_short_info", None)
         if instance.level == 3:
             data.pop("children", None)
         return data

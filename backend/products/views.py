@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import filters
 
+from .utils import get_sitemap_params
 from shop.pagination import ShopPagination
 from .models import Product, Category, ProductAttribute
 from orders.models import Order
@@ -304,7 +305,7 @@ class CategoryFiltersView(APIView):
         filter_groups_data = []
         for node in queryset:
             if node.level == 2 and node.show_in_filters:
-                children = node.get_children()
+                children = getattr(node, "_cached_children", [])
                 is_group_active = node.id in selected_by_group
 
                 context_ids = get_intersected_ids(exclude_group_id=node.id)
@@ -336,12 +337,73 @@ class CategoryFiltersView(APIView):
 
 class ProductSitemapView(APIView):
     def get(self, request):
-        try:
-            start = max(int(request.query_params.get("start", 0)), 0)
-            end = int(request.query_params.get("end"))
-        except (ValueError, TypeError):
+        start, end = get_sitemap_params(request)
+        if start is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         products = Product.objects.only("slug").order_by("id")[start:end]
         serializer = ProductSitemapSerializer(products, many=True)
         return Response(serializer.data)
+
+
+class CategorySitemapView(APIView):
+    def get(self, request):
+        start, end = get_sitemap_params(request)
+        if start is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = Category.objects.all().order_by("tree_id", "lft")
+        cached_tree = get_cached_trees(queryset)
+        data = []
+        def traverse(nodes, current_path_slugs):
+            for node in nodes:
+                if not node.slug:
+                    continue
+                new_path = current_path_slugs + [node.slug]
+                children = getattr(node, "_cached_children", [])
+                if children:
+                    data.append({"full_slug": "/".join(new_path)})
+                    traverse(children, new_path)
+                else:
+                    pass
+        traverse(cached_tree, [])
+        return Response(data[start:end])
+
+
+class CategoryFiltersSitemapView(APIView):
+    def get(self, request):
+        start, end = get_sitemap_params(request)
+        if start is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        roots = (
+            ProductAttribute.objects.filter(level=0)
+            .select_related("category")
+            .only("tree_id", "category__slug")
+        )
+        tree_to_category_map = {
+            root.tree_id: root.category.slug
+            for root in roots if root.category and root.category.slug
+        }
+
+        all_entries = []
+        unique_category_slugs = sorted(list(set(tree_to_category_map.values())))
+        for cat_slug in unique_category_slugs:
+            all_entries.append({
+                "category_slug": cat_slug,
+                "filter_slug": None
+            })
+
+        attrs = ProductAttribute.objects.filter(
+            level=3,
+            parent__show_in_filters=True,
+            products__isnull=False
+        ).only("slug", "tree_id").order_by("id").distinct()
+        for attr in attrs:
+            category_slug = tree_to_category_map.get(attr.tree_id)
+            if category_slug:
+                all_entries.append({
+                    "category_slug": category_slug,
+                    "filter_slug": attr.slug
+                })
+        return Response(all_entries[start:end])

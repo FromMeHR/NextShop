@@ -1,51 +1,19 @@
-"use client";
-
-import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ErrorPage404 } from "../ErrorPage/ErrorPage404";
-import { RelatedProducts } from "./RelatedProducts/RelatedProducts";
-import { useCart } from "../../hooks/useCart";
-import { useModal } from "../../hooks/useModal";
-import { useCategories } from "../../hooks/useCategories";
 import { formatPrice } from "../../utils/formatPrice";
-import { findCategoryPath } from "../../utils/findCategoryPath";
+import { generateProductShortInfo } from "../../utils/generateProductShortInfo";
 import { Breadcrumbs } from "../../components/Breadcrumbs/Breadcrumbs";
-import { Scrollbar } from "../../components/Scrollbar/Scrollbar";
 import {
   PRODUCT_STOCK_STATUS,
   PRODUCT_STOCK_STATUS_LABELS,
 } from "../../constants/constants";
+import { BuyButton } from "./components/BuyButton/BuyButton";
+import { VariantSelector } from "./components/VariantSelector";
+import { ProductSpecs } from "./components/ProductSpecs";
+import { ProductDescription } from "./components/ProductDescription";
+import { RelatedProducts } from "./components/RelatedProducts/RelatedProducts";
 import css from "./ProductDetailPage.module.css";
 
-export function ProductDetailPage({ product }) {
-  const { addToCart } = useCart();
-  const { openModal } = useModal();
-  const { categories } = useCategories();
-  const contentRef = useRef(null);
-  const scrollContainer = useRef(null);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [needsToggle, setNeedsToggle] = useState(false);
-
-  useEffect(() => {
-    const fullHeight = contentRef.current?.scrollHeight;
-    if (fullHeight > 500) {
-      setNeedsToggle(true);
-    }
-  }, [product]);
-
-  const handleToggleExpand = () => {
-    if (isExpanded) {
-      setIsExpanded(false);
-      const parentElement = contentRef.current?.parentElement;
-      if (parentElement) {
-        parentElement.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    } else {
-      setIsExpanded(true);
-    }
-  };
-
-  const categoryPath = findCategoryPath(categories, product.category.slug) || [];
+export function ProductDetailPage({ product, categoryPath }) {
   const breadcrumbItems = [
     ...categoryPath
       .filter((cat) => cat.slug !== null)
@@ -67,9 +35,7 @@ export function ProductDetailPage({ product }) {
     },
   ];
 
-  return !product ? (
-    <ErrorPage404 />
-  ) : (
+  return (
     <>
       <div className={css["product-detail__main"]}>
         <div className={css["product-detail__content"]}>
@@ -84,148 +50,75 @@ export function ProductDetailPage({ product }) {
             </div>
             <div className={css["product-detail__info"]}>
               <h2 className={css["product-detail__title"]}>{product.name}</h2>
-              <div className={css["product-detail__code"]}>
-                Код товару: <span>{product.code}</span>
-              </div>
-              <p
-                className={css["product-detail__description"]}
-                dangerouslySetInnerHTML={{ __html: product.description }}
-              ></p>
-              <div className={css["product-detail__price-row"]}>
-                {product.stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK ? (
-                  <div
-                    className={`${css["product-detail__status"]} ${css["out-of-stock"]}`}
-                  >
-                    {PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
-                  </div>
-                ) : (
-                  <>
-                    <div className={css["product-detail__price"]}>
-                      {formatPrice(product.price)} <span>₴</span>
-                    </div>
-                    <div
-                      className={`${css["product-detail__status"]} ${
-                        product.stock_status === PRODUCT_STOCK_STATUS.IN_STOCK
-                          ? css["in-stock"]
-                          : css["low-stock"]
-                      }`}
+              <div className={css["product-detail__short-info-wrapper"]}>
+                <div className={css["product-detail__code"]}>
+                  Код товару: <span>{product.code}</span>
+                </div>
+                <div className={css["product-detail__short-info-header"]}>Короткі характеристики:</div>
+                <ul className={css["product-detail__short-info"]}>
+                  {generateProductShortInfo(product.attributes).map((attr) => (
+                    <li
+                      className={css["product-detail__short-info-item"]}
+                      key={attr.id}
                     >
-                      {product.stock_status ===
-                      PRODUCT_STOCK_STATUS.FEW_ITEMS_LEFT
-                        ? PRODUCT_STOCK_STATUS_LABELS.few_items_left(
-                            product.quantity
-                          )
-                        : PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
+                      <span className={css["product-detail__short-info--title"]}>{attr.name}: </span>
+                      {attr.slug ? (
+                        <Link
+                          target="_blank"
+                          href={`${process.env.NEXT_PUBLIC_URL}/catalog/${product.category.slug}/filter/${attr.slug}`}
+                          prefetch={false}
+                        >
+                          <span className={css["product-detail__short-info--desc"]}>{attr.value}</span>
+                        </Link>
+                      ) : (
+                        <span className={css["product-detail__short-info--desc"]}>{attr.value}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <div className={css["product-detail__price-row"]}>
+                  {product.stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK ? (
+                    <div
+                      className={`${css["product-detail__status"]} ${css["out-of-stock"]}`}
+                    >
+                      {PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
                     </div>
-                  </>
+                  ) : (
+                    <>
+                      <div className={css["product-detail__price"]}>
+                        {formatPrice(product.price)} <span>₴</span>
+                      </div>
+                      <div
+                        className={`${css["product-detail__status"]} ${
+                          product.stock_status === PRODUCT_STOCK_STATUS.IN_STOCK
+                            ? css["in-stock"]
+                            : css["low-stock"]
+                        }`}
+                      >
+                        {product.stock_status ===
+                        PRODUCT_STOCK_STATUS.FEW_ITEMS_LEFT
+                          ? PRODUCT_STOCK_STATUS_LABELS.few_items_left(
+                              product.quantity
+                            )
+                          : PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
+                      </div>
+                    </>
+                  )}
+                </div>
+                {product.stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK && (
+                  <BuyButton product={product} />
                 )}
               </div>
-              {product.stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK && (
-                <button
-                  className={css["buy-now-button"]}
-                  onClick={() => {
-                    addToCart(product.code);
-                    openModal("cart");
-                  }}
-                >
-                  <span>
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
-                      alt="Cart icon link"
-                    />
-                    Купити
-                  </span>
-                </button>
-              )}
             </div>
           </div>
           {product.variant_data && product.variant_data.length > 0 && (
-            <div className={css["block-specific"]}>
-              <div className={css["block-specific__content"]}>
-                {product.variant_data.map((variant) => (
-                  <div
-                    className={css["block-specific__item-variant-row"]}
-                    key={variant.id}
-                  >
-                    <div className={css["block-specific__item-variant-row-up"]}>
-                      <div className={css["block-specific__item-variant-row-header"]}>
-                        {variant.name}
-                      </div>
-                    </div>
-                    <div className={css["block-specific__item-variant-row-down"]} ref={scrollContainer}>
-                      {variant.items.map((item) => (
-                        <Link
-                          href={`/product-detail/${item.slug}`}
-                          prefetch={false}
-                          className={`${css["block-specific__item-variant-row-item"]} ${item.is_active ? css["active"] : ""}`}
-                          key={item.id}
-                        >
-                          <span className={css["block-specific__item-variant-row-label"]}>{item.label}</span>
-                          <span className={css["block-specific__item-variant-row-price"]}>{item.price}</span>
-                        </Link>
-                      ))}
-                    </div>
-                    <Scrollbar scrollContainerRef={scrollContainer} />
-                  </div>
-                ))}
-              </div>
-            </div>
+            <VariantSelector variants={product.variant_data} />
           )}
           {product.attributes && product.attributes.length > 0 && (
-            <div className={css["block-specific"]}>
-              <div className={css["block-specific__title"]}>
-                <strong>Характеристики</strong> {product.name.split("/")[0]}
-              </div>
-              <div
-                ref={contentRef}
-                className={`${css["block-specific__content"]} ${
-                  needsToggle && !isExpanded ? css["hidden"] : ""
-                }`}
-              >
-                {product.attributes.map((attribute) => (
-                  <React.Fragment key={attribute.id}>
-                    <div
-                      className={css["block-specific__item-header"]}
-                    >
-                      {attribute.name}
-                    </div>
-                    {attribute.children.map((child) => (
-                      <div
-                        className={css["block-specific__item-row"]}
-                        key={child.id}
-                      >
-                        <div className={css["block-specific__item-row-left"]}>
-                          {child.name}
-                        </div>
-                        <div className={css["block-specific__item-row-right"]}>
-                          {child.show_in_filters ? (
-                            <Link
-                              target="_blank"
-                              href={`${process.env.NEXT_PUBLIC_URL}/catalog/${product.category.slug}/filter/${child.children[0].slug}`}
-                              prefetch={false}
-                            >
-                            {child.children?.[0].name}
-                            </Link>
-                          ) : (
-                            <>{child.children?.[0].name}</>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </React.Fragment>
-                ))}
-              </div>
-              {needsToggle && (
-                <div className={css["block-specific__toggle-btn-wrapper"]}>
-                  <button
-                    className={css["block-specific__toggle-btn"]}
-                    onClick={handleToggleExpand}
-                  >
-                    {isExpanded ? "Приховати" : "Показати повністю"}
-                  </button>
-                </div>
-              )}
-            </div>
+            <ProductSpecs product={product} />
+          )}
+          {product.description && product.description.length > 0 && (
+            <ProductDescription description={product.description} name={product.name} />
           )}
         </div>
       </div>

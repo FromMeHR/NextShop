@@ -1,0 +1,59 @@
+.buy-now-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    text-decoration: none;
+    width: 100%;
+    max-width: 200px;
+    height: 40px;
+    background-color: var(--main-green-color);
+    transition: background-color 0.3s ease-in-out;
+    border: none;
+    color: var(--light-text-color);
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 50px;
+}
+
+.buy-now-button:hover {
+    background-color: var(--main-dark-green-color);
+    cursor: pointer;
+}
+
+.buy-now-button:focus,
+.buy-now-button:active:focus {
+    background-color: var(--main-button-focus-color);
+    color: var(--main-button-focus-text-color);
+    border: 1px solid var(--main-button-focus-border-color);
+}
+
+.buy-now-button span {
+    position: relative;
+    padding-left: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.buy-now-button span img {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    translate: -50% -50%;
+    filter: brightness(0) invert(1);
+}
+
+.buy-now-button:focus span img,
+.buy-now-button:active:focus span img {
+    filter: none;
+}
+
+@media only screen and (max-width: 768px) {
+    .buy-now-button {
+        max-width: 100%;
+        margin-bottom: 20px;
+        order: -2;
+    }
+}

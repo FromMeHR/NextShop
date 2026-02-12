@@ -47,13 +47,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.front-prod
-      args:
-        BASE_INTERNAL_API_URL: ${BASE_INTERNAL_API_URL}
-        NEXT_PUBLIC_BASE_API_URL: ${NEXT_PUBLIC_BASE_API_URL}
-        NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL}
-        REDIS_URL: ${REDIS_URL}
-        REDIS_SINGLE_CONNECTION: ${REDIS_SINGLE_CONNECTION}
-        JWT_RSA_PUBLIC_KEY: ${JWT_RSA_PUBLIC_KEY}
+      secrets:
+        - front_build_env
+    env_file:
+      - ./frontend/.env.production
     container_name: front-prod
     restart: always
     networks:
@@ -121,6 +118,9 @@ services:
 networks:
   shop_net:
     name: shop_net
+secrets:
+  front_build_env:
+    file: ./frontend/.env.production
 volumes:
   db_data:
   pgadmin_data:

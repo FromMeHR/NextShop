@@ -14,11 +14,8 @@
     justify-content: space-between;
 }
 
-.navbar-logo a {
-    color: var(--light-text-color);
-    text-decoration: none;
-    font-size: 1.5rem;
-    font-weight: bold;
+.navbar-logo__image {
+    height: 18px; 
 }
 
 .navbar-utility-bar {
@@ -91,6 +88,10 @@
 @media only screen and (max-width: 768px) {
     .navbar-wrapper {
         box-shadow: none;
+    }
+
+    .navbar-logo__image {
+        height: 22px;
     }
 
     .search-wrapper {

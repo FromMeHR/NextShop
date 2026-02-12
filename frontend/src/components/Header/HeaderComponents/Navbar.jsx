@@ -20,7 +20,13 @@ export function Navbar() {
     <nav className={css["navbar-wrapper"]}>
       <div className={css["navbar-content"]}>
         <div className={css["navbar-logo"]}>
-          <a href="/">Voltio</a>
+          <a href="/">
+            <img
+              className={css["navbar-logo__image"]}
+              src={`${process.env.NEXT_PUBLIC_URL}/svg/logo.svg`}
+              alt="Voltio logo"
+            />
+          </a>
         </div>
         <div className={css["navbar-catalog-box"]}>
           <CatalogBox />

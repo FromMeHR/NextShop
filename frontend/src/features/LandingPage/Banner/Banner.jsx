@@ -4,7 +4,6 @@ export function MainBanner() {
   return (
     <div className={css["banner__main"]}>
       <div className={css["banner__content"]}>
-        <h2 className={css["banner__title"]}>Voltio</h2>
         <p className={css["banner__subtitle"]}>
           Обирайте найкращі девайси для роботи та розваг
         </p>

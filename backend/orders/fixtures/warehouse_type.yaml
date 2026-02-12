@@ -5,6 +5,7 @@
     ref: 841339c7-591a-42e2-8233-7a0a00f0ed6f
     delivery_type: 1
     operator: 1
+    image: "warehouse_images/nova-poshta.svg"
 - model: orders.warehousetype
   pk: 2
   fields:
@@ -12,6 +13,7 @@
     ref: 9a68df70-0267-42a8-bb5c-37f427e36ee4
     delivery_type: 1
     operator: 1
+    image: "warehouse_images/nova-poshta.svg"
 - model: orders.warehousetype
   pk: 3
   fields:
@@ -19,6 +21,7 @@
     ref: f9316480-5f2d-425d-bc2c-ac7cd29decf0
     delivery_type: 1
     operator: 1
+    image: "warehouse_images/nova-poshta.svg"
 - model: orders.warehousetype
   pk: 4
   fields:
@@ -26,3 +29,4 @@
     ref:
     delivery_type: 2
     operator: 1
+    image: "warehouse_images/nova-poshta.svg"

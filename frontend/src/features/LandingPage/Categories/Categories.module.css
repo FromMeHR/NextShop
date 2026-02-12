@@ -16,6 +16,12 @@
     scroll-margin-top: 74px;
 }
 
+.category__link {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
 .category__item {
     position: relative;
     border-radius: 10px;
@@ -109,7 +115,7 @@
         grid-area: auto !important;
     }
 
-    .category__item {
+    .category__link {
         display: flex;
         flex-direction: column-reverse;
         justify-content: space-between;

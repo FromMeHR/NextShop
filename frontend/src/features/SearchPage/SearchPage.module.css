@@ -42,7 +42,6 @@
     padding-bottom: 10px;
     scrollbar-width: none;
     overflow-x: auto;
-    touch-action: pan-x;
     scroll-behavior: smooth;
     scroll-snap-type: x mandatory;
 }
@@ -274,14 +273,6 @@
 .search-results__dropdown-results-item:hover:not(.active) {
     background-color: var(--hover-dropdown-background-color);
     color: var(--main-text-color);
-}
-
-.pagination {
-    display: block;
-    text-align: center;
-    justify-content: center;
-    margin-top: 16px;
-    margin-bottom: 16px;
 }
 
 .search-results__products-grid {

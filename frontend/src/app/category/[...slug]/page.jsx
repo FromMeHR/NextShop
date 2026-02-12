@@ -1,48 +1,44 @@
 import { CategoryPage } from "../../../features/CategoryPage/CategoryPage";
 import { findCategoryPath } from "../../../utils/findCategoryPath";
+import { getCategories } from "../../../lib/categories";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const lastCategorySlug = slug[slug.length - 1];
-  const baseUrl = process.env.BASE_INTERNAL_API_URL;
-
-  try {
-    const res = await fetch(`${baseUrl}/api/categories`, {
-      next: { revalidate: 60 * 60 },
-    });
-    if (res.ok) {
-      const categories = await res.json();
-      const categoryPath = findCategoryPath(categories, lastCategorySlug);
-      const lastCategory = categoryPath
-        ? categoryPath[categoryPath.length - 1]
-        : null;
+  const categories = await getCategories();
+  const categoryPath = findCategoryPath(categories, lastCategorySlug);
+  if (categoryPath.length > 0) {
+    const lastCategory = categoryPath[categoryPath.length - 1];
+    if (lastCategory.children && lastCategory.children.length > 0) {
       return {
-        title: `${lastCategory?.name} - Voltio`,
+        title: `${lastCategory?.name} | Voltio`,
+        description: `${lastCategory?.name} - вигідна ціна, офіційна гарантія та доставка по всій Україні | Voltio`,
+        openGraph: {
+          siteName: "voltio.click",
+          locale: "uk_UA",
+          type: "website",
+          images: [
+            {
+              url: lastCategory?.image,
+            },
+          ],
+        },
       };
     }
-  } catch (error) {
-    console.error("Error fetching category for metadata:", error);
   }
 }
 
 export default async function Page({ params }) {
   const { slug } = await params;
   const lastCategorySlug = slug[slug.length - 1];
-  const baseUrl = process.env.BASE_INTERNAL_API_URL;
-
-  try {
-    const res = await fetch(`${baseUrl}/api/categories`, {
-      next: { revalidate: 3600 },
-    });
-    if (res.ok) {
-      const categories = await res.json();
-      const categoryPath = findCategoryPath(categories, lastCategorySlug);
-      if (categoryPath) {
-        return <CategoryPage categoryPath={categoryPath} />;
-      }
+  const categories = await getCategories();
+  const categoryPath = findCategoryPath(categories, lastCategorySlug);
+  if (categoryPath.length > 0) {
+    const lastCategory = categoryPath[categoryPath.length - 1];
+    if (lastCategory.children && lastCategory.children.length > 0) {
+      return <CategoryPage categoryPath={categoryPath} />;
     }
-  } catch (error) {
-    console.error("Error fetching category:", error);
   }
-  throw new Error("Category not found");
+  return notFound();
 }

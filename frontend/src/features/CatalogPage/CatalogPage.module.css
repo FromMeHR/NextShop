@@ -396,10 +396,23 @@
 }
 
 .filter-item__price-slider-range-wrapper {
-    padding: 0 12px;
+    position: relative;
+    padding: 12px;
     width: 100%;
+}
+
+.filter-item__price-slider-range-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 5px;
     border-radius: 4px;
     background: var(--catalog-slider-background-color);
+    cursor: pointer;
+    z-index: -1;
 }
 
 .filter-item__price-slider-range {
@@ -497,14 +510,6 @@
     border-right: 10px solid var(--main-dark-green-color);
 }
 
-.pagination {
-    display: block;
-    text-align: center;
-    justify-content: center;
-    margin-top: 16px;
-    margin-bottom: 16px;
-}
-
 .search-results__products-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -529,6 +534,10 @@
 @media only screen and (max-width: 968px) {
     .catalog-page__content {
         padding: 0;
+    }
+
+    .search-results__main-container {
+        display: block;
     }
 
     .search-results__header {

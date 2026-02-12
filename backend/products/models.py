@@ -60,6 +60,10 @@ class ProductAttribute(MPTTModel):
         default=False,
         help_text="Показувати у деталях товару"
     )
+    show_in_short_info = models.BooleanField(
+        default=False,
+        help_text="Відображати в коротких характеристиках товару"
+    )
     parent = TreeForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, related_name="children")
 
     class MPTTMeta:
@@ -80,6 +84,12 @@ class ProductAttribute(MPTTModel):
                     (models.Q(show_in_product_details=False) | models.Q(level=2))
                 ),
                 name="show_in_filters_and_product_details_only_on_level_2"
+            ),
+            models.CheckConstraint(
+                check=(
+                    (models.Q(show_in_short_info=False) | models.Q(level__in=[1, 2]))
+                ),
+                name="show_in_short_info_only_on_level_1_or_2"
             ),
             models.CheckConstraint(
                 check=(

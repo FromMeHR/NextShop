@@ -601,6 +601,7 @@ class OrderDetailView(RetrieveAPIView):
         serializer = self.get_serializer(order, context={"request": request})
         return Response(serializer.data)
 
+
 class OrderListView(ListAPIView):
     serializer_class = OrderDetailSerializer
     permission_classes = [IsAuthenticated]

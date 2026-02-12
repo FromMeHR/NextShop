@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Pagination } from "antd";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Product } from "../../components/Product/Product";
+import { Pagination } from "../../components/Pagination/Pagination";
 import { useDropdownPosition } from "../../hooks/useDropdownPosition";
 import { Loader } from "../../components/Loader/Loader";
 import { Breadcrumbs } from "../../components/Breadcrumbs/Breadcrumbs";
@@ -25,9 +25,8 @@ export function SearchPage({ query }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const pageNumber = Number(searchParams.get("page")) || 1;
-  const ordering = searchParams.get("ordering") || "-popularity";
+  const currentOrdering = searchParams.get("ordering") || "-popularity";
   const pageSize = useMemo(() => defineClientPageSize(window.innerWidth), []);
-  const [currentPage, setCurrentPage] = useState(pageNumber);
   const [scrollStatus, setScrollStatus] = useState({
     canScrollLeft: false,
     canScrollRight: false
@@ -37,7 +36,7 @@ export function SearchPage({ query }) {
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL;
   const { data, isLoading } = useSWR(
-    `${baseUrl}/api/search/?name=${query}&ordering=${ordering}&page=${currentPage}&page_size=${pageSize}`,
+    `${baseUrl}/api/search/?name=${query}&ordering=${currentOrdering}&page=${pageNumber}&page_size=${pageSize}`,
     fetcher
   );
 
@@ -46,30 +45,30 @@ export function SearchPage({ query }) {
   const totalPages = data?.total_pages || 0;
   const categories = data?.available_categories || [];
 
-  const updateQueryParams = (newPage, newOrdering) => {
+  useEffect(() => {
+    if (isLoading || !data) return;
     const params = new URLSearchParams(searchParams.toString());
-    if (newPage === 1) {
-      params.delete("page");
-    } else {
-      params.set("page", newPage.toString());
-    }
-    if (newOrdering) {
-      params.set("ordering", newOrdering);
-    }
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  };
+    const hasPageParam = params.has("page");
+    let shouldRedirect = false;
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    updateQueryParams(page, ordering);
-    const productsElement = document.getElementById("products");
-    if (productsElement) {
-      productsElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (hasPageParam && pageNumber <= 1) {
+      params.delete("page");
+      shouldRedirect = true;
     }
-  };
+    if (totalPages > 0 && pageNumber > totalPages) {
+      params.set("page", totalPages.toString());
+      shouldRedirect = true;
+    }
+    if (shouldRedirect) {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [data, isLoading, pageNumber, totalPages, pathname, router, searchParams]);
 
   const handleOrderingChange = (ordering) => {
-    updateQueryParams(pageNumber, ordering);
+    if (ordering === currentOrdering) return;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("ordering", ordering);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const {
@@ -77,7 +76,7 @@ export function SearchPage({ query }) {
     setIsOpen: setIsDropdownOrderingOpen,
     selectBoxRef: selectOrderingBoxRef,
     dropdownRef: dropdownOrderingRef,
-  } = useDropdownPosition({ dependencies: [ordering] });
+  } = useDropdownPosition({ dependencies: [currentOrdering] });
 
   const updateScrollButtons = () => {
     const container = scrollContainer.current;
@@ -187,7 +186,7 @@ export function SearchPage({ query }) {
                   <div className={css["search-results__btn-wrapper"]}>
                     <button
                       className={`${css["search-results__btn-sort"]} ${
-                        ordering === "-popularity" ? css["active"] : ""
+                        currentOrdering === "-popularity" ? css["active"] : ""
                       }`}
                       onClick={() => handleOrderingChange("-popularity")}
                     >
@@ -197,7 +196,7 @@ export function SearchPage({ query }) {
                   <div className={css["search-results__btn-wrapper"]}>
                     <button
                       className={`${css["search-results__btn-sort"]} ${
-                        ordering === "price" ? css["active"] : ""
+                        currentOrdering === "price" ? css["active"] : ""
                       }`}
                       onClick={() => handleOrderingChange("price")}
                     >
@@ -207,7 +206,7 @@ export function SearchPage({ query }) {
                   <div className={css["search-results__btn-wrapper"]}>
                     <button
                       className={`${css["search-results__btn-sort"]} ${
-                        ordering === "-price" ? css["active"] : ""
+                        currentOrdering === "-price" ? css["active"] : ""
                       }`}
                       onClick={() => handleOrderingChange("-price")}
                     >
@@ -221,8 +220,8 @@ export function SearchPage({ query }) {
                   ref={selectOrderingBoxRef}
                 >
                   <div className={css["search-results__selected-item"]}>
-                    {ordering === "-popularity" ?
-                      "За популярністю" : ordering === "price" ?
+                    {currentOrdering === "-popularity" ?
+                      "За популярністю" : currentOrdering === "price" ?
                         "За зростанням ціни" : "За зниженням ціни"}
                   </div>
                   <div
@@ -247,7 +246,7 @@ export function SearchPage({ query }) {
                     >
                       <li
                         className={`${css["search-results__dropdown-results-item"]} ${
-                          ordering === "-popularity" ? css["active"] : ""
+                          currentOrdering === "-popularity" ? css["active"] : ""
                         }`}
                         onClick={() => handleOrderingChange("-popularity")}
                       >
@@ -255,7 +254,7 @@ export function SearchPage({ query }) {
                       </li>
                       <li
                         className={`${css["search-results__dropdown-results-item"]} ${
-                          ordering === "price" ? css["active"] : ""
+                          currentOrdering === "price" ? css["active"] : ""
                         }`}
                         onClick={() => handleOrderingChange("price")}
                       >
@@ -263,7 +262,7 @@ export function SearchPage({ query }) {
                       </li>
                       <li
                         className={`${css["search-results__dropdown-results-item"]} ${
-                          ordering === "-price" ? css["active"] : ""
+                          currentOrdering === "-price" ? css["active"] : ""
                         }`}
                         onClick={() => handleOrderingChange("-price")}
                       >
@@ -286,13 +285,11 @@ export function SearchPage({ query }) {
               </div>
               {totalPages > 1 && (
                 <Pagination
-                  showSizeChanger={false}
-                  current={currentPage}
+                  currentPage={pageNumber}
+                  totalItems={totalItems}
                   pageSize={pageSize}
-                  total={totalItems}
-                  onChange={handlePageChange}
-                  showTitle={false}
-                  className={css["pagination"]}
+                  searchParams={searchParams}
+                  pathname={pathname}
                 />
               )}
             </>

@@ -8,13 +8,12 @@
 .related-products__title {
     font-size: clamp(1.5rem, calc(2.5vw + 1rem), 2rem);
     font-weight: bold;
-    padding: 20px 20px 0 20px;
+    padding: 20px 0 0 0;
 }
 
 .scroll-container-wrapper {
     position: relative;
     width: 100%;
-    padding: 0 20px;
 }
 
 .scroll-container {
@@ -61,11 +60,11 @@
 }
 
 .scroll-btn.left {
-    left: 2px;
+    left: -18px;
 }
 
 .scroll-btn.right {
-    right: 2px;
+    right: -18px;
 }
 
 .scroll-btn.left img,
@@ -90,8 +89,24 @@
         display: block;
     }
 
+    .scroll-container-wrapper {
+        padding: 0 20px;
+    }
+
     .scroll-container {
         grid-auto-columns: 175px;
+    }
+
+    .scroll-btn.left {
+        left: 2px;
+    }
+
+    .scroll-btn.right {
+        right: 2px;
+    }
+
+    .related-products__title {
+        padding: 20px 20px 0 20px;
     }
 }
 
