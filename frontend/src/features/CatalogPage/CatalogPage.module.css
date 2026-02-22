@@ -242,9 +242,16 @@
     overflow: hidden;
 }
 
+.filter-item__content--body-wrapper {
+    overflow-y: auto;
+    max-height: 400px;
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+}
+
 .filter-item__content--body {
     padding: 1px 0;
-    margin: 0 18px 20px 18px;
+    margin: 0 8px 20px 18px;
 }
 
 .filter-item__child {
@@ -637,6 +644,15 @@
         pointer-events: auto;
         opacity: 1;
         animation: 0.3s ease-in-out show-filters-col;
+    }
+
+    .filter-item__content--body-wrapper {
+        overflow-y: scroll;
+        scrollbar-gutter: none;
+    }
+
+    .filter-item__content--body {
+        margin: 0 18px 20px 18px;
     }
 
     @keyframes show-filters-col {

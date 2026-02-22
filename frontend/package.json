@@ -9,8 +9,11 @@
     "start": "cross-env HOSTNAME=0.0.0.0 PORT=3000 node .next/standalone/server.js",
     "lint": "eslint"
   },
+  "overrides": {
+    "minimatch": "^10.2.2"
+  },
   "dependencies": {
-    "@fortedigital/nextjs-cache-handler": "^2.1.0-canary.13",
+    "@fortedigital/nextjs-cache-handler": "^3.0.0",
     "@hookform/error-message": "^2.0.1",
     "antd": "^5.27.4",
     "axios": "^1.12.2",
@@ -29,9 +32,9 @@
     "validator": "^13.15.15"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
+    "@eslint/eslintrc": "^3.3.3",
     "cross-env": "^10.0.0",
-    "eslint": "^9.0.0",
-    "eslint-config-next": "^15.5.4"
+    "eslint": "^9.39.3",
+    "eslint-config-next": "^16.1.6"
   }
 }

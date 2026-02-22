@@ -26,6 +26,7 @@ django-storages==1.14.5
 djangorestframework==3.15.2
 djangorestframework_simplejwt==5.5.1
 djoser==2.3.3
+ecdsa==0.19.1
 gunicorn==23.0.0
 idna==3.10
 jmespath==1.0.1

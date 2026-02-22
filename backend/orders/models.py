@@ -139,9 +139,8 @@ class Order(models.Model):
         (RETURNED, "Returned"),
         (DECLINED, "Declined"),
     ]
-    
+
     order_code = models.CharField(max_length=36, unique=True, blank=True, null=True)
-    secret_key = models.CharField(max_length=36, unique=True, blank=True, null=True)
     status = models.CharField(choices=STATUS_CHOICES, default=AWAITING_PAYMENT)
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)

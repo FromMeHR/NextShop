@@ -23,7 +23,6 @@ from .serializers import (
     ProductListSerializer,
     ProductDetailSerializer,
     CategoryListSerializer,
-    CategoryFiltersSerializer,
     ProductSitemapSerializer,
 )
 
@@ -59,24 +58,11 @@ class SearchProductView(ListAPIView):
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
-        search_query = self.request.query_params.get("name", "").strip()
-        if search_query:
-            queryset = queryset.annotate(
-                relevance=Case(
-                    When(name__icontains=search_query, then=Value(10)),
-                    default=Value(1),
-                    output_field=IntegerField(),
-                )
-            )
-            search_ordering = ["-relevance"]
-        else:
-            search_ordering = []
-
         current_ordering = list(queryset.query.order_by)
         if not current_ordering:
-            return queryset.order_by("custom_order", *search_ordering, "-popularity", "id")
-        return queryset.order_by("custom_order", *current_ordering, *search_ordering, "id")
-    
+            return queryset.order_by("custom_order", "-popularity", "id")
+        return queryset.order_by("custom_order", *current_ordering, "id")
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         categories_queryset = (
@@ -158,23 +144,10 @@ class ProductFilterView(ListAPIView):
 
     def filter_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
-        search_query = self.request.query_params.get("name", "").strip()
-        if search_query:
-            queryset = queryset.annotate(
-                relevance=Case(
-                    When(name__icontains=search_query, then=Value(10)),
-                    default=Value(1),
-                    output_field=IntegerField(),
-                )
-            )
-            search_ordering = ["-relevance"]
-        else:
-            search_ordering = []
-
         current_ordering = list(queryset.query.order_by)
         if not current_ordering:
-            return queryset.order_by("custom_order", *search_ordering, "-popularity", "id")
-        return queryset.order_by("custom_order", *current_ordering, *search_ordering, "id")
+            return queryset.order_by("custom_order", "-popularity", "id")
+        return queryset.order_by("custom_order", *current_ordering, "id")
 
 
 class CategoryListView(APIView):
@@ -186,152 +159,148 @@ class CategoryListView(APIView):
 
 class CategoryFiltersView(APIView):
     def get(self, request, category_slug):
-        root_attr = ProductAttribute.objects.filter(
-            category__slug=category_slug, level=0
-        ).select_related("category").first()
-        if not root_attr:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        cache_key = f"filters_data_{category_slug}"
+        cached_data = cache.get(cache_key)
+        if not cached_data:
+            root_attr = ProductAttribute.objects.filter(
+                category__slug=category_slug, level=0
+            ).select_related("category").first()
+            if not root_attr:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+
+            cat_id = root_attr.category_id
+            all_nodes = list(root_attr.get_descendants().values(
+                "id", "name", "slug", "parent_id", "level", "show_in_filters"
+            ))
+
+            groups = [n for n in all_nodes if n["level"] == 2 and n["show_in_filters"]]
+            children_map = defaultdict(list)
+            slug_to_id_map = {}
+            for n in all_nodes:
+                if n["level"] == 3:
+                    children_map[n["parent_id"]].append(n)
+                    slug_to_id_map[n["slug"]] = (n["id"], n["parent_id"])
+
+            products = list(
+                Product.objects.filter(category_id=cat_id)
+                .values_list("id", "price").order_by("id")
+            )
+            if not products:
+                bit_data = ({}, 0, 0, 0, {}, [])
+            else:
+                id_to_bit = {p[0]: i for i, p in enumerate(products)}
+                prices = [float(p[1]) for p in products]
+
+                links = Product.attributes.through.objects.filter(
+                    product__category_id=cat_id
+                ).values("productattribute_id").annotate(
+                    p_ids=ArrayAgg("product_id")
+                )
+                attr_masks = {}
+                for item in links:
+                    mask = 0
+                    for p_id in item["p_ids"]:
+                        bit_pos = id_to_bit.get(p_id)
+                        if bit_pos is not None:
+                            mask |= (1 << bit_pos)
+                    if mask:
+                        attr_masks[item["productattribute_id"]] = mask
+
+                full_mask = (1 << len(products)) - 1
+                bit_data = (attr_masks, full_mask, min(prices), max(prices), id_to_bit, prices)
+            cached_data = {
+                "cat_id": cat_id,
+                "category_json": CategorySerializer(root_attr.category).data,
+                "groups": groups,
+                "children_map": dict(children_map),
+                "slug_to_id": slug_to_id_map,
+                "bit_data": bit_data
+            }
+            cache.set(cache_key, cached_data, 600)
+        attr_masks, full_mask, g_min, g_max, id_to_bit, prices = cached_data["bit_data"]
 
         price_query = request.GET.get("price", "")
-        attributes_query = request.GET.get("attributes", "")
         name_query = request.GET.get("name", "").strip()
-        min_p_req, max_p_req = None, None
+
+        base_filter_mask = full_mask
         if price_query and "-" in price_query:
             try:
-                parts = price_query.split("-", 1)
-                if len(parts) == 2:
-                    min_str, max_str = parts[0].strip(), parts[1].strip()
-                    if min_str and max_str:
-                        min_val, max_val = float(min_str), float(max_str)
-                        if min_val > max_val:
-                            pass
-                        else:
-                            min_p_req, max_p_req = min_val, max_val
+                parts = price_query.split("-")
+                min_str, max_str = parts[0].strip(), parts[1].strip()
+                if min_str and max_str:
+                    p_min, p_max = float(min_str), float(max_str)
+                    if p_min <= p_max:
+                        for i in range(len(prices)):
+                            if not (p_min <= prices[i] <= p_max):
+                                base_filter_mask &= ~(1 << i)
             except (ValueError, TypeError, IndexError):
                 pass
 
-        cache_key = f"filters_data_{category_slug}"
-        cached_data = cache.get(cache_key)
-        if cached_data:
-            attr_to_products, all_product_ids, product_prices, global_min, global_max = cached_data
-        else:
-            product_data = list(Product.objects.filter(
-                category_id=root_attr.category_id
-            ).values_list("id", "price"))
-            product_prices = {}
-            global_min, global_max = 0, 0
-            if product_data: 
-                product_prices = {p_id: float(p_price) for p_id, p_price in product_data}
-                all_values = product_prices.values()
-                global_min = min(all_values)
-                global_max = max(all_values)
-
-            attr_stats = Product.attributes.through.objects.filter(
-                product__category_id=root_attr.category_id
-            ).values("productattribute_id").annotate(
-                p_ids=ArrayAgg("product_id")
-            )
-            attr_to_products = {}
-            all_product_ids = set()
-            for item in attr_stats:
-                p_ids_list = item["p_ids"]
-                attr_id = item["productattribute_id"]
-
-                p_set = set(p_ids_list)
-                attr_to_products[attr_id] = p_set
-                all_product_ids.update(p_set)
-            cached_data = (attr_to_products, all_product_ids, product_prices, global_min, global_max)
-            cache.set(cache_key, cached_data, 600)
-
-        ids_passing_name = all_product_ids.copy()
         if name_query and len(name_query) > 1:
             keywords = [word for word in name_query.split() if len(word) > 1]
             if keywords:
                 q_objects = Q()
                 for token in keywords:
                     q_objects |= Q(name__icontains=token)
-                matching_ids = set(Product.objects.filter(
-                    q_objects,
-                    category_id=root_attr.category_id
-                ).values_list("id", flat=True))
-                ids_passing_name &= matching_ids
-            else:
-                ids_passing_name = set()
+                name_match_ids = Product.objects.filter(
+                    q_objects, category_id=cached_data["cat_id"]
+                ).values_list("id", flat=True)
+                name_mask = 0
+                for p_id in name_match_ids:
+                    if p_id in id_to_bit:
+                        name_mask |= (1 << id_to_bit[p_id])
+                base_filter_mask &= name_mask
 
-        ids_passing_price = set()
-        current_base_ids = ids_passing_name
-        if min_p_req is None and max_p_req is None:
-            ids_passing_price = current_base_ids
-        else:
-            for p_id in current_base_ids:
-                p_price = product_prices.get(p_id)
-                if p_price is not None:
-                    if (min_p_req is None or p_price >= min_p_req) and \
-                       (max_p_req is None or p_price <= max_p_req):
-                        ids_passing_price.add(p_id)
+        selected_slugs_list = [s.strip() for s in request.GET.get("attributes", "").split(",") if s.strip()]
+        selected_slugs_set = set(selected_slugs_list)
 
-        all_l3_data = ProductAttribute.objects.filter(
-            tree_id=root_attr.tree_id, level=3
-        ).values("id", "slug", "parent_id")
-        attr_lookup = {item["slug"]: item for item in all_l3_data}
+        selected_by_group = defaultdict(int)
+        for s in selected_slugs_list:
+            if s in cached_data["slug_to_id"]:
+                aid, pid = cached_data["slug_to_id"][s]
+                selected_by_group[pid] |= attr_masks.get(aid, 0)
 
-        selected_slugs = [s.strip() for s in attributes_query.split(",") if s.strip()]
-        selected_by_group = defaultdict(set)
-        for s in selected_slugs:
-            if s in attr_lookup:
-                item = attr_lookup[s]
-                selected_by_group[item["parent_id"]].add(item["id"])
-
-        group_prods_cache = {}
-        for g_id, attr_ids in selected_by_group.items():
-            combined_prods = set()
-            for a_id in attr_ids:
-                combined_prods.update(attr_to_products.get(a_id, set()))
-            group_prods_cache[g_id] = combined_prods
-
-        def get_intersected_ids(exclude_group_id=None):
-            result = ids_passing_price.copy()
-            for g_id, prod_set in group_prods_cache.items():
-                if g_id != exclude_group_id:
-                    result &= prod_set
+        def get_intersected_mask(exclude_group_id=None):
+            result = base_filter_mask
+            for group_id, group_mask in selected_by_group.items():
+                if group_id != exclude_group_id:
+                    result &= group_mask
             return result
 
-        final_filtered_ids = get_intersected_ids()
-        total_filtered_count = len(final_filtered_ids)
+        total_count = get_intersected_mask().bit_count()
 
-        queryset = root_attr.get_descendants(include_self=True)
-        get_cached_trees(queryset)
+        final_filters_json = []
+        for group in cached_data["groups"]:
+            gid = group["id"]
+            context_mask = get_intersected_mask(exclude_group_id=gid)
 
-        filter_groups_data = []
-        for node in queryset:
-            if node.level == 2 and node.show_in_filters:
-                children = getattr(node, "_cached_children", [])
-                is_group_active = node.id in selected_by_group
+            group_children_json = []
+            for child in cached_data["children_map"].get(gid, []):
+                child_id = child["id"]
+                child_mask = attr_masks.get(child_id, 0)
+                if child_mask == 0: continue
 
-                context_ids = get_intersected_ids(exclude_group_id=node.id)
+                count = (child_mask & context_mask).bit_count()
+                is_additive = (gid in selected_by_group) and not (child["slug"] in selected_slugs_set)
 
-                valid_children = []
-                for child in children:
-                    if child.id in attr_to_products:
-                        child_product_ids = attr_to_products.get(child.id, set())
-                        count = len(child_product_ids & context_ids)
-
-                        is_selected = child.slug in selected_slugs
-                        child.quantity = count
-                        child.is_additive = is_group_active and not is_selected
-
-                        valid_children.append(child)
-                if valid_children:
-                    node._cached_children = valid_children
-                    filter_groups_data.append(node)
+                group_children_json.append({
+                    "id": child_id,
+                    "name": child["name"],
+                    "slug": child["slug"],
+                    "quantity": count,
+                    "is_additive": is_additive
+                })
+            if group_children_json:
+                final_filters_json.append({
+                    "id": gid,
+                    "name": group["name"],
+                    "children": group_children_json
+                })
         return Response({
-            "category": CategorySerializer(root_attr.category).data,
-            "filters": CategoryFiltersSerializer(filter_groups_data, many=True).data,
-            "price_range": {
-                "min": global_min,
-                "max": global_max
-            },
-            "total_count": total_filtered_count,
+            "category": cached_data["category_json"],
+            "filters": final_filters_json,
+            "price_range": {"min": g_min, "max": g_max},
+            "total_count": total_count,
         })
 
 

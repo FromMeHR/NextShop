@@ -2,16 +2,16 @@
   {
     "model": "products.productvariant",
     "pk": 3,
-    "fields": { "group": 2, "product": 190009, "label": "16", "order": 1 },
+    "fields": { "group": 2, "product": 9, "label": "16", "order": 1 },
   },
   {
     "model": "products.productvariant",
     "pk": 4,
-    "fields": { "group": 2, "product": 190010, "label": "32", "order": 2 },
+    "fields": { "group": 2, "product": 10, "label": "32", "order": 2 },
   },
   {
     "model": "products.productvariant",
     "pk": 5,
-    "fields": { "group": 2, "product": 190011, "label": "64", "order": 3 },
+    "fields": { "group": 2, "product": 11, "label": "64", "order": 3 },
   },
 ]

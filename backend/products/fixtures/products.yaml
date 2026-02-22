@@ -229,7 +229,7 @@
   },
   {
     "model": "products.product",
-    "pk": 190006,
+    "pk": 6,
     "fields":
       {
         "code": "2883094",
@@ -272,7 +272,7 @@
   },
   {
     "model": "products.product",
-    "pk": 190007,
+    "pk": 7,
     "fields":
       {
         "code": "7011107",
@@ -317,7 +317,7 @@
   },
   {
     "model": "products.product",
-    "pk": 190008,
+    "pk": 8,
     "fields":
       {
         "code": "1783024",
@@ -364,7 +364,7 @@
   },
   {
     "model": "products.product",
-    "pk": 190009,
+    "pk": 9,
     "fields":
       {
         "code": "4822969",
@@ -383,7 +383,7 @@
   },
   {
     "model": "products.product",
-    "pk": 190010,
+    "pk": 10,
     "fields":
       {
         "code": "6793549",
@@ -402,7 +402,7 @@
   },
   {
     "model": "products.product",
-    "pk": 190011,
+    "pk": 11,
     "fields":
       {
         "code": "1114785",
@@ -421,7 +421,7 @@
   },
   {
     "model": "products.product",
-    "pk": 190012,
+    "pk": 12,
     "fields":
       {
         "code": "1957161",
@@ -440,7 +440,7 @@
   },
   {
     "model": "products.product",
-    "pk": 190013,
+    "pk": 13,
     "fields":
       {
         "code": "653438",

@@ -1,46 +1,31 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
 import js from "@eslint/js";
-import reactPlugin from "eslint-plugin-react";
-import reactHooksPlugin from "eslint-plugin-react-hooks";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-});
-
-const eslintConfig = [
-  ...compat.extends(
-    "next/core-web-vitals",
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended"
-  ),
-  {
-    ignores: [
-      "node_modules/**",
-      ".next/**",
-      "out/**",
-      "build/**",
-      "next-env.d.ts",
-    ],
-  },
+const eslintConfig = defineConfig([
+  js.configs.recommended,
+  ...nextVitals,
+  globalIgnores([
+    "node_modules/**",
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+  ]),
   {
     files: ["**/*.{js,jsx,ts,tsx}"],
-    plugins: {
-      react: reactPlugin,
-      "react-hooks": reactHooksPlugin,
-    },
     rules: {
       "@next/next/no-html-link-for-pages": "off",
       "@next/next/no-img-element": "off",
       "react/no-unescaped-entities": "off",
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/incompatible-library": "off",
+      "react-hooks/purity": "off",
+      "react-hooks/refs": "off",
+      "react-hooks/immutability": "off",
+      "react-hooks/error-boundaries": "off",
       "max-len": [
         "warn",
         {
@@ -61,6 +46,6 @@ const eslintConfig = [
       "no-trailing-spaces": 2,
     },
   },
-];
+]);
 
 export default eslintConfig;

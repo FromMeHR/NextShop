@@ -5,6 +5,8 @@ import { findCategoryPath } from "../../../utils/findCategoryPath";
 import { getCategories } from "../../../lib/categories";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-static";
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const baseUrl = process.env.BASE_INTERNAL_API_URL;

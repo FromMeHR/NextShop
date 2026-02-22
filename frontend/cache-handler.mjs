@@ -11,7 +11,7 @@ async function setupRedisClient() {
   if (PHASE_PRODUCTION_BUILD !== process.env.NEXT_PHASE) {
     let redisClient = null;
     try {
-      const redisClient = createClient({
+      redisClient = createClient({
         url: process.env.REDIS_URL,
         pingInterval: 10000,
       });
@@ -53,12 +53,24 @@ async function setupRedisClient() {
   return null;
 }
 
+const preventDuplicate = (handler) => {
+  const originalSet = handler.set.bind(handler);
+  handler.set = async (key, data, ctx) => {
+    const html = data?.value?.html;
+    if (typeof html === "string" && html.includes("NEXT_HTTP_ERROR_FALLBACK;404")) {
+      return;
+    }
+    return originalSet(key, data, ctx);
+  };
+  return handler;
+};
+
 async function createCacheConfig() {
   const redisClient = await setupRedisClient();
   const lruCache = createLruHandler();
 
   if (!redisClient) {
-    const config = { handlers: [lruCache] };
+    const config = { handlers: [preventDuplicate(lruCache)] };
     if (isSingleConnectionModeEnabled) {
       global.cacheHandlerConfigPromise = null;
       global.cacheHandlerConfig = config;
@@ -74,7 +86,7 @@ async function createCacheConfig() {
   const config = {
     handlers: [
       createCompositeHandler({
-        handlers: [lruCache, redisCacheHandler],
+        handlers: [preventDuplicate(lruCache), preventDuplicate(redisCacheHandler)],
         setStrategy: (ctx) => (ctx?.tags.includes("memory-cache") ? 0 : 1),
       }),
     ],
@@ -96,14 +108,6 @@ CacheHandler.onCreation(() => {
     if (global.cacheHandlerConfigPromise) {
       return global.cacheHandlerConfigPromise;
     }
-  }
-
-  if (process.env.NODE_ENV === "development") {
-    const config = { handlers: [createLruHandler()] };
-    if (isSingleConnectionModeEnabled) {
-      global.cacheHandlerConfig = config;
-    }
-    return config;
   }
 
   const promise = createCacheConfig();

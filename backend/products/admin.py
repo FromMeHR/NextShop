@@ -91,6 +91,7 @@ class ProductAttributeAdmin(DraggableMPTTAdmin):
 
 class ProductVariantInline(admin.TabularInline):
     model = ProductVariant
+    autocomplete_fields = ["product"]
     extra = 1
 
 
@@ -101,9 +102,10 @@ class ProductVariantGroupAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("id", "name")
-    list_display_links = ("id", "name")
-    filter_horizontal = ("attributes",)
+    search_fields = ["name", "code"]
+    list_display = ["id", "name"]
+    list_display_links = ["id", "name"]
+    filter_horizontal = ["attributes"]
     prepopulated_fields = {"slug": ("name",)}
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
@@ -122,7 +124,7 @@ class ProductAdmin(admin.ModelAdmin):
                 kwargs["queryset"] = ProductAttribute.objects.filter(
                     level=3,
                     parent__parent__parent__category_id=category_id
-                )
+                ).select_related("category", "parent")
             else:
                 kwargs["queryset"] = ProductAttribute.objects.none()
         return super().formfield_for_manytomany(db_field, request, **kwargs)
@@ -143,7 +145,7 @@ class ProductAdmin(admin.ModelAdmin):
                 kwargs["queryset"] = ProductAttribute.objects.filter(
                     level=3,
                     parent__parent__parent__category_id=category_id
-                )
+                ).select_related("parent")
             else:
                 kwargs["queryset"] = ProductAttribute.objects.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)

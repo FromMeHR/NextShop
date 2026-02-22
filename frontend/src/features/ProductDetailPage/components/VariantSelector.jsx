@@ -44,7 +44,7 @@ function VariantGroup({ variant }) {
               {item.label}
             </span>
             <span className={css["block-specific__item-variant-row-price"]}>
-              {item.price}
+              {item.price} ₴
             </span>
           </Link>
         ))}

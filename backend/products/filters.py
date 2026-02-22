@@ -6,8 +6,8 @@ from .models import ProductAttribute
 
 
 class SearchProductFilter(FilterSet):
-    name = filters.CharFilter(method="filter_by_name")
-    
+    name = filters.CharFilter(method="filter_by_name", required=True)
+
     def filter_by_name(self, queryset, name, value):
         query = value.strip()
         if not query or len(query) < 2:

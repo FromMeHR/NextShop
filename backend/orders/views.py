@@ -3,6 +3,8 @@ import json
 import base64
 import hashlib
 import django_filters
+import ecdsa
+import hmac
 from ipware import get_client_ip
 from decouple import config
 from datetime import timedelta
@@ -170,7 +172,6 @@ class CreateOrderView(APIView):
 
             order = Order.objects.create(
                 order_code=get_random_string(36),
-                secret_key=get_random_string(36),
                 user=request.user if request.user.is_authenticated else None,
                 delivery_user_name=data.get("name"),
                 delivery_user_surname=data.get("surname"),
@@ -260,7 +261,7 @@ class CreateOrderView(APIView):
                         "header": product.name,
                     })
 
-                web_hook_url = f"https://{host}/api/monobank/payment-status/?secret_key={order.secret_key}"
+                web_hook_url = f"https://{host}/api/monobank/payment-status/"
 
                 payload = {
                     "amount": int(order.total_price * 100), # копійки
@@ -335,7 +336,7 @@ class CreateOrderView(APIView):
                 if not app_id or not page_id:
                     raise ValidationError("Помилка ініціалізації EasyPay. Спробуйте пізніше.")
 
-                notify_url = f"https://{host}/api/easypay/payment-status/?secret_key={order.secret_key}"
+                notify_url = f"https://{host}/api/easypay/payment-status/"
                 expire_date = (order.created_at + timedelta(minutes=10)).isoformat()
 
                 order_payload = {
@@ -415,10 +416,30 @@ class CreateOrderView(APIView):
 
 class MonobankPaymentStatusView(APIView):
     def post(self, request):
-        data = request.data
-        secret_key = request.query_params.get("secret_key")
+        x_sign_base64 = request.headers.get("X-Sign")
+        if not x_sign_base64:
+            return Response("Missing signature", status=status.HTTP_400_BAD_REQUEST)
 
-        if not secret_key or not data.get("reference"):
+        try:
+            pub_key_base64 = config("MONOBANK_PUBLIC_KEY")
+            pub_key_bytes = base64.b64decode(pub_key_base64)
+            signature_bytes = base64.b64decode(x_sign_base64)
+            pub_key = ecdsa.VerifyingKey.from_pem(pub_key_bytes.decode())
+            pub_key.verify(
+                signature_bytes,
+                request.body,
+                sigdecode=ecdsa.util.sigdecode_der,
+                hashfunc=hashlib.sha256
+            )
+        except ecdsa.BadSignatureError:
+            return Response("Invalid signature", status=status.HTTP_403_FORBIDDEN)
+        except Exception:
+            return Response("Verification error", status=status.HTTP_400_BAD_REQUEST)
+
+        data = request.data
+        order_reference = data.get("reference")
+
+        if not order_reference:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
@@ -428,11 +449,8 @@ class MonobankPaymentStatusView(APIView):
                 .prefetch_related("order_items__product")
                 .select_for_update(of=("self", "payment"))
                 .exclude(payment=None).exclude(order_items=None),
-                order_code=data.get("reference")
+                order_code=order_reference
             )
-
-            if order.secret_key != secret_key:
-                raise ValidationError("")
 
             payment = order.payment
             product_ids = [item.product.id for item in order.order_items.all() if item.product]
@@ -444,7 +462,10 @@ class MonobankPaymentStatusView(APIView):
 
             new_status = data.get("status")
             modified_date_str = data.get("modifiedDate")
-            new_modified = parse_datetime(modified_date_str).astimezone(tz("UTC")) if modified_date_str else None
+            try:
+                new_modified = parse_datetime(modified_date_str).astimezone(tz("UTC")) if modified_date_str else None
+            except Exception:
+                return Response("Invalid modified date", status=status.HTTP_400_BAD_REQUEST)
 
             if payment.modified_date and new_modified and payment.modified_date >= new_modified:
                 return Response("Outdated webhook ignored", status=status.HTTP_200_OK)
@@ -497,16 +518,19 @@ class EasyPayPaymentStatusView(APIView):
         except Exception:
             return Response("Invalid body", status=status.HTTP_400_BAD_REQUEST)
 
-        easypay_secret_key = config("EASYPAY_SECRET_KEY")
-        sign_raw = (easypay_secret_key + raw_body).encode("utf-8")
-        expected_sign = base64.b64encode(hashlib.sha256(sign_raw).digest()).decode()
+        try:
+            easypay_secret_key = config("EASYPAY_SECRET_KEY")
+            sign_raw = (easypay_secret_key + raw_body).encode("utf-8")
+            expected_sign = base64.b64encode(hashlib.sha256(sign_raw).digest()).decode()
 
-        provided_sign = request.headers.get("Sign")
-        if not provided_sign or expected_sign != provided_sign:
-            return Response("Invalid signature", status=status.HTTP_403_FORBIDDEN)
+            provided_sign = request.headers.get("Sign")
+            if not provided_sign or not hmac.compare_digest(expected_sign, provided_sign):
+                return Response("Invalid signature", status=status.HTTP_403_FORBIDDEN)
+        except Exception:
+            return Response("Verification error", status=status.HTTP_400_BAD_REQUEST)
 
-        secret_key = request.query_params.get("secret_key")
-        if not secret_key or not data.get("MerchantOrderId"):
+        merchant_order_id = data.get("MerchantOrderId")
+        if not merchant_order_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         with transaction.atomic():
@@ -516,11 +540,8 @@ class EasyPayPaymentStatusView(APIView):
                 .prefetch_related("order_items__product")
                 .select_for_update(of=("self", "payment"))
                 .exclude(payment=None).exclude(order_items=None),
-                order_code=data.get("MerchantOrderId")
+                order_code=merchant_order_id
             )
-
-            if order.secret_key != secret_key:
-                raise ValidationError("")
 
             payment = order.payment
             product_ids = [item.product.id for item in order.order_items.all() if item.product]
@@ -532,7 +553,10 @@ class EasyPayPaymentStatusView(APIView):
 
             new_status = data.get("TransactionStatus")
             modified_str = data.get("DateTime")
-            new_modified = parse_datetime(modified_str).astimezone(tz("UTC")) if modified_str else None
+            try:
+                new_modified = parse_datetime(modified_str).astimezone(tz("UTC")) if modified_str else None
+            except Exception:
+                return Response("Invalid modified date", status=status.HTTP_400_BAD_REQUEST)
 
             if payment.modified_date and new_modified and payment.modified_date >= new_modified:
                 return Response("Outdated notification", status=status.HTTP_200_OK)

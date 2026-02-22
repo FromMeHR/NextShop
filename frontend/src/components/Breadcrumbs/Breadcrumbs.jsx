@@ -24,7 +24,7 @@ export const Breadcrumbs = ({ items = [] }) => {
                 {!item?.href ? (
                   <span itemProp="name" aria-current="page">{item.name}</span>
                 ) : (
-                  <Link href={item.href} itemProp="item">
+                  <Link href={item.href} itemProp="item" prefetch={false}>
                     <span itemProp="name">{item.name}</span>
                   </Link>
                 )}

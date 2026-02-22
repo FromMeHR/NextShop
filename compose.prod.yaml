@@ -32,7 +32,7 @@ services:
       dockerfile: Dockerfile.back
     container_name: back
     restart: on-failure
-    command: gunicorn --log-level debug shop.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn --workers 2 --log-level debug shop.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - media:/shop/app/public/media
       - static:/shop/app/public/static
@@ -76,7 +76,12 @@ services:
   redis:
     image: redis:7
     container_name: redis
-    command: ["redis-server", "--appendonly", "yes"]
+    command: [
+      "redis-server", 
+      "--maxmemory", "2000mb", 
+      "--maxmemory-policy", "allkeys-lru", 
+      "--appendonly", "yes"
+    ]
     restart: always
     volumes:
       - redis_data_prod:/data

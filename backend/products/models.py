@@ -174,9 +174,13 @@ class Product(models.Model):
         related_name="products",
         blank=True
     )
- 
+
     class Meta:
         ordering = ["-id"]
+        indexes = [
+            models.Index(fields=["category", "price"]),
+            models.Index(fields=["category", "name"]), 
+        ]
 
     def __str__(self):
         return self.name

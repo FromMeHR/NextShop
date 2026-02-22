@@ -6,7 +6,7 @@ class ShopPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 16
-    
+
     def get_page_number(self, request, paginator):
         try:
             page_number = super().get_page_number(request, paginator)

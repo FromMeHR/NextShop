@@ -3,9 +3,9 @@ import css from "./PageWrapper.module.css";
 
 export function PageWrapper({ children }) {
   return (
-    <div className={css["page-wrapper"]}>
+    <main className={css["page-wrapper"]}>
       {children}
-    </div>
+    </main>
   );
 };
 

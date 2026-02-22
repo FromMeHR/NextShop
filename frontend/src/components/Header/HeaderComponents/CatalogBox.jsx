@@ -177,35 +177,41 @@ export function CatalogBox() {
             <div className={css["catalog-box-dropdown__column-right"]}>
               {activeCategory?.children?.length > 0 && (
                 <div className={css["catalog-box-grid"]}>
-                  {activeCategory.children.map((lvl2) => (
-                    <div key={lvl2.id} className={css["catalog-box-section"]}>
-                      {lvl2.slug ? (
-                        <Link
-                          href={`/category/${activeCategory.slug}/${lvl2.slug}`}
-                          className={css["catalog-lvl2-title"]}
-                          prefetch={false}
-                        >
-                          {lvl2.name}
-                        </Link>
-                      ) : (
-                        <span className={css["catalog-lvl2-header"]}>{lvl2.name}</span>
-                      )}
-                      {lvl2.children?.length > 0 && (
-                        <div className={css["catalog-lvl3-list"]}>
-                          {lvl2.children.map((lvl3) => (
-                            <Link
-                              key={lvl3.id}
-                              href={`/catalog/${lvl3.slug}`}
-                              className={css["catalog-lvl3-item"]}
-                              prefetch={false}
-                            >
-                              {lvl3.name}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {activeCategory.children.map((lvl2) => {
+                    const hasChildrenLvl2 = lvl2.children && lvl2.children.length > 0;
+                    const urlLvl2 = hasChildrenLvl2
+                      ? `/category/${activeCategory.slug}/${lvl2.slug}`
+                      : `/catalog/${lvl2.slug}`;
+                    return (
+                      <div key={lvl2.id} className={css["catalog-box-section"]}>
+                        {lvl2.slug ? (
+                          <Link
+                            href={urlLvl2}
+                            className={css["catalog-lvl2-title"]}
+                            prefetch={false}
+                          >
+                            {lvl2.name}
+                          </Link>
+                        ) : (
+                          <span className={css["catalog-lvl2-header"]}>{lvl2.name}</span>
+                        )}
+                        {lvl2.children?.length > 0 && (
+                          <div className={css["catalog-lvl3-list"]}>
+                            {lvl2.children.map((lvl3) => (
+                              <Link
+                                key={lvl3.id}
+                                href={`/catalog/${lvl3.slug}`}
+                                className={css["catalog-lvl3-item"]}
+                                prefetch={false}
+                              >
+                                {lvl3.name}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

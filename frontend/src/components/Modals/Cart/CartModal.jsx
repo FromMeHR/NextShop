@@ -143,6 +143,7 @@ export function CartModal() {
                             href={`/product-detail/${item.product_slug}`}
                             className={css["cart-page__product-title"]}
                             onClick = {() => closeModal("cart")}
+                            prefetch={false}
                           >
                             {item.product_name}
                           </Link>
@@ -205,7 +206,11 @@ export function CartModal() {
               </div>
               {inStockItems.length > 0 && (
                 <div className={css["cart-total__column"]}>
-                  <Link href="/order" onClick={() => closeModal("cart")}>
+                  <Link
+                    href="/order"
+                    onClick={() => closeModal("cart")}
+                    prefetch={false}
+                  >
                     <button className={css["cart-total__btn"]}>
                       Оформити замовлення
                     </button>

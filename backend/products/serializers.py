@@ -17,12 +17,9 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class AttributeValueSerializer(serializers.ModelSerializer):
-    quantity = serializers.IntegerField(read_only=True)
-    is_additive = serializers.BooleanField(read_only=True)
-
     class Meta:
         model = ProductAttribute
-        fields = ("id", "name", "slug", "quantity", "is_additive")
+        fields = ("id", "name", "slug")
 
 
 class CategoryListSerializer(serializers.ModelSerializer):
@@ -42,17 +39,6 @@ class CategoryListSerializer(serializers.ModelSerializer):
         if img and hasattr(img, "url"):
             return request.build_absolute_uri(img.url) if request else img.url
         return None
-
-
-class CategoryFiltersSerializer(serializers.ModelSerializer):
-    children = serializers.SerializerMethodField()
-
-    class Meta:
-        model = ProductAttribute
-        fields = ("id", "name", "children")
-
-    def get_children(self, obj):
-        return AttributeValueSerializer(getattr(obj, "_cached_children", []), many=True).data
 
 
 class ProductAttributesSerializer(serializers.ModelSerializer):

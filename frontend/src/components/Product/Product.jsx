@@ -32,22 +32,16 @@ export function Product({ product }) {
         <footer className={css["product-card-footer"]}>
           {!isOutOfStock ? (
             <>
-              <p
-                className={css["product-card-price"]}
-                itemProp="price"
-                content={parseFloat(product.price)}
-              >
+              <p className={css["product-card-price"]}>
                 {formatPrice(product.price)}
-                <span itemProp="priceCurrency" content="UAH"> ₴</span>
+                <span> ₴</span>
               </p>
               <AddToCartButton productCode={product.code} />
             </>
             ) : (
-            <>
-              <p className={css["product-card-out-of-stock-text"]}>
-                {PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
-              </p>
-            </>
+            <p className={css["product-card-out-of-stock-text"]}>
+              {PRODUCT_STOCK_STATUS_LABELS[product.stock_status]}
+            </p>
           )}
         </footer>
       </Link>

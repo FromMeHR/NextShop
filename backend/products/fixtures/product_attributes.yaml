@@ -294,7 +294,7 @@
       {
         "category": null,
         "name": "AMD",
-        "slug": "amd",
+        "slug": "processor-amd",
         "show_in_filters": false,
         "show_in_product_details": false,
         "show_in_short_info": false,
@@ -312,7 +312,7 @@
       {
         "category": null,
         "name": "Intel",
-        "slug": "intel",
+        "slug": "processor-intel",
         "show_in_filters": false,
         "show_in_product_details": false,
         "show_in_short_info": false,
@@ -1086,7 +1086,7 @@
       {
         "category": null,
         "name": "AMD",
-        "slug": "amd",
+        "slug": "processor-amd",
         "show_in_filters": false,
         "show_in_product_details": false,
         "show_in_short_info": false,
@@ -1104,7 +1104,7 @@
       {
         "category": null,
         "name": "Intel",
-        "slug": "intel",
+        "slug": "processor-intel",
         "show_in_filters": false,
         "show_in_product_details": false,
         "show_in_short_info": false,
@@ -1122,7 +1122,7 @@
       {
         "category": null,
         "name": "Apple",
-        "slug": "apple",
+        "slug": "processor-apple",
         "show_in_filters": false,
         "show_in_product_details": false,
         "show_in_short_info": false,
@@ -5099,8 +5099,8 @@
     "fields":
       {
         "category": null,
-        "name": "14-14.5″",
-        "slug": "screen-14-145",
+        "name": "14.5″",
+        "slug": "screen-145",
         "show_in_filters": false,
         "show_in_product_details": false,
         "show_in_short_info": false,
@@ -5117,8 +5117,8 @@
     "fields":
       {
         "category": null,
-        "name": "13-13.9″",
-        "slug": "screen-13-139",
+        "name": "13.9″",
+        "slug": "screen-139",
         "show_in_filters": false,
         "show_in_product_details": false,
         "show_in_short_info": false,
@@ -5135,8 +5135,8 @@
     "fields":
       {
         "category": null,
-        "name": "10-12.9″",
-        "slug": "screen-10-129",
+        "name": "12.9″",
+        "slug": "screen-129",
         "show_in_filters": false,
         "show_in_product_details": false,
         "show_in_short_info": false,

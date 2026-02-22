@@ -22,32 +22,29 @@ export function CatalogClientLayout({ children, ...props }) {
   const [previewCount, setPreviewCount] = useState(data?.total_items || 0);
   const [applyBtnPos, setApplyBtnPos] = useState({ top: 0, left: 0, visible: false });
 
-  const validateUrlPrice = (priceStr, minLimit, maxLimit) => {
-    let min = minLimit;
-    let max = maxLimit;
-
+  const minLimit = priceRange?.min || 0;
+  const maxLimit = priceRange?.max || 100000;
+  const validateUrlPrice = useCallback((priceStr, minL, maxL) => {
+    let min = minL;
+    let max = maxL;
     if (priceStr && priceStr.includes("-")) {
       const [a, b] = priceStr.split("-");
       min = parseInt(a);
       max = parseInt(b);
     }
 
-    if (
-      Number.isNaN(min) || Number.isNaN(max) ||
-      min < minLimit || max > maxLimit || min > max
-    ) {
-      return { min: minLimit, max: maxLimit };
+    if (Number.isNaN(min) || Number.isNaN(max) || min < minL || max > maxL || min > max) {
+      return { min: minL, max: maxL };
     }
     return { min, max };
-  };
-  const minLimit = priceRange?.min || 0;
-  const maxLimit = priceRange?.max || 100000;
-  const [priceValues, setPriceValues] = useState(() => {
-    return validateUrlPrice(currentPrice, minLimit, maxLimit);
-  });
-  const [priceInputValues, setPriceInputValues] = useState(() => {
-    return validateUrlPrice(currentPrice, minLimit, maxLimit);
-  });
+  }, []);
+  const initialPrices = useMemo(
+    () => validateUrlPrice(currentPrice, minLimit, maxLimit),
+    [currentPrice, minLimit, maxLimit, validateUrlPrice]
+  );
+  const [priceValues, setPriceValues] = useState(initialPrices);
+  const [priceInputValues, setPriceInputValues] = useState(initialPrices);
+
   const sliderRef = useRef(null);
   const activeHandleRef = useRef("min");
 
@@ -73,14 +70,9 @@ export function CatalogClientLayout({ children, ...props }) {
   }, [minLimit, maxLimit]);
 
   useEffect(() => {
-    const { min, max } = validateUrlPrice(currentPrice, minLimit, maxLimit);
-
-    setPriceValues({ min, max });
-    setPriceInputValues({ min, max });
-
-    const handle = detectActiveHandle(min, max);
-    activeHandleRef.current = handle;
-  }, [currentPrice, minLimit, maxLimit, detectActiveHandle]);
+    setPriceValues(initialPrices);
+    setPriceInputValues(initialPrices);
+  }, [initialPrices]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -110,7 +102,7 @@ export function CatalogClientLayout({ children, ...props }) {
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const updateButtonPosition = () => {
+  const updateButtonPosition = useCallback(() => {
     if (lastClickedFilterRef.current && filtersColRef.current) {
       const labelRect = lastClickedFilterRef.current.getBoundingClientRect();
       const colRect = filtersColRef.current.getBoundingClientRect();
@@ -127,25 +119,16 @@ export function CatalogClientLayout({ children, ...props }) {
         labelRect.height / 2 +
         extraOffset;
 
-      if (isMobile) {
-        setApplyBtnPos({
-          top,
-          right: 10,
-          left: "auto",
-          visible: true,
-        });
-      } else {
-        setApplyBtnPos({
-          top,
-          left: labelRect.width + 40,
-          right: "auto",
-          visible: true,
-        });
-      }
+      setApplyBtnPos({
+        top,
+        left: isMobile ? "auto" : labelRect.width + 40,
+        right: isMobile ? 10 : "auto",
+        visible: true,
+      });
     }
-  };
+  }, []);
 
-  const handleFilterChange = async (e, filterSlug) => {
+  const handleFilterChange = (e, filterSlug) => {
     let newFilters;
     if (selectedFilters.includes(filterSlug)) {
       newFilters = selectedFilters.filter((f) => f !== filterSlug);
@@ -204,7 +187,7 @@ export function CatalogClientLayout({ children, ...props }) {
     params.delete("page");
     router.push(`${newPath}?${params.toString()}`, { scroll: false });
     setApplyBtnPos({ visible: false });
-    window.scrollTo(0, 0, { behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -216,11 +199,12 @@ export function CatalogClientLayout({ children, ...props }) {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [applyBtnPos.visible]);
+  }, [applyBtnPos.visible, updateButtonPosition]);
 
   useEffect(() => {
-    setTimeout(() => applyBtnPos.visible && updateButtonPosition(), 300);
-  }, [openedFilters, openedPriceFilter, applyBtnPos.visible]);
+    const timer = setTimeout(() => applyBtnPos.visible && updateButtonPosition(), 300);
+    return () => clearTimeout(timer);
+  }, [openedFilters, openedPriceFilter, applyBtnPos.visible, updateButtonPosition]);
 
   const handlePriceInputChange = (e, type) => {
     const val = e.target.value.replace(/\D/g, "");
@@ -517,61 +501,63 @@ export function CatalogClientLayout({ children, ...props }) {
             </div>
             <div className={css["filter-item__content-wrapper"]}>
               <div className={css["filter-item__content"]}>
-                <div className={css["filter-item__content--body"]}>
-                  <div className={css["filter-item__price-slider-box"]}>
-                    <input
-                      value={priceInputValues.min}
-                      onChange={(e) => handlePriceInputChange(e, "min")}
-                      onBlur={() => validatePrice("min")}
-                      onKeyDown={(e) => (e.key === "Enter" || e.key === "Tab") && validatePrice("min")}
-                      className={css["filter-item__price-slider--input"]}
-                    />
-                    <span className={css["filter-item__price-slider--to"]}>-</span>
-                    <input
-                      value={priceInputValues.max}
-                      onChange={(e) => handlePriceInputChange(e, "max")}
-                      onBlur={() => validatePrice("max")}
-                      onKeyDown={(e) => (e.key === "Enter" || e.key === "Tab") && validatePrice("max")}
-                      className={css["filter-item__price-slider--input"]}
-                    />
-                  </div>
-                  <div
-                    ref={sliderRef}
-                    className={css["filter-item__price-slider-range-wrapper"]}
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      startDragFromTrack(e.clientX);
-                    }}
-                    onTouchStart={(e) => {
-                      startDragFromTrack(e.touches[0].clientX);
-                    }}
-                  >
-                    <div className={css["filter-item__price-slider-range"]}>
-                      <div
-                        className={css["filter-item__price-ui-slider-range"]}
-                        style={{
-                          left: `${valueToPercent(priceValues.min)}%`,
-                          width: `${valueToPercent(priceValues.max) - valueToPercent(priceValues.min)}%`,
-                        }}
+                <div className={css["filter-item__content--body-wrapper"]}>
+                  <div className={css["filter-item__content--body"]}>
+                    <div className={css["filter-item__price-slider-box"]}>
+                      <input
+                        value={priceInputValues.min}
+                        onChange={(e) => handlePriceInputChange(e, "min")}
+                        onBlur={() => validatePrice("min")}
+                        onKeyDown={(e) => (e.key === "Enter" || e.key === "Tab") && validatePrice("min")}
+                        className={css["filter-item__price-slider--input"]}
                       />
-                      <span
-                        className={css["filter-item__price-ui-slider-handle"]}
-                        style={{
-                          left: `${valueToPercent(priceValues.min)}%`,
-                          zIndex: activeHandleRef.current === "min" ? 2 : 1,
-                        }}
-                        onMouseDown={startDrag("min")}
-                        onTouchStart={startDrag("min")}
+                      <span className={css["filter-item__price-slider--to"]}>-</span>
+                      <input
+                        value={priceInputValues.max}
+                        onChange={(e) => handlePriceInputChange(e, "max")}
+                        onBlur={() => validatePrice("max")}
+                        onKeyDown={(e) => (e.key === "Enter" || e.key === "Tab") && validatePrice("max")}
+                        className={css["filter-item__price-slider--input"]}
                       />
-                      <span
-                        className={css["filter-item__price-ui-slider-handle"]}
-                        style={{
-                          left: `${valueToPercent(priceValues.max)}%`,
-                          zIndex: activeHandleRef.current === "max" ? 2 : 1,
-                        }}
-                        onMouseDown={startDrag("max")}
-                        onTouchStart={startDrag("max")}
-                      />
+                    </div>
+                    <div
+                      ref={sliderRef}
+                      className={css["filter-item__price-slider-range-wrapper"]}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        startDragFromTrack(e.clientX);
+                      }}
+                      onTouchStart={(e) => {
+                        startDragFromTrack(e.touches[0].clientX);
+                      }}
+                    >
+                      <div className={css["filter-item__price-slider-range"]}>
+                        <div
+                          className={css["filter-item__price-ui-slider-range"]}
+                          style={{
+                            left: `${valueToPercent(priceValues.min)}%`,
+                            width: `${valueToPercent(priceValues.max) - valueToPercent(priceValues.min)}%`,
+                          }}
+                        />
+                        <span
+                          className={css["filter-item__price-ui-slider-handle"]}
+                          style={{
+                            left: `${valueToPercent(priceValues.min)}%`,
+                            zIndex: activeHandleRef.current === "min" ? 2 : 1,
+                          }}
+                          onMouseDown={startDrag("min")}
+                          onTouchStart={startDrag("min")}
+                        />
+                        <span
+                          className={css["filter-item__price-ui-slider-handle"]}
+                          style={{
+                            left: `${valueToPercent(priceValues.max)}%`,
+                            zIndex: activeHandleRef.current === "max" ? 2 : 1,
+                          }}
+                          onMouseDown={startDrag("max")}
+                          onTouchStart={startDrag("max")}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -604,33 +590,35 @@ export function CatalogClientLayout({ children, ...props }) {
               </div>
               <div className={css["filter-item__content-wrapper"]}>
                 <div className={css["filter-item__content"]}>
-                  <div className={css["filter-item__content--body"]}>
-                    {filter?.children.map((child) => (
-                      <div
-                        key={child.id}
-                        className={`${css["filter-item__child"]} ${child.quantity === 0 ? css["disabled"] : ""}`}
-                      >
+                  <div className={css["filter-item__content--body-wrapper"]}>
+                    <div className={css["filter-item__content--body"]}>
+                      {filter?.children.map((child) => (
                         <div
-                          className={`${css["filter-item__label"]} ${isChecked(child.slug) ? css["active"] : ""}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleFilterChange(e, child.slug);
-                          }}
+                          key={child.id}
+                          className={`${css["filter-item__child"]} ${child.quantity === 0 ? css["disabled"] : ""}`}
                         >
-                          <input
-                            type="checkbox"
-                            className={css["filter-item__checkbox"]}
-                            checked={isChecked(child.slug)}
-                            readOnly
-                          />
-                          <span className={css["filter-item__checkbox-mark"]}></span>
-                          <span>{child.name}</span>
-                          <span className={`${css["filter-item__quantity"]} ${(child.is_additive && child.quantity) > 0 ? css["is-additive"] : ""}`}>
-                            ({(child.is_additive && child.quantity > 0) ? `+${child.quantity}` : child.quantity})
-                          </span>
+                          <div
+                            className={`${css["filter-item__label"]} ${isChecked(child.slug) ? css["active"] : ""}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleFilterChange(e, child.slug);
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              className={css["filter-item__checkbox"]}
+                              checked={isChecked(child.slug)}
+                              readOnly
+                            />
+                            <span className={css["filter-item__checkbox-mark"]}></span>
+                            <span>{child.name}</span>
+                            <span className={`${css["filter-item__quantity"]} ${(child.is_additive && child.quantity) > 0 ? css["is-additive"] : ""}`}>
+                              ({(child.is_additive && child.quantity > 0) ? `+${child.quantity}` : child.quantity})
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
