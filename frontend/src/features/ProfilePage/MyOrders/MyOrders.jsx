@@ -293,6 +293,7 @@ export function MyOrders() {
                                         <Link
                                           href={`/product-detail/${item.product_slug}`}
                                           className={css["cart__product-title"]}
+                                          prefetch={false}
                                         >
                                           {item.product_name}
                                         </Link>

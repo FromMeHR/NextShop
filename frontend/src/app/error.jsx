@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { ErrorPage404 } from "../features/ErrorPage/ErrorPage404";
 
-export const metadata = { title: "Помилка" };
+export const metadata = { title: "Помилка | Voltio" };
 
 export default function Error({ error, reset }) {
   useEffect(() => {

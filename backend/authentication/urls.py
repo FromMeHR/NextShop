@@ -5,7 +5,8 @@ from .views import (
     UserViewSet,
     TokenObtainPairView,
     TokenRefreshView,
-    TokenBlacklistView
+    TokenBlacklistView,
+    CsrfTokenView
 )
 
 app_name = "authentication"
@@ -18,4 +19,5 @@ urlpatterns = [
     path("auth/jwt/create/", TokenObtainPairView.as_view(), name="jwt_create"),
     path("auth/jwt/refresh/", TokenRefreshView.as_view(), name="jwt_refresh"),
     path("auth/jwt/logout/", TokenBlacklistView.as_view(), name="jwt_blacklist"),
+    path("get-csrf-token/", CsrfTokenView.as_view(), name="get_csrf_token"),
 ]

@@ -78,7 +78,9 @@ export default async function Page({ params }) {
         <>
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+            }}
           />
           <ProductDetailPage product={product} categoryPath={categoryPath} />
         </>

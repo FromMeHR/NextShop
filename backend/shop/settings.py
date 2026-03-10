@@ -39,6 +39,9 @@ ALLOWED_HOSTS = [
     config("ALLOWED_ENV_HOST"),
 ]
 
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_AGE = None
 
 # Application definition
 

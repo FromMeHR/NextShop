@@ -11,22 +11,23 @@ from validation.validate_password import (
     validate_password_long,
     validate_password_include_symbols,
 )
+from validation.sanitize_data import SanitizeSerializerMixin
 
 User = get_user_model()
 
 
-class UserRegistrationSerializer(UserCreatePasswordRetypeSerializer):
+class UserRegistrationSerializer(SanitizeSerializerMixin, UserCreatePasswordRetypeSerializer):
     email = serializers.EmailField(
         write_only=True,
     )
     password = serializers.CharField(
         write_only=True, style={"input_type": "password"},
     )
-    
+
     class Meta(UserCreatePasswordRetypeSerializer.Meta):
         model = User
         fields = ("email", "name", "surname", "password")
-    
+
     def validate(self, attrs):
         custom_errors = defaultdict(list)
         self.fields.pop("re_password", None)
@@ -50,7 +51,14 @@ class UserRegistrationSerializer(UserCreatePasswordRetypeSerializer):
         if custom_errors:
             raise serializers.ValidationError(custom_errors)
         return attrs
-    
+
+    def to_internal_value(self, data):
+        internal_value = super().to_internal_value(data)
+        return self.sanitize_fields(
+            internal_value, 
+            ["name", "surname"]
+        )
+
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
         user.set_password(validated_data["password"])
@@ -58,7 +66,7 @@ class UserRegistrationSerializer(UserCreatePasswordRetypeSerializer):
         return user
 
 
-class UserListSerializer(UserSerializer):
+class UserListSerializer(SanitizeSerializerMixin, UserSerializer):
     class Meta(UserSerializer.Meta):
         model = User
         fields = (
@@ -71,4 +79,11 @@ class UserListSerializer(UserSerializer):
             "is_staff",
             "is_superuser",
         )
-        read_only_fields = ("email", "is_staff", "is_superuser")
+        read_only_fields = ("id", "email", "is_staff", "is_superuser")
+
+    def to_internal_value(self, data):
+        internal_value = super().to_internal_value(data)
+        return self.sanitize_fields(
+            internal_value, 
+            ["name", "surname", "phone"]
+        )

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import { useCart } from "../../../hooks/useCart";
 import { useModal } from "../../../hooks/useModal";
-import { fetchWithAuth } from "../../../lib/fetchWithAuth";
+import { fetchWithAuth, ensureCsrf, getCsrfToken } from "../../../lib/fetchWithAuth";
 import { useForm } from "react-hook-form";
 import { useStopwatch } from "react-timer-hook";
 import { useRouter } from "next/navigation";
@@ -65,9 +65,15 @@ export function AuthModal() {
 
   const onSubmit = async (value) => {
     try {
+      await ensureCsrf();
+      const csrfToken = getCsrfToken();
       await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/jwt/create/`,
-        { email: value.email, password: value.password }
+        { email: value.email, password: value.password },
+        {
+          withCredentials: true,
+          headers: csrfToken ? { "X-CSRFToken": csrfToken } : {},
+        }
       );
 
       try {
@@ -192,9 +198,15 @@ export function AuthModal() {
     };
 
     try {
+      await ensureCsrf();
+      const csrfToken = getCsrfToken();
       await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/`,
-        dataToSend
+        dataToSend,
+        {
+          withCredentials: true,
+          headers: csrfToken ? { "X-CSRFToken": csrfToken } : {},
+        }
       );
       closeModal("auth");
       openModal("signUpCompletion");

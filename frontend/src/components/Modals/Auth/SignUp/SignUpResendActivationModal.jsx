@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useStopwatch } from "react-timer-hook";
 import { toast } from "react-toastify";
 import { EMAIL_PATTERN } from "../../../../constants/constants";
+import { ensureCsrf, getCsrfToken } from "../../../../lib/fetchWithAuth";
 import classnames from "classnames";
 import axios from "axios";
 import ReactDOM from "react-dom";
@@ -31,9 +32,15 @@ export function SignUpResendActivationModal() {
 
   const onSubmit = async (value) => {
     try {
+      await ensureCsrf();
+      const csrfToken = getCsrfToken();
       await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/resend_activation/`,
-        { email: value.email }
+        { email: value.email },
+        {
+          withCredentials: true,
+          headers: csrfToken ? { "X-CSRFToken": csrfToken } : {},
+        }
       );
       closeModal("signUpResendActivation");
       openModal("auth");

@@ -1,4 +1,7 @@
-from django.contrib.auth import login, get_user_model
+from django.contrib.auth import get_user_model
+from django.middleware.csrf import get_token
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 from djoser.views import UserViewSet as BaseUserViewSet
 from shop.settings import DEBUG
 from rest_framework import status
@@ -27,6 +30,7 @@ from shop.throttling import (
 User = get_user_model()
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class UserViewSet(BaseUserViewSet):
     def get_throttles(self):
         if self.action == "create":
@@ -46,6 +50,7 @@ class UserViewSet(BaseUserViewSet):
         return super().get_throttles()
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class TokenObtainPairView(BaseTokenObtainPairView):
     throttle_classes = [TokenObtainThrottle]
     
@@ -65,11 +70,6 @@ class TokenObtainPairView(BaseTokenObtainPairView):
             )
 
         response = super().post(request, *args, **kwargs)
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.user
-
-        login(request, user)
 
         access_token = response.data.get("access")
         refresh_token = response.data.get("refresh")
@@ -96,6 +96,7 @@ class TokenObtainPairView(BaseTokenObtainPairView):
         return response
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class TokenRefreshView(BaseTokenRefreshView):
     throttle_classes = [TokenRefreshThrottle]
 
@@ -135,6 +136,7 @@ class TokenRefreshView(BaseTokenRefreshView):
         return response
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class TokenBlacklistView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -153,3 +155,8 @@ class TokenBlacklistView(APIView):
             return Response({"detail": "Refresh token not provided."}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
             return Response({"detail": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CsrfTokenView(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response({"csrf_token": get_token(request)})

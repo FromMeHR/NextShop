@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { PAYMENT_NAME } from "../../constants/constants";
 import { formatPrice } from "../../utils/formatPrice";
-import { fetchWithAuth } from "../../lib/fetchWithAuth";
+import { fetchWithAuth, ensureCsrf, getCsrfToken } from "../../lib/fetchWithAuth";
 import { redirectToAuth } from "../../lib/redirectToAuth";
 import useSWR from "swr";
 import axios from "axios";
@@ -137,7 +137,7 @@ export function CheckoutPage() {
       if (selectedCity && selectedDeliveryType && selectedWarehouseType &&
         (selectedWarehouse || selectedStreet)) {
         if (selectedStreet) {
-          if (watchedHouse?.trim() !== "" && /^\d+$/.test(watchedApartment?.trim())) {
+          if (watchedHouse?.trim() !== "" && watchedApartment?.trim() !== "") {
             clearErrors("delivery");
             return true;
           } else {
@@ -375,7 +375,7 @@ export function CheckoutPage() {
     setSelectedStreet(street);
     setIsDropdownStreetOpen(false);
     setSearchStreet("");
-    if (watchedHouse?.trim() !== "" && /^\d+$/.test(watchedApartment?.trim())) {
+    if (watchedHouse?.trim() !== "" && watchedApartment?.trim() !== "") {
       clearErrors("delivery");
     }
   };
@@ -404,7 +404,7 @@ export function CheckoutPage() {
   useEffect(() => {
     if (selectedStreet &&
       watchedHouse?.trim() !== "" &&
-      /^\d+$/.test(watchedApartment?.trim())) {
+      watchedApartment?.trim() !== "") {
       clearErrors("delivery");
     }
   }, [watchedHouse, watchedApartment, selectedStreet, clearErrors]);
@@ -454,10 +454,15 @@ export function CheckoutPage() {
 
     if (isAuth) {
       try {
+        await ensureCsrf();
+        const csrfToken = getCsrfToken();
         await axios.post(
           `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/jwt/refresh/`,
           {},
-          { withCredentials: true }
+          {
+            withCredentials: true,
+            headers: csrfToken ? { "X-CSRFToken": csrfToken } : {},
+          }
         );
       } catch {
         redirectToAuth();

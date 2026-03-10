@@ -14,6 +14,8 @@ from django.utils.dateparse import parse_datetime
 from django.db import transaction
 from django.utils.crypto import get_random_string
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
@@ -38,6 +40,7 @@ from .serializers import (
     WarehouseTypeSerializer,
     NovaPoshtaWarehouseSerializer,
     NovaPoshtaStreetSerializer,
+    OrderCreateSerializer,
     OrderDetailSerializer
 )
 from shop.throttling import CreateOrderThrottle
@@ -114,41 +117,25 @@ class StreetListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class CreateOrderView(APIView):
     throttle_classes = [CreateOrderThrottle]
 
     def post(self, request):
-        data = request.data
-        required_fields = [
-            "surname", "name", "email", "formatted_number",
-            "selected_city_ref", "selected_warehouse_type_id", "selected_payment_method"
-        ]
-        for field in required_fields:
-            if not data.get(field):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        if not data.get("selected_warehouse_ref") and not data.get("selected_street_ref"):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        if data.get("selected_street_ref"):
-            if not data.get("house") or not data.get("apartment"):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        if data.get("selected_payment_method") not in [
-            Payment.EASYPAY, Payment.PLATA_BY_MONO
-        ]:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        serializer = OrderCreateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        v_data = serializer.validated_data
 
         with transaction.atomic():
-            city = get_object_or_404(NovaPoshtaCity, ref=data.get("selected_city_ref"))
-            try:
-                warehouse_type = get_object_or_404(WarehouseType, id=int(data.get("selected_warehouse_type_id")))
-            except (ValueError, TypeError):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            if data.get("selected_warehouse_ref"):
-                warehouse = get_object_or_404(NovaPoshtaWarehouse, ref=data.get("selected_warehouse_ref"))
-            if data.get("selected_street_ref"):
-                street = get_object_or_404(NovaPoshtaStreet, ref=data.get("selected_street_ref"))
+            city = get_object_or_404(NovaPoshtaCity, ref=v_data.get("selected_city_ref"))
+            warehouse_type = get_object_or_404(WarehouseType, id=v_data.get("selected_warehouse_type_id"))
+            warehouse = None
+            if v_data.get("selected_warehouse_ref"):
+                warehouse = get_object_or_404(NovaPoshtaWarehouse, ref=v_data.get("selected_warehouse_ref"))
+            street = None
+            if v_data.get("selected_street_ref"):
+                street = get_object_or_404(NovaPoshtaStreet, ref=v_data.get("selected_street_ref"))
 
             cart_code = request.COOKIES.get("cart_code")
             if not cart_code:
@@ -162,28 +149,20 @@ class CreateOrderView(APIView):
             if not cart_items.exists():
                 raise ValidationError("")
 
-            apartment_str = data.get("apartment")
-            if apartment_str:
-                if not data.get("apartment").isdigit():
-                    raise ValidationError("")
-                apartment = int(apartment_str)
-            else:
-                apartment = None
-
             order = Order.objects.create(
                 order_code=get_random_string(36),
                 user=request.user if request.user.is_authenticated else None,
-                delivery_user_name=data.get("name"),
-                delivery_user_surname=data.get("surname"),
-                delivery_user_email=data.get("email"),
-                delivery_user_phone=data.get("formatted_number"),
+                delivery_user_name=v_data.get("name"),
+                delivery_user_surname=v_data.get("surname"),
+                delivery_user_email=v_data.get("email"),
+                delivery_user_phone=v_data.get("formatted_number"),
                 delivery_city=city.name_ukr,
                 delivery_warehouse_type=warehouse_type,
-                delivery_warehouse=warehouse.name_ukr if data.get("selected_warehouse_ref") else None,
-                delivery_street=street.name if data.get("selected_street_ref") else None,
-                delivery_house=data.get("house"),
-                delivery_apartment=apartment,
-                delivery_notes=data.get("comment"),
+                delivery_warehouse=warehouse.name_ukr if warehouse else None,
+                delivery_street=street.name if street else None,
+                delivery_house=v_data.get("house"),
+                delivery_apartment=v_data.get("apartment"),
+                delivery_notes=v_data.get("comment"),
             )
 
             total_price, total_quantity, total_weight = 0, 0, 0
@@ -235,7 +214,7 @@ class CreateOrderView(APIView):
                 else config("ALLOWED_ENV_HOST")
             )
 
-            if data.get("selected_payment_method") == Payment.PLATA_BY_MONO:
+            if v_data.get("selected_payment_method") == Payment.PLATA_BY_MONO:
                 monobank_token = config("MONOBANK_TOKEN")
                 monobank_url = config("MONOBANK_API_URL")
 
@@ -307,7 +286,7 @@ class CreateOrderView(APIView):
                 )
                 order.payment = payment
                 order.save()
-            elif data.get("selected_payment_method") == Payment.EASYPAY:
+            elif v_data.get("selected_payment_method") == Payment.EASYPAY:
                 easypay_url = config("EASYPAY_API_URL")
                 easypay_partner_key = config("EASYPAY_PARTNER_KEY")
                 easypay_service_key = config("EASYPAY_SERVICE_KEY")
@@ -346,7 +325,7 @@ class CreateOrderView(APIView):
                         "description": f"Оплата за замовлення №{order.id} від {order.created_at.strftime("%d.%m.%Y")}",
                         "amount": float(round(order.total_price, 2)),
                         "additionalItems": {
-                            "PayerEmail": data.get("email"),
+                            "PayerEmail": v_data.get("email"),
                             "Merchant.UrlNotify": notify_url,
                         },
                         "expire": expire_date,

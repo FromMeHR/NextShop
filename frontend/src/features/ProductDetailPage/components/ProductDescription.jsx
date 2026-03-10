@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import DOMPurify from "isomorphic-dompurify";
 import css from "../ProductDetailPage.module.css";
 
 export function ProductDescription({ description, name }) {
@@ -8,11 +9,18 @@ export function ProductDescription({ description, name }) {
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [needsDescToggle, setNeedsDescToggle] = useState(false);
 
+  const sanitizedDescription = useMemo(() => {
+    return DOMPurify.sanitize(description, {
+      ALLOWED_TAGS: ["b", "i", "em", "strong", "div", "a", "p", "br", "ul", "ol", "li", "span"],
+      ALLOWED_ATTR: ["href", "target", "rel"],
+    });
+  }, [description]);
+
   useEffect(() => {
     if (descRef.current?.scrollHeight > 500) {
       setNeedsDescToggle(true);
     }
-  }, [description]);
+  }, [sanitizedDescription]);
 
   const toggleDesc = () => {
     if (isDescExpanded) {
@@ -35,10 +43,10 @@ export function ProductDescription({ description, name }) {
           needsDescToggle && !isDescExpanded ? css["hidden"] : ""
         }`}
       >
-        <p
+        <div
           className={css["product-detail__description"]}
-          dangerouslySetInnerHTML={{ __html: description }}
-        ></p>
+          dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+        ></div>
       </div>
       {needsDescToggle && (
         <div className={css["block-specific__toggle-btn-wrapper"]}>

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useStopwatch } from "react-timer-hook";
 import { toast } from "react-toastify";
 import { EMAIL_PATTERN } from "../../../../constants/constants";
+import { ensureCsrf, getCsrfToken } from "../../../../lib/fetchWithAuth";
 import axios from "axios";
 import classnames from "classnames";
 import ReactDOM from "react-dom";
@@ -31,9 +32,15 @@ export function RestorePasswordSendEmailModal() {
 
   const onSubmit = async (value) => {
     try {
+      await ensureCsrf();
+      const csrfToken = getCsrfToken();
       await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/reset_password/`,
-        { email: value.email }
+        { email: value.email },
+        {
+          withCredentials: true,
+          headers: csrfToken ? { "X-CSRFToken": csrfToken } : {},
+        }
       );
       closeModal("restorePasswordSendEmail");
       openModal("restorePasswordCompletion");

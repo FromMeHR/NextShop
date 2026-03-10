@@ -156,7 +156,7 @@ class Order(models.Model):
     delivery_warehouse = models.CharField(blank=True, null=True)
     delivery_street = models.CharField(blank=True, null=True)
     delivery_house = models.CharField(blank=True, null=True)
-    delivery_apartment = models.PositiveIntegerField(blank=True, null=True)
+    delivery_apartment = models.CharField(blank=True, null=True)
     delivery_notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     sent_at = models.DateTimeField(blank=True, null=True)

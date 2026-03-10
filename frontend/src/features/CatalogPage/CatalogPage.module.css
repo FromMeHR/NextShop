@@ -94,7 +94,7 @@
 }
 
 .search-results__selected-item {
-    line-height: 44px;
+    line-height: 40px;
     color: var(--main-text-color);
     padding: 0 38px 0 18px;
     font-size: 0.875rem;
@@ -617,7 +617,7 @@
         position: relative;
         box-sizing: border-box;
         width: 55%;
-        height: 44px;
+        height: 40px;
         border-radius: 10px;
         background-color: var(--select-sort-box-background-color);
         transition: border 0.3s ease-in-out;

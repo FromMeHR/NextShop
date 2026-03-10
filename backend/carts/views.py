@@ -3,6 +3,8 @@ from django.utils.crypto import get_random_string
 from django.http import Http404
 from django.utils import timezone
 from django.db import transaction
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 from datetime import timedelta
 from rest_framework.generics import (
     ListCreateAPIView, 
@@ -21,6 +23,7 @@ from .serializers import (
 )
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class CartList(ListCreateAPIView):
     serializer_class = CartSerializer
 
@@ -68,6 +71,7 @@ class CartList(ListCreateAPIView):
         return response
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class CartDetail(RetrieveUpdateDestroyAPIView):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
@@ -95,6 +99,7 @@ class CartDetail(RetrieveUpdateDestroyAPIView):
         instance.delete()
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class CartSyncView(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useModal } from "../../hooks/useModal";
+import { ensureCsrf, getCsrfToken } from "../../lib/fetchWithAuth";
 import axios from "axios";
 import css from "./ActivateUserPage.module.css";
 
@@ -12,9 +13,15 @@ export function ActivateUserPage({ uid, token }) {
   useEffect(() => {
     const handleActivation = async () => {
       try {
+        await ensureCsrf();
+        const csrfToken = getCsrfToken();
         const resp = await axios.post(
           `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/activation/`,
-          { uid: uid, token: token }
+          { uid: uid, token: token },
+          {
+            withCredentials: true,
+            headers: csrfToken ? { "X-CSRFToken": csrfToken } : {},
+          }
         );
         setActivationStatus(resp.data.message);
       } catch (error) {

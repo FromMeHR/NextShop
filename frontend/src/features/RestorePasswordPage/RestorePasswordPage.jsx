@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { PASSWORD_PATTERN } from "../../constants/constants";
 import { useModal } from "../../hooks/useModal";
+import { ensureCsrf, getCsrfToken } from "../../lib/fetchWithAuth";
 import axios from "axios";
 import classnames from "classnames";
 import css from "./RestorePasswordPage.module.css";
@@ -51,9 +52,15 @@ export function RestorePasswordPage({ uid, token }) {
     };
 
     try {
+      await ensureCsrf();
+      const csrfToken = getCsrfToken();
       const resp = await axios.post(
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/reset_password_confirm/`,
-        dataToSend
+        dataToSend,
+        {
+          withCredentials: true,
+          headers: csrfToken ? { "X-CSRFToken": csrfToken } : {},
+        }
       );
       openModal("restorePasswordResult", { restorePasswordStatus: resp.data.message });
     } catch (error) {
