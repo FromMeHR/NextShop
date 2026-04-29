@@ -87,16 +87,41 @@
     white-space: nowrap;
 }
 
-.profile__list-item--icon,
-.profile__header--icon {
+.profile__list-item--icon {
     position: absolute;
+    content: "";
     width: 35px;
     height: 35px;
     top: 6px;
     left: 10px;
-    cursor: pointer;
     filter: grayscale(100%);
     transition: filter 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.profile__list-item--icon.user {
+    background: url("/svg/user.svg") center / contain no-repeat;
+}
+
+.profile__list-item--icon.cart {
+    background: url("/svg/cart.svg") center / contain no-repeat;
+}
+
+.profile__list-item--icon.logout {
+    background: url("/svg/logout.svg") center / contain no-repeat;
+}
+
+.profile__header--user-icon-wrapper {
+    position: absolute;
+    content: "";
+    width: 35px;
+    height: 35px;
+    top: 6px;
+    left: 10px;
+    background: url("/svg/user.svg") center / contain no-repeat;
+    filter: grayscale(100%);
+    transition: filter 0.3s ease-in-out;
+    cursor: pointer;
 }
 
 .profile__list-item.active .profile__list-item--icon,
@@ -108,18 +133,21 @@
     filter: none;
 }
 
-.profile__header--arrow {
+.profile__header--arrow-icon-wrapper {
     position: absolute;
+    content: "";
     right: 8px;
     top: 12px;
     width: 17px;
     height: 17px;
+    background: url("/svg/up.svg") center / contain no-repeat;
+    background-size: 17px 17px;
     filter: brightness(0) invert(0);
     transform: rotate(180deg);
     transition: transform 0.3s ease-in-out;
 }
 
-.profile__section.open .profile__header--arrow {
+.profile__section.open .profile__header--arrow-icon-wrapper {
     transform: rotate(0deg);
 }
 
@@ -176,7 +204,7 @@
     }
 
     .profile__list-item--icon,
-    .profile__header--icon {
+    .profile__header--user-icon-wrapper {
         width: 30px;
         height: 30px;
         left: 0;

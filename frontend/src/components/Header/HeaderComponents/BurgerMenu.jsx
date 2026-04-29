@@ -34,7 +34,7 @@ export function BurgerMenu() {
           </a>
         </div>
         <div className={css["burger-actions"]}>
-          <div
+          <button
             className={css["burger-user-button"]}
             onClick={() =>
               isAuth
@@ -45,24 +45,15 @@ export function BurgerMenu() {
                 : openModal("auth")
             }
           >
-            <div className={css["user-icon-wrapper"]}>
-              <img
-                src={`${process.env.NEXT_PUBLIC_URL}/svg/user.svg`}
-                className={css["icon"]}
-                alt="User icon"
-              />
-              {isAuth && (
-                <img
-                  src={`${process.env.NEXT_PUBLIC_URL}/svg/check-circle.svg`}
-                  alt="Authorized check icon"
-                  className={css["authorized-check-icon"]}
-                />
-              )}
-            </div>
+            <div
+              className={`${css["user-icon-wrapper"]} ${
+                isAuth ? css["is-authorized"] : ""
+              }`}
+            ></div>
             <span className={css["menu-element__text"]}>
               {isAuth ? "Мій профіль" : "Вхід/Реєстрація"}
             </span>
-          </div>
+          </button>
         </div>
         <div className={css["burger-phones"]}>
           <p>Контакти</p>

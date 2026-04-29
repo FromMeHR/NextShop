@@ -43,14 +43,26 @@
     gap: 16px;
 }
 
-.footer-social a img {
+.footer-social a {
     width: 24px;
     height: 24px;
     transition: transform 0.3s ease-in-out;
 }
 
-.footer-social a:hover img {
+.footer-social a:hover {
     transform: scale(1.2);
+}
+
+.social-fb {
+    background: url("/svg/facebook.svg") center no-repeat;
+}
+
+.social-tw {
+    background: url("/svg/twitter.svg") center no-repeat;
+}
+
+.social-inst {
+    background: url("/svg/instagram.svg") center no-repeat;
 }
 
 .footer-credits {

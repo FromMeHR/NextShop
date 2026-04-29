@@ -94,13 +94,15 @@
     margin: 0 0 30px;
 }
 
-.cart-page__msg-attention img {
+.warning-icon-wrapper::before {
     position: absolute;
-    left: 15px;
+    content: "";
     top: 50%;
+    left: 15px;
     width: 26px;
     height: 26px;
-    margin-top: -13px;
+    background: url("/svg/warning.svg") center / contain no-repeat;
+    transform: translate(0, -50%);
 }
 
 .cart-page__msg-attention strong {
@@ -208,7 +210,19 @@
     top: 0;
     left: 5px;
     cursor: pointer;
+    border: none;
+    background: transparent;
     z-index: 1;
+}
+
+.product-counter__btn_subtract::before {
+    position: absolute;
+    content: "";
+    width: 18px;
+    height: 18px;
+    background: url("/svg/minus.svg") center / contain no-repeat;
+    filter: brightness(0) invert(0);
+    transform: translate(-50%, -50%);
 }
 
 .product-counter__btn_add {
@@ -218,7 +232,19 @@
     top: 0;
     right: 5px;
     cursor: pointer;
+    border: none;
+    background: transparent;
     z-index: 1;
+}
+
+.product-counter__btn_add::before {
+    position: absolute;
+    content: "";
+    width: 18px;
+    height: 18px;
+    background: url("/svg/plus.svg") center / contain no-repeat;
+    filter: brightness(0) invert(0);
+    transform: translate(-50%, -50%);
 }
 
 .cart-page__product-price {
@@ -235,6 +261,18 @@
     width: 24px;
     height: 24px;
     cursor: pointer;
+    border: none;
+    background: transparent;
+}
+
+.cart-page__product-btn_delete::before {
+    position: absolute;
+    content: "";
+    width: 24px;
+    height: 24px;
+    background: url("/svg/delete.svg") center / contain no-repeat;
+    filter: brightness(0) invert(0);
+    transform: translate(-50%, -50%);
 }
 
 .modal-close-button {
@@ -248,6 +286,16 @@
     cursor: pointer;
     position: absolute;
     z-index: auto;
+}
+
+.modal-close-button::before {
+    position: absolute;
+    content: "";
+    width: 36px;
+    height: 36px;
+    background: url("/svg/delete.svg") center / contain no-repeat;
+    filter: brightness(0) invert(0);
+    transform: translate(-50%, -50%);
 }
 
 .cart-total {
@@ -337,6 +385,11 @@
     .modal-close-button {
         right: 10px;
         top: 10px;
+    }
+
+    .modal-close-button::before {
+        width: 24px;
+        height: 24px;
     }
 
     .cart-page__product-column-wrapper {

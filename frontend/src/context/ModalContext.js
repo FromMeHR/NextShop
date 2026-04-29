@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useCallback } from "react";
+import { createContext, useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthModal } from "../components/Modals/Auth/AuthModal";
 import { CartModal } from "../components/Modals/Cart/CartModal";
@@ -11,6 +11,50 @@ import { BackdropModal } from "../components/Modals/Backdrop/BackdropModal";
 import { toast } from "react-toastify";
 
 export const ModalContext = createContext();
+
+const MODAL_REGISTRY = {
+  cart: CartModal,
+  auth: AuthModal,
+  signUpResendActivation: SignUpResendActivationModal,
+  signUpCompletion: SignUpCompletionModal,
+  restorePasswordSendEmail: RestorePasswordSendEmailModal,
+  restorePasswordCompletion: RestorePasswordCompletionModal,
+  restorePasswordResult: RestorePasswordResultModal,
+};
+
+const AnimatedModalWrapper = ({ component: Component, isVisible, props }) => {
+  const [isMounted, setIsMounted] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (isVisible) setIsMounted(true);
+    else setIsActive(false);
+  }, [isVisible]);
+
+  useEffect(() => {
+    if (isMounted && isVisible) {
+      const raf = requestAnimationFrame(() => setIsActive(true));
+      return () => cancelAnimationFrame(raf);
+    }
+  }, [isMounted, isVisible]);
+
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const handleTransitionEnd = (e) => {
+      if (e.target !== modal) return;
+      if (!isVisible && !isActive) {
+        setIsMounted(false);
+      }
+    };
+
+    modal.addEventListener("transitionend", handleTransitionEnd);
+    return () => modal.removeEventListener("transitionend", handleTransitionEnd);
+  }, [isVisible, isActive]);
+  return isMounted && <Component isActive={isActive} modalRef={modalRef} {...props} />;
+};
 
 export const ModalProvider = ({ children }) => {
   const [modals, setModals] = useState({
@@ -45,8 +89,7 @@ export const ModalProvider = ({ children }) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        const hasOpenModal = Object.values(modals).some(Boolean);
-        if (hasOpenModal) closeAllModals();
+        if (Object.values(modals).some(Boolean)) closeAllModals();
       }
     };
 
@@ -67,21 +110,20 @@ export const ModalProvider = ({ children }) => {
   }, [searchParams, router, openModal]);
 
   return (
-    <ModalContext.Provider value={{ modals, openModal, closeModal }}>
+    <ModalContext.Provider value={{ openModal, closeModal }}>
       {children}
       <BackdropModal
         isVisible={isOverlayVisible}
         handleHide={closeAllModals}
       />
-      <CartModal />
-      <AuthModal />
-      <SignUpResendActivationModal />
-      <SignUpCompletionModal />
-      <RestorePasswordSendEmailModal />
-      <RestorePasswordCompletionModal />
-      <RestorePasswordResultModal
-        restorePasswordStatus={modalProps.restorePasswordResult?.restorePasswordStatus}
-      />
+      {Object.entries(MODAL_REGISTRY).map(([key, Component]) => (
+        <AnimatedModalWrapper
+          key={key}
+          component={Component}
+          isVisible={modals[key]}
+          props={modalProps[key] || {}}
+        />
+      ))}
     </ModalContext.Provider>
   );
 };

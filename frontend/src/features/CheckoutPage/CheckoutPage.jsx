@@ -84,6 +84,7 @@ export function CheckoutPage() {
     clearErrors,
     watch,
     trigger,
+    reset: resetForm,
     formState: { errors, isSubmitting },
   } = useForm({
     mode: "all",
@@ -94,6 +95,17 @@ export function CheckoutPage() {
       phone: savedData.phone || user?.phone,
     }
   });
+
+  useEffect(() => {
+    if (user || Object.keys(savedData).length > 0) {
+      resetForm({
+        surname: savedData.surname || user?.surname,
+        name: savedData.name || user?.name,
+        email: savedData.email || user?.email,
+        phone: savedData.phone || user?.phone,
+      });
+    }
+  }, [user, resetForm]);
 
   const disabled = isSubmitting || outOfStockItems.length > 0 || (isRunning && minutes < 1);
 
@@ -438,17 +450,17 @@ export function CheckoutPage() {
     if (!allSectionsValid || outOfStockItems.length > 0) return;
 
     const dataToSend = {
-      surname: value.surname.trim(),
-      name: value.name.trim(),
-      email: value.email.trim(),
-      formatted_number: value.phone.trim(),
+      surname: value.surname?.trim(),
+      name: value.name?.trim(),
+      email: value.email?.trim(),
+      formatted_number: value.phone?.trim(),
       selected_city_ref: selectedCity?.ref,
       selected_warehouse_type_id: selectedWarehouseType?.id,
       selected_warehouse_ref: selectedWarehouse?.ref,
       selected_street_ref: selectedStreet?.ref,
-      house: value.house.trim(),
-      apartment: value.apartment.trim(),
-      comment: value.comment.trim(),
+      house: value.house?.trim(),
+      apartment: value.apartment?.trim(),
+      comment: value.comment?.trim(),
       selected_payment_method: selectedPaymentMethod.name,
     };
 
@@ -516,13 +528,7 @@ export function CheckoutPage() {
             <div className={css["cart-empty"]}>
               <div
                 className={css["cart-empty__robot-image-wrapper"]}
-              >
-                <img
-                  src={`${process.env.NEXT_PUBLIC_URL}/img/robot.png`}
-                  alt="Robot"
-                  className={css["cart-empty__robot-image"]}
-                />
-              </div>
+              ></div>
               <div className={css["cart-empty__content"]}>
                 <div className={css["cart-empty__title"]}>
                   Ваш кошик порожній
@@ -806,12 +812,7 @@ export function CheckoutPage() {
                               className={`${css["checkout__select-arrow"]} ${
                                 isDropdownCityOpen ? css["open"] : ""
                               }`}
-                            >
-                              <img
-                                src={`${process.env.NEXT_PUBLIC_URL}/svg/caret-down.svg`}
-                                alt="Arrow"
-                              />
-                            </div>
+                            ></div>
                           </div>
                           {ReactDOM.createPortal(
                             <div
@@ -828,13 +829,7 @@ export function CheckoutPage() {
                                     className={
                                       css["checkout__search-img-wrapper"]
                                     }
-                                  >
-                                    <img
-                                      src={`${process.env.NEXT_PUBLIC_URL}/svg/search.svg`}
-                                      className={css["checkout__search-img"]}
-                                      alt="Search icon"
-                                    />
-                                  </div>
+                                  ></div>
                                   <input
                                     className={css["checkout__search-input"]}
                                     type="text"
@@ -999,12 +994,7 @@ export function CheckoutPage() {
                                                     className={`${css["checkout__select-arrow"]} ${
                                                       isDropdownWarehouseOpen ? css["open"] : ""
                                                     }`}
-                                                  >
-                                                    <img
-                                                      src={`${process.env.NEXT_PUBLIC_URL}/svg/caret-down.svg`}
-                                                      alt="Arrow"
-                                                    />
-                                                  </div>
+                                                  ></div>
                                                 </div>
                                                 {ReactDOM.createPortal(
                                                   <div
@@ -1021,13 +1011,7 @@ export function CheckoutPage() {
                                                           className={
                                                             css["checkout__search-img-wrapper"]
                                                           }
-                                                        >
-                                                          <img
-                                                            src={`${process.env.NEXT_PUBLIC_URL}/svg/search.svg`}
-                                                            className={css["checkout__search-img"]}
-                                                            alt="Search icon"
-                                                          />
-                                                        </div>
+                                                        ></div>
                                                         <input
                                                           className={css["checkout__search-input"]}
                                                           type="text"
@@ -1155,12 +1139,7 @@ export function CheckoutPage() {
                                                     className={`${css["checkout__select-arrow"]} ${
                                                       isDropdownStreetOpen ? css["open"] : ""
                                                     }`}
-                                                  >
-                                                    <img
-                                                      src={`${process.env.NEXT_PUBLIC_URL}/svg/caret-down.svg`}
-                                                      alt="Arrow"
-                                                    />
-                                                  </div>
+                                                  ></div>
                                                   <label className={css["select-street-label"]}>Вулиця</label>
                                                 </div>
                                                 {ReactDOM.createPortal(
@@ -1178,13 +1157,7 @@ export function CheckoutPage() {
                                                           className={
                                                             css["checkout__search-img-wrapper"]
                                                           }
-                                                        >
-                                                          <img
-                                                            src={`${process.env.NEXT_PUBLIC_URL}/svg/search.svg`}
-                                                            className={css["checkout__search-img"]}
-                                                            alt="Search icon"
-                                                          />
-                                                        </div>
+                                                        ></div>
                                                         <input
                                                           className={css["checkout__search-input"]}
                                                           type="text"
@@ -1438,10 +1411,7 @@ export function CheckoutPage() {
                     <div className={css["cart-custom-scroll"]}>
                       {outOfStockItems.length > 0 && (
                         <div className={css["cart__msg-attention"]}>
-                          <img
-                            src={`${process.env.NEXT_PUBLIC_URL}/svg/warning.svg`}
-                            alt="Warning icon"
-                          />
+                          <div className={css["warning-icon-wrapper"]}></div>
                           <p>
                             <strong>Зверніть увагу!</strong>
                           </p>

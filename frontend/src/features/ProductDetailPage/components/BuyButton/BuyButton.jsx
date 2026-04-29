@@ -15,12 +15,9 @@ export function BuyButton({ product }) {
         addToCart(product.code);
         openModal("cart");
       }}
+      aria-label="Додати до кошика"
     >
       <span>
-        <img
-          src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
-          alt="Cart icon link"
-        />
         Купити
       </span>
     </button>

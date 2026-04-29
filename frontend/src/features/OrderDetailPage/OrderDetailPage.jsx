@@ -95,10 +95,7 @@ export function OrderDetailPage({ orderCode }) {
               <div className={css["order-detail__left"]}>
                 <div className={css["order-detail__block"]}>
                   <div className={css["order-detail__robot-card"]}>
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_URL}/img/robot-watching-right.png`}
-                      alt="Robot watching right"
-                    />
+                    <div className={css["order-detail__robot-image-wrapper"]}></div>
                     <div className={css["order-detail__robot-card-content"]}>
                       <p className={css["order-detail__robot-card-title"]}>
                         Ваше замовлення успішно оформлене!
@@ -106,12 +103,13 @@ export function OrderDetailPage({ orderCode }) {
                       <p className={css["order-detail__robot-card-subtitle"]}>
                         Номер замовлення:
                         <span className={css["order-number"]}>{order.id}</span>
-                        <img
-                          src={`${process.env.NEXT_PUBLIC_URL}/svg/copy.svg`}
-                          alt="Copy icon"
-                          className={isCopied ? css["copied"] : ""}
+                        <button
+                          type="button"
+                          className={`${
+                            css["order-detail__robot-card-copy-button"]
+                          } ${isCopied ? css["copied"] : ""}`}
                           onClick={handleCopyOrderNumber}
-                        />
+                        ></button>
                       </p>
                     </div>
                   </div>
@@ -151,7 +149,7 @@ export function OrderDetailPage({ orderCode }) {
                         {order.delivery_warehouse_type.image && (
                           <img
                             src={order.delivery_warehouse_type.image}
-                            alt="Delivery warehouse type icon"
+                            alt={order.delivery_warehouse_type.name}
                             className={css["order-detail__delivery-warehouse-type-image"]}
                           />
                         )}

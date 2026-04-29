@@ -59,11 +59,10 @@ services:
       - shop_net
 
   nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile.nginx-proxy
+    image: nginx:stable-alpine
     container_name: nginx
     volumes:
+      - ./etc/nginx-dev.conf:/etc/nginx/nginx.conf
       - media:/shop/app/public/media
       - static:/shop/app/public/static
     depends_on:
@@ -79,7 +78,7 @@ services:
     container_name: redis
     command: [
       "redis-server", 
-      "--maxmemory", "2000mb", 
+      "--maxmemory", "1000mb", 
       "--maxmemory-policy", "allkeys-lru", 
       "--appendonly", "yes"
     ]

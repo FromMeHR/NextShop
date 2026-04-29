@@ -28,13 +28,26 @@
     color: var(--main-dark-green-color);
 }
 
-.navbar-element.active .icon {
+.navbar-element.active .home-icon-wrapper::before,
+.navbar-element.active .cart-icon-wrapper::before {
     filter: none;
 }
 
-.icon {
+.home-icon-wrapper::before {
+    display: block;
+    content: "";
     width: 24px;
     height: 24px;
+    background: url("/svg/home.svg") center / contain no-repeat;
+    filter: brightness(0) invert(1);
+}
+
+.cart-icon-wrapper::before {
+    display: block;
+    content: "";
+    width: 24px;
+    height: 24px;
+    background: url("/svg/cart.svg") center / contain no-repeat;
     filter: brightness(0) invert(1);
 }
 

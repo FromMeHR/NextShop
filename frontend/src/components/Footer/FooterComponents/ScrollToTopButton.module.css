@@ -20,13 +20,14 @@
     visibility: visible;
 }
 
-.btn_back-to-top img {
+.btn_back-to-top::before {
     position: absolute;
+    content: "";
     width: 32px;
     height: 20px;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    background: url("/svg/up.svg") center / contain no-repeat;
     filter: brightness(0) invert(0);
+    transform: translate(-50%, -50%);
 }
 
 @media only screen and (max-width: 768px) {
@@ -36,7 +37,7 @@
         bottom: 130px;
     }
 
-    .btn_back-to-top img {
+    .btn_back-to-top::before {
         width: 16px;
         height: 10px;
     }

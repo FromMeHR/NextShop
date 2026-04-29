@@ -9,9 +9,8 @@ import classnames from "classnames";
 import ReactDOM from "react-dom";
 import css from "./RestorePasswordSendEmailModal.module.css";
 
-export function RestorePasswordSendEmailModal() {
-  const { modals, openModal, closeModal } = useModal();
-  const isVisible = modals.restorePasswordSendEmail;
+export function RestorePasswordSendEmailModal({ isActive, modalRef }) {
+  const { openModal, closeModal } = useModal();
 
   const { minutes, isRunning, start, reset } = useStopwatch({
     autoStart: false,
@@ -66,17 +65,17 @@ export function RestorePasswordSendEmailModal() {
   };
 
   return ReactDOM.createPortal(
-    <div className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}>
+    <div ref={modalRef} className={`${css["modal"]} ${isActive ? css["show"] : ""}`}>
       <div className={css["modal-dialog"]}>
         <div className={css["modal-content"]}>
           <div className={css["modal-header"]}>
             <p className={css["modal-title"]}>Відновити пароль</p>
-            <img
-              src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
+            <button
+              type="button"
               className={css["modal-close-button"]}
-              alt="Close"
               onClick={() => closeModal("restorePasswordSendEmail")}
-            />
+              aria-label="Закрити модальне вікно"
+            ></button>
           </div>
           <div className={css["modal-body"]}>
             <p className={css["modal-body-text"]}>

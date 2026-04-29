@@ -59,6 +59,16 @@
     position: absolute;
 }
 
+.modal-close-button::before {
+    position: absolute;
+    content: "";
+    width: 36px;
+    height: 36px;
+    background: url("/svg/delete.svg") center / contain no-repeat;
+    filter: brightness(0) invert(0);
+    transform: translate(-50%, -50%);
+}
+
 .modal-title {
     font-weight: 600;
     font-size: 1rem;
@@ -115,6 +125,11 @@
         top: 10px;
         width: 30px;
         height: 30px;
+    }
+
+    .modal-close-button::before {
+        width: 24px;
+        height: 24px;
     }
 
     .modal-dialog {

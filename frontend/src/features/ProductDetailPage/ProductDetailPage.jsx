@@ -49,7 +49,7 @@ export function ProductDetailPage({ product, categoryPath }) {
               />
             </div>
             <div className={css["product-detail__info"]}>
-              <h2 className={css["product-detail__title"]}>{product.name}</h2>
+              <h1 className={css["product-detail__title"]}>{product.name}</h1>
               <div className={css["product-detail__short-info-wrapper"]}>
                 <div className={css["product-detail__code"]}>
                   Код товару: <span>{product.code}</span>

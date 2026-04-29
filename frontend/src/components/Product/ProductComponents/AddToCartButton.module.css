@@ -22,13 +22,16 @@
     border: 1px solid var(--main-button-focus-border-color);
 }
 
-.product-cart-button img {
+.product-cart-button::before {
+    position: absolute;
+    content: "";
     width: 20px;
     height: 20px;
+    background: url("/svg/cart.svg") center / contain no-repeat;
     filter: brightness(0) invert(1);
 }
 
-.product-cart-button:focus img,
-.product-cart-button:active:focus img {
+.product-cart-button:focus::before,
+.product-cart-button:active:focus::before {
     filter: none;
 }

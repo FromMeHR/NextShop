@@ -24,44 +24,43 @@
     z-index: 1;
 }
 
-.navbar-user-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+.navbar-user-button,
+.navbar-cart-button  {
     border: none;
+    background-color: transparent;
 }
 
-.user-icon-wrapper {
+.user-icon-wrapper,
+.cart-icon-wrapper {
     position: relative;
-    display: inline-block;
 }
 
-.authorized-check-icon {
+.user-icon-wrapper::before {
+    display: block;
+    content: "";
+    width: 26px;
+    height: 26px;
+    background: url("/svg/user.svg") center / contain no-repeat;
+    filter: brightness(0) invert(1);
+}
+
+.cart-icon-wrapper::before {
+    display: block;
+    content: "";
+    width: 26px;
+    height: 26px;
+    background: url("/svg/cart.svg") center / contain no-repeat;
+    filter: brightness(0) invert(1);
+}
+
+.user-icon-wrapper.is-authorized::after {
     position: absolute;
+    content: "";
     width: 12px;
     height: 12px;
     bottom: 3px;
     right: -4px;
-}
-
-.navbar-cart-button {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border: none;
-}
-
-.cart-icon-wrapper {
-    position: relative;
-    display: inline-block;
-}
-
-.cart-icon,
-.user-icon {
-    filter: brightness(0) invert(1);
+    background: url("/svg/check-circle.svg") center / contain no-repeat;
 }
 
 .navbar-cart-badge {

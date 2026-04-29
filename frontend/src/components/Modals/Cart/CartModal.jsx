@@ -9,7 +9,7 @@ import { PRODUCT_STOCK_STATUS } from "../../../constants/constants";
 import ReactDOM from "react-dom";
 import css from "./CartModal.module.css";
 
-export function CartModal() {
+export function CartModal({ isActive, modalRef }) {
   const {
     cart,
     isLoading,
@@ -25,8 +25,7 @@ export function CartModal() {
   const debouncedMap = useRef(new Map());
   const updateQueue = useRef(Promise.resolve());
 
-  const { modals, closeModal } = useModal();
-  const isVisible = modals.cart;
+  const { closeModal } = useModal();
 
   useEffect(() => {
     if (!isLoading && cart.length === 0) {
@@ -66,7 +65,7 @@ export function CartModal() {
 
   useEffect(() => {
     const handleResize = () => {
-      if (isVisible && window.innerWidth <= 768)   {
+      if (isActive && window.innerWidth <= 768)   {
         lock("cart");
       } else {
         unlock("cart");
@@ -75,19 +74,19 @@ export function CartModal() {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [isVisible, lock, unlock]);
+  }, [isActive, lock, unlock]);
 
   useEffect(() => {
-    if (isVisible && window.innerWidth <= 768) {
+    if (isActive && window.innerWidth <= 768) {
       lock("cart");
     } else {
       unlock("cart");
     }
-  }, [isVisible, lock, unlock]);
+  }, [isActive, lock, unlock]);
 
   return ReactDOM.createPortal(
-    <div className={`${css["side-modal"]} ${isVisible ? css["show"] : ""}`}>
-      <div className={css["modal-dialog"]}>
+    <div className={`${css["side-modal"]} ${isActive ? css["show"] : ""}`}>
+      <div ref={modalRef} className={css["modal-dialog"]}>
         <div className={css["modal-content"]}>
           <div className={css["modal-header"]}>
             <div className={css["modal-title"]}>
@@ -99,12 +98,12 @@ export function CartModal() {
                     : `${totalQuantity} товарів`
                   : `${totalQuantity} товар`}
               </span>
-              <img
-                src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
+              <button
+                type="button"
                 className={css["modal-close-button"]}
-                alt="Close"
                 onClick={() => closeModal("cart")}
-              />
+                aria-label="Закрити модальне вікно"
+              ></button>
             </div>
           </div>
           <div className={css["modal-body"]}>
@@ -112,10 +111,7 @@ export function CartModal() {
               <div className={css["cart-custom-scroll"]}>
                 {outOfStockItems.length > 0 && (
                   <div className={css["cart-page__msg-attention"]}>
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_URL}/svg/warning.svg`}
-                      alt="Warning icon"
-                    />
+                    <div className={css["warning-icon-wrapper"]}></div>
                     <p>
                       <strong>Зверніть увагу!</strong>
                     </p>
@@ -150,30 +146,29 @@ export function CartModal() {
                         </div>
                         <div className={css["cart-page__product-column__row"]}>
                           <div className={css["product-counter"]}>
-                            <img
-                              src={`${process.env.NEXT_PUBLIC_URL}/svg/minus.svg`}
+                            <button
+                              type="button"
                               className={css["product-counter__btn_subtract"]}
-                              alt="Minus"
                               onClick={() => {
                                 const newQty = Math.max((quantities[item.id] || item.quantity) - 1, 1);
                                 handleQuantityChange(item.id, newQty, item.quantity);
                               }}
-                            />
+                            ></button>
                             <input
                               className={css["product-counter__input"]}
                               type="text"
                               readOnly
                               value={quantities[item.id] ?? item.quantity}
+                              aria-label={`Кількість товару ${item.product_name}`}
                             />
-                            <img
-                              src={`${process.env.NEXT_PUBLIC_URL}/svg/plus.svg`}
+                            <button
+                              type="button"
                               className={css["product-counter__btn_add"]}
-                              alt="Plus"
                               onClick={() => {
                                 const newQty = (quantities[item.id] || item.quantity) + 1;
                                 handleQuantityChange(item.id, newQty, item.quantity);
                               }}
-                            />
+                            ></button>
                           </div>
                           <div className={css["cart-page__product-price"]}>
                             <span>
@@ -182,12 +177,11 @@ export function CartModal() {
                                 : "- ₴"}
                             </span>
                           </div>
-                          <img
-                            src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
+                          <button
+                            type="button"
                             className={css["cart-page__product-btn_delete"]}
-                            alt="Delete"
                             onClick={() => deleteCartItem(item.id)}
-                          />
+                          ></button>
                         </div>
                       </div>
                     </div>

@@ -20,11 +20,7 @@ export function MobileNavbar() {
               pathname === "/" ? css["active"] : ""
             }`}
           >
-            <img
-              src={`${process.env.NEXT_PUBLIC_URL}/svg/home.svg`}
-              className={css["icon"]}
-              alt="Home icon"
-            />
+            <div className={css["home-icon-wrapper"]}></div>
             <span className={css["navbar-element__text"]}>Головна</span>
           </div>
         </a>
@@ -32,11 +28,7 @@ export function MobileNavbar() {
           className={css["navbar-element"]}
           onClick={() => cart.length > 0 && openModal("cart")}
         >
-          <img
-            src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
-            className={css["icon"]}
-            alt="Cart icon"
-          />
+          <div className={css["cart-icon-wrapper"]}></div>
           {totalQuantity > 0 && (
             <span className={css["navbar-cart-badge"]}>{totalQuantity}</span>
           )}

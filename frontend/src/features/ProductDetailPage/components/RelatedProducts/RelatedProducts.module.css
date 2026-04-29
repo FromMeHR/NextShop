@@ -60,27 +60,30 @@
 }
 
 .scroll-btn.left {
-    left: -18px;
+    left: -17px;
 }
 
 .scroll-btn.right {
-    right: -18px;
+    right: -17px;
 }
 
-.scroll-btn.left img,
-.scroll-btn.right img {
+.scroll-btn.left::before,
+.scroll-btn.right::before {
     position: absolute;
+    content: "";
     top: 50%;
     width: 12px;
     height: 12px;
+    background: url("/svg/up.svg") center / contain no-repeat;
+    background-size: 12px 12px;
     filter: brightness(0) invert(0);
 }
 
-.scroll-btn.left img {
+.scroll-btn.left::before {
     transform: translateY(-50%) rotate(-90deg);
 }
 
-.scroll-btn.right img {
+.scroll-btn.right::before {
     transform: translateY(-50%) rotate(90deg);
 }
 

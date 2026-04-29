@@ -25,6 +25,7 @@
 }
 
 .search__button {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -48,13 +49,16 @@
     border: 1px solid var(--main-button-focus-border-color);
 }
 
-.search__button img {
+.search__button::before {
+    position: absolute;
+    content: "";
     width: 18px;
     height: 18px;
+    background: url("/svg/search.svg") center / contain no-repeat;
     filter: brightness(0) invert(1);
 }
 
-.search__button:focus img, .search__button:active:focus img {
+.search__button:focus::before, .search__button:active:focus::before {
     filter: none;
 }
 
@@ -71,7 +75,7 @@
         background-color: var(--main-dark-green-color);
     }
 
-    .search__button img {
+    .search__button::before {
         filter: brightness(0) invert(1) drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));    
     }
 }

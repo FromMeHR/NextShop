@@ -47,8 +47,12 @@
     background-color: var(--order-detail-robot-card-background-color);
 }
 
-.order-detail__robot-card>img {
+.order-detail__robot-image-wrapper::before {
+    display: block;
+    content: "";
     width: 75px;
+    height: 130px;
+    background: url("/img/robot-watching-right.png") center / contain no-repeat;
 }
 
 .order-detail__robot-card-title {
@@ -80,7 +84,17 @@
     transition: filter 0.3s ease-in-out;
 }
 
-.order-detail__robot-card-subtitle>img.copied {
+.order-detail__robot-card-copy-button {
+    border: none;
+    width: 16px;
+    height: 16px;
+    margin-left: 0.5rem;
+    background: url("/svg/copy.svg") center / contain no-repeat;
+    transition: filter 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+.order-detail__robot-card-copy-button.copied {
     filter: grayscale(100%);
     cursor: default;
 }
@@ -393,7 +407,7 @@
 }
 
 @media only screen and (max-width: 1200px) {
-    .order-detail__robot-card>img {
+    .order-detail__robot-image-wrapper {
         display: none;
     }
 

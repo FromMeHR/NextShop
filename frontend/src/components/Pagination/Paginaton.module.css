@@ -107,14 +107,26 @@
     transform: translateY(-50%) translateX(50%) rotate(180deg);
 }
 
-.pagination__arrow img {
+.pagination__arrow::before {
+    position: absolute;
+    display: block;
+    content: "";
     width: 16px;
     height: 16px;
+    background: url("/svg/caret-down.svg") center / contain no-repeat;
+    filter: brightness(0) invert(0);
+    transform: translate(-50%, -50%);
 }
 
-.pagination__double-arrow img {
+.pagination__double-arrow::before {
+    position: absolute;
+    display: block;
+    content: "";
     width: 14px;
     height: 14px;
+    background: url("/svg/caret-double-left.svg") center / contain no-repeat;
+    filter: brightness(0) invert(0);
+    transform: translate(-50%, -50%);
 }
 
 .jump-item:hover .ellipsis {

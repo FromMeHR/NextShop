@@ -106,29 +106,36 @@
     background-color: var(--burger-menu-span-active-background-color);
 }
 
-.icon {
-    filter: brightness(0) invert(0);
-}
-
 .burger-user-button {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     cursor: pointer;
     border: none;
+    background-color: transparent;
+    padding: 0;
 }
 
 .user-icon-wrapper {
     position: relative;
-    display: inline-block;
 }
 
-.authorized-check-icon {
+.user-icon-wrapper::before {
+    display: block;
+    content: "";
+    width: 24px;
+    height: 24px;
+    background: url("/svg/user.svg") center / contain no-repeat;
+    filter: brightness(0) invert(0);
+}
+
+.user-icon-wrapper.is-authorized::after {
     position: absolute;
+    content: "";
     width: 12px;
     height: 12px;
     bottom: 3px;
     right: -4px;
+    background: url("/svg/check-circle.svg") center / contain no-repeat;
 }
 
 .menu-element__text {

@@ -170,19 +170,22 @@
     transition: background-color 0.3s ease-in-out, border 0.3s ease-in-out;
 }
 
-.order-item__btn-toggle img {
+.order-item__btn-toggle::before {
     position: absolute;
+    content: "";
     left: 50%;
     top: 50%;
     width: 17px;
     height: 17px;
+    background: url("/svg/up.svg") center / contain no-repeat;
+    background-size: 17px 17px;
     filter: brightness(0) invert(1);
     transform: translate(-50%, -50%) rotate(180deg);
     transition: filter 0.3s ease-in-out, transform 0.3s ease-in-out;
     transform-origin: center;
 }
 
-.orders__section.open .order-item__btn-toggle img {
+.orders__section.open .order-item__btn-toggle::before {
     filter: none;
     transform: translate(-50%, -50%) rotate(0deg);
 }

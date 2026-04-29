@@ -76,19 +76,11 @@ export function ProfileLayout({ children }) {
                   onClick={() => handleToggleSection()}
                 >
                   <div className={css["profile__header"]}>
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_URL}/svg/user.svg`}
-                      className={css["profile__header--icon"]}
-                      alt="User"
-                    />
+                    <div className={css["profile__header--user-icon-wrapper"]}></div>
                     <span className={css["profile__header--title"]}>
                       {currentItem.title}
                     </span>
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`}
-                      className={css["profile__header--arrow"]}
-                      alt="Arrow"
-                    />
+                    <div className={css["profile__header--arrow-icon-wrapper"]}></div>
                   </div>
                 </div>
                 <div className={css["profile__section--content-wrapper"]}>
@@ -100,11 +92,7 @@ export function ProfileLayout({ children }) {
                         }`}
                       >
                         <Link href="/profile/user-info" >
-                          <img
-                            src={`${process.env.NEXT_PUBLIC_URL}/svg/user.svg`}
-                            className={css["profile__list-item--icon"]}
-                            alt="User"
-                          />
+                          <div className={`${css["profile__list-item--icon"]} ${css["user"]}`}></div>
                           <span className={css["profile__list-item--title"]}>
                             {user.name} {user.surname}
                           </span>
@@ -116,11 +104,7 @@ export function ProfileLayout({ children }) {
                         }`}
                       >
                         <Link href="/profile/orders">
-                          <img
-                            src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
-                            className={css["profile__list-item--icon"]}
-                            alt="Orders"
-                          />
+                          <div className={`${css["profile__list-item--icon"]} ${css["cart"]}`}></div>
                           <span className={css["profile__list-item--title"]}>
                             Мої замовлення
                           </span>
@@ -131,11 +115,7 @@ export function ProfileLayout({ children }) {
                           className={css["profile__logout-btn"]}
                           onClick={handleLogout}
                         >
-                          <img
-                            src={`${process.env.NEXT_PUBLIC_URL}/svg/logout.svg`}
-                            className={css["profile__list-item--icon"]}
-                            alt="Logout"
-                          />
+                          <div className={`${css["profile__list-item--icon"]} ${css["logout"]}`}></div>
                           <span className={css["profile__list-item--title"]}>
                             Вийти з акаунту
                           </span>

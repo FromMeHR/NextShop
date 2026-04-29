@@ -1125,10 +1125,7 @@ class PhoneInputEngine extends React.Component {
 
     return ReactDOM.createPortal(
       <ul
-        ref={(el) => {
-          !enableSearch && el && el.focus();
-          return (this.dropdownRef = el);
-        }}
+        ref={(el) => (this.dropdownRef = el)}
         className={classNames({
           [css["country-list"]]: true,
           [css["open"]]: showDropdown,
@@ -1136,18 +1133,11 @@ class PhoneInputEngine extends React.Component {
       >
         {enableSearch && (
           <li className={css["search-block"]}>
-            <div className={css["search-img-wrapper"]}>
-              <img
-                src={`${process.env.NEXT_PUBLIC_URL}/svg/search.svg`}
-                className={css["search-img"]}
-                alt="Search icon"
-              />
-            </div>
+            <div className={css["search-img-wrapper"]}></div>
             <input
               className={css["search-input"]}
               type="text"
               placeholder={searchPlaceholder}
-              autoFocus={true}
               autoComplete={autocompleteSearch ? "on" : "off"}
               value={searchValue}
               onChange={this.handleSearchChange}

@@ -149,9 +149,8 @@ export function SearchPage({ query }) {
                 <button
                   className={`${css["scroll-btn"]} ${css["left"]} ${scrollStatus.canScrollLeft ? css["active"] : ""}`}
                   onClick={() => handleScroll("left")}
-                >
-                  <img src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`} alt="Left" />
-                </button>
+                  aria-label="Вліво"
+                ></button>
                 {categories.length > 0 && (
                   <>
                     <div className={css["available-categories"]} ref={scrollContainer}>
@@ -177,9 +176,8 @@ export function SearchPage({ query }) {
                 <button
                   className={`${css["scroll-btn"]} ${css["right"]} ${scrollStatus.canScrollRight ? css["active"] : ""}`}
                   onClick={() => handleScroll("right")}
-                >
-                  <img src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`} alt="Right" />
-                </button>
+                  aria-label="Вправо"
+                ></button>
               </div>
               <div className={css["search-results__sort-list-wrapper"]}>
                 <div className={css["search-results__sort-list"]}>
@@ -228,12 +226,7 @@ export function SearchPage({ query }) {
                     className={`${css["search-results__select-arrow"]} ${
                       isDropdownOrderingOpen ? css["open"] : ""
                     }`}
-                  >
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_URL}/svg/caret-down.svg`}
-                      alt="Arrow"
-                    />
-                  </div>
+                  ></div>
                 </div>
                 {ReactDOM.createPortal(
                   <div
@@ -295,13 +288,7 @@ export function SearchPage({ query }) {
             </>
           ) : (
             <div className={css["search-no-results"]}>
-              <div className={css["search-no-results__robot-image-wrapper"]}>
-                <img
-                  src={`${process.env.NEXT_PUBLIC_URL}/img/robot-with-loupe.png`}
-                  alt="No results found"
-                  className={css["search-no-results__robot-image"]}
-                />
-              </div>
+              <div className={css["search-no-results__robot-image-wrapper"]}></div>
               <div className={css["search-no-results__content"]}>
                 <div className={css["search-no-results__title"]}>
                   Результати на запит «{decodeURIComponent(query)}» відсутні

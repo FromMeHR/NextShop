@@ -116,12 +116,15 @@
     color: var(--main-dark-green-color);
 }
 
-.catalog-item-arrow {
+.catalog-item-arrow::before {
     position: absolute;
+    content: "";
     right: 12px;
     top: 50%;
     width: 12px;
     height: 12px;
+    background: url("/svg/up.svg") center / contain no-repeat;
+    background-size: 12px 12px;
     filter: brightness(0) invert(0);
     transform: rotate(90deg) translateX(-50%);
 }
@@ -232,12 +235,15 @@
         cursor: pointer;
     }
 
-    .catalog-box-dropdown__mobile-back-btn-arrow {
+    .catalog-box-dropdown__mobile-back-btn::before {
         position: absolute;
+        content: "";
         left: 0;
         top: 50%;
         width: 12px;
         height: 12px;
+        background: url("/svg/up.svg") center / contain no-repeat;
+        background-size: 12px 12px;
         filter: brightness(0) invert(0);
         transform: rotate(-90deg) translateX(50%);
     }

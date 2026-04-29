@@ -114,20 +114,23 @@
     right: -15px;
 }
 
-.scroll-btn.left img,
-.scroll-btn.right img {
+.scroll-btn.left::before,
+.scroll-btn.right::before {
     position: absolute;
+    content: "";
     top: 50%;
     width: 12px;
     height: 12px;
+    background: url("/svg/up.svg") center / contain no-repeat;
+    background-size: 12px 12px;
     filter: brightness(0) invert(0);
 }
 
-.scroll-btn.left img {
+.scroll-btn.left::before {
     transform: translateY(-50%) rotate(-90deg);
 }
 
-.scroll-btn.right img {
+.scroll-btn.right::before {
     transform: translateY(-50%) rotate(90deg);
 }
 
@@ -219,9 +222,13 @@
     transform: translateY(-50%) rotate(-180deg);
 }
 
-.search-results__select-arrow img {
+.search-results__select-arrow::before {
+    display: block;
+    content: "";
     width: 18px;
     height: 18px;
+    background: url("/svg/caret-down.svg") center / contain no-repeat;
+    filter: brightness(0) invert(0);
 }
 
 .search-results__dropdown {
@@ -296,9 +303,12 @@
     margin-right: 60px;
 }
 
-.search-no-results__robot-image {
+.search-no-results__robot-image-wrapper::before {
+    display: block;
+    content: "";
     width: 200px;
-    height: auto;
+    height: 250px;
+    background: url("/img/robot-with-loupe.png") center / contain no-repeat;
 }
 
 .search-no-results__title {
@@ -389,8 +399,9 @@
         margin: 0 auto 25px;
     }
 
-    .search-no-results__robot-image {
+    .search-no-results__robot-image-wrapper::before {
         width: 100px;
+        height: 150px;
     }
 
     .search-no-results__content {

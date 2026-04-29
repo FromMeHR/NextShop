@@ -1,7 +1,6 @@
 import { CatalogPage } from "../../../features/CatalogPage/CatalogPage";
 import { defineServerPageSize } from "../../../utils/defineServerPageSize";
 import { findCategoryPath } from "../../../utils/findCategoryPath";
-import { PRODUCT_STOCK_STATUS } from "../../../constants/constants";
 import { getCategories } from "../../../lib/categories";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
@@ -194,22 +193,10 @@ export default async function Page({ params, searchParams }) {
     "name": currentCategory.name,
     "itemListElement": products?.results?.map((product, index) => ({
       "@type": "ListItem",
-      "position": ((page - 1) * pageSize) + index + 1,
-      "item": {
-        "@type": "Product",
-        "url": `${process.env.NEXT_PUBLIC_URL}/product-detail/${product.slug}`,
-        "name": product.name,
-        "image": product.image,
-        "sku": product.code,
-        "offers": {
-          "@type": "Offer",
-          "price": parseFloat(product.price),
-          "priceCurrency": "UAH",
-          "availability": product.stock_status === PRODUCT_STOCK_STATUS.OUT_OF_STOCK
-            ? "https://schema.org/OutOfStock"
-            : "https://schema.org/InStock"
-        }
-      }
+      "position": index + 1,
+      "url": `${process.env.NEXT_PUBLIC_URL}/product-detail/${product.slug}`,
+      "name": product.name,
+      "image": product.image,
     })) || []
   };
 

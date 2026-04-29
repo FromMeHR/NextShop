@@ -9,9 +9,8 @@ import axios from "axios";
 import ReactDOM from "react-dom";
 import css from "./SignUpResendActivationModal.module.css";
 
-export function SignUpResendActivationModal() {
-  const { modals, openModal, closeModal } = useModal();
-  const isVisible = modals.signUpResendActivation;
+export function SignUpResendActivationModal({ isActive, modalRef }) {
+  const { openModal, closeModal } = useModal();
 
   const { minutes, isRunning, start, reset } = useStopwatch({
     autoStart: false,
@@ -67,19 +66,19 @@ export function SignUpResendActivationModal() {
   };
 
   return ReactDOM.createPortal(
-    <div className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}>
+    <div ref={modalRef} className={`${css["modal"]} ${isActive ? css["show"] : ""}`}>
       <div className={css["modal-dialog"]}>
         <div className={css["modal-content"]}>
           <div className={css["modal-header"]}>
             <p className={css["modal-title"]}>
               Повторне надсилання листа активації
             </p>
-            <img
-              src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
+            <button
+              type="button"
               className={css["modal-close-button"]}
-              alt="Close"
               onClick={() => closeModal("signUpResendActivation")}
-            />
+              aria-label="Закрити модальне вікно"
+            ></button>
           </div>
           <div className={css["modal-body"]}>
             <p className={css["modal-body-text"]}>

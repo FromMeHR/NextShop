@@ -189,10 +189,6 @@ export function MyOrders() {
                           : `${order.total_quantity} товар`}
                       </div>
                       <button className={css["order-item__btn-toggle"]}>
-                        <img
-                          src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`}
-                          alt="Toggle"
-                        />
                       </button>
                     </div>
                     <div className={css["orders__section--content-wrapper"]}>
@@ -226,7 +222,7 @@ export function MyOrders() {
                                 {order.delivery_warehouse_type.image && (
                                   <img
                                     src={order.delivery_warehouse_type.image}
-                                    alt="Delivery warehouse type icon"
+                                    alt={order.delivery_warehouse_type.name}
                                     className={css["order-details__item-delivery-warehouse-type-image"]}
                                   />
                                 )}

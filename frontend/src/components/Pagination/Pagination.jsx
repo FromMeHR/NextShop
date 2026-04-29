@@ -48,12 +48,7 @@ export function Pagination({ currentPage, totalItems, pageSize, searchParams, pa
     <ul className={css["pagination"]}>
       <li className={`${css["pagination-item"]} ${currentPage === 1 ? css["disabled"] : ""}`}>
         <Link href={createUrl(currentPage - 1)} aria-disabled={currentPage === 1} prefetch={false}>
-          <div className={`${css["pagination__arrow"]} ${css["left"]}`}>
-            <img
-              src={`${process.env.NEXT_PUBLIC_URL}/svg/caret-down.svg`}
-              alt="Arrow"
-            />
-          </div>
+          <div className={`${css["pagination__arrow"]} ${css["left"]}`}></div>
         </Link>
       </li>
       {renderItems().map((item, index) => {
@@ -73,10 +68,6 @@ export function Pagination({ currentPage, totalItems, pageSize, searchParams, pa
               <div className={css["jump-container"]}>
                 <span className={css["ellipsis"]}>•••</span>
                 <div className={`${css["pagination__double-arrow"]} ${item.type === "jump-prev" ? css["left"] : css["right"]}`}>
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_URL}/svg/caret-double-left.svg`}
-                    alt="Arrow"
-                  />
                 </div>
               </div>
             </Link>
@@ -85,12 +76,7 @@ export function Pagination({ currentPage, totalItems, pageSize, searchParams, pa
       })}
       <li className={`${css["pagination-item"]} ${currentPage === totalPages ? css["disabled"] : ""}`}>
         <Link href={createUrl(currentPage + 1)} aria-disabled={currentPage === totalPages} prefetch={false}>
-          <div className={`${css["pagination__arrow"]} ${css["right"]}`}>
-            <img
-              src={`${process.env.NEXT_PUBLIC_URL}/svg/caret-down.svg`}
-              alt="Arrow"
-            />
-          </div>
+          <div className={`${css["pagination__arrow"]} ${css["right"]}`}></div>
         </Link>
       </li>
     </ul>

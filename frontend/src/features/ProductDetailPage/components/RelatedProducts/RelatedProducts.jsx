@@ -74,9 +74,8 @@ export function RelatedProducts({ relatedProducts }) {
               <button
                 className={`${css["scroll-btn"]} ${css["left"]} ${scrollStatus.canScrollLeft ? css["active"] : ""}`}
                 onClick={() => handleScroll("left")}
-              >
-                <img src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`} alt="Left" />
-              </button>
+                aria-label="Вліво"
+              ></button>
               <div className={css["scroll-container"]} ref={scrollContainer}>
                 {relatedProducts.map((product) => (
                   <Product key={product.code} product={product}/>
@@ -85,9 +84,8 @@ export function RelatedProducts({ relatedProducts }) {
               <button
                 className={`${css["scroll-btn"]} ${css["right"]} ${scrollStatus.canScrollRight ? css["active"] : ""}`}
                 onClick={() => handleScroll("right")}
-              >
-                <img src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`} alt="Right" />
-              </button>
+                aria-label="Вправо"
+              ></button>
             </div>
           </div>
         </div>

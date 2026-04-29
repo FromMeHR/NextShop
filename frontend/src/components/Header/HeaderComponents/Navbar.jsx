@@ -24,7 +24,7 @@ export function Navbar() {
             <img
               className={css["navbar-logo__image"]}
               src={`${process.env.NEXT_PUBLIC_URL}/svg/logo.svg`}
-              alt="Voltio logo"
+              alt="Voltio"
             />
           </a>
         </div>
@@ -35,7 +35,7 @@ export function Navbar() {
           <SearchBox />
         </div>
         <div className={`${css["navbar-utility-bar"]}`}>
-          <div
+          <button
             className={css["navbar-user-button"]}
             onClick={() =>
               isAuth
@@ -45,39 +45,27 @@ export function Navbar() {
                   })()
                 : openModal("auth")
             }
+            aria-label={isAuth ? "Мій профіль" : "Вхід/Реєстрація"}
           >
-            <div className={css["user-icon-wrapper"]}>
-              <img
-                src={`${process.env.NEXT_PUBLIC_URL}/svg/user.svg`}
-                className={css["user-icon"]}
-                alt="User icon"
-              />
-              {isAuth && (
-                <img
-                  src={`${process.env.NEXT_PUBLIC_URL}/svg/check-circle.svg`}
-                  alt="Authorized check icon"
-                  className={css["authorized-check-icon"]}
-                />
-              )}
-            </div>
-          </div>
-          <div
+            <div
+              className={`${css["user-icon-wrapper"]} ${
+                isAuth ? css["is-authorized"] : ""
+              }`}
+            ></div>
+          </button>
+          <button
             className={css["navbar-cart-button"]}
             onClick={() => cart.length > 0 && openModal("cart")}
+            aria-label="Кошик"
           >
             <div className={css["cart-icon-wrapper"]}>
-              <img
-                src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
-                className={css["cart-icon"]}
-                alt="Cart icon"
-              />
               {totalQuantity > 0 && (
                 <span className={css["navbar-cart-badge"]}>
                   {totalQuantity}
                 </span>
               )}
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </nav>

@@ -238,6 +238,8 @@ export const DateInput = ({ control, name, rules, ...props }) => {
         onClick={handleClick}
         onChange={() => {}}
         autoComplete="off"
+        type="text"
+        inputMode="numeric"
         placeholder={displayValue ? "" : MASK_TEMPLATE}
       />
     </>

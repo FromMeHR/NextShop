@@ -19,11 +19,10 @@ import {
 } from "../../../constants/constants";
 import css from "./AuthModal.module.css";
 
-export function AuthModal() {
+export function AuthModal({ isActive, modalRef }) {
   const { login, mutate } = useAuth();
   const { setCart } = useCart();
-  const { modals, openModal, closeModal } = useModal();
-  const isVisible = modals.auth;
+  const { openModal, closeModal } = useModal();
   const router = useRouter();
   const [activeForm, setActiveForm] = useState("signIn");
 
@@ -236,15 +235,15 @@ export function AuthModal() {
   };
 
   return ReactDOM.createPortal(
-    <div className={`${css["modal"]} ${isVisible ? css["show"] : ""}`}>
+    <div ref={modalRef} className={`${css["modal"]} ${isActive ? css["show"] : ""}`}>
       <div className={css["modal-dialog"]}>
         <div className={css["modal-content"]}>
-          <img
-            src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
+          <button
+            type="button"
             className={css["modal-close-button"]}
-            alt="Close"
             onClick={() => closeModal("auth")}
-          />
+            aria-label="Закрити модальне вікно"
+          ></button>
           <div className={css["modal-body"]}>
             <div className={css["choose-tabs"]}>
               <ul className={css["choose-tabs__wrap"]}>

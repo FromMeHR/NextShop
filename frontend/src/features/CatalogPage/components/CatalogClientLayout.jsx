@@ -395,12 +395,9 @@ export function CatalogClientLayout({ children, ...props }) {
         <button
           className={css["search-results__mobile-filters-show-btn"]}
           onClick={() => setIsOpenMobileFilters((prev) => !prev)}
+          aria-label="Відкрити фільтри"
         >
           <span>
-            <img
-              src={`${process.env.NEXT_PUBLIC_URL}/svg/filter.svg`}
-              alt="Filter icon"
-            />
             Фільтри
           </span>
         </button>
@@ -418,12 +415,7 @@ export function CatalogClientLayout({ children, ...props }) {
             className={`${css["search-results__select-arrow"]} ${
               isDropdownOrderingOpen ? css["open"] : ""
             }`}
-          >
-            <img
-              src={`${process.env.NEXT_PUBLIC_URL}/svg/caret-down.svg`}
-              alt="Arrow"
-            />
-          </div>
+          ></div>
         </div>
         {ReactDOM.createPortal(
           <div
@@ -471,12 +463,8 @@ export function CatalogClientLayout({ children, ...props }) {
           <button
             className={css["search-results__mobile-close-btn"]}
             onClick={() => setIsOpenMobileFilters(false)}
-          >
-            <img
-              src={`${process.env.NEXT_PUBLIC_URL}/svg/delete.svg`}
-              alt="Close icon"
-            />
-          </button>
+            aria-label="Закрити фільтри"
+          ></button>
           <div className={`${css["filter-item-price"]} ${openedPriceFilter ? css["open"] : ""}`}>
             <div
               className={css["filter-item__header"]}
@@ -492,12 +480,7 @@ export function CatalogClientLayout({ children, ...props }) {
               >
                 Скинути
               </button>
-              <div className={css["filter-item__select-arrow"]}>
-                <img
-                  src={`${process.env.NEXT_PUBLIC_URL}/svg/caret-down.svg`}
-                  alt="Arrow"
-                />
-              </div>
+              <div className={css["filter-item__select-arrow"]}></div>
             </div>
             <div className={css["filter-item__content-wrapper"]}>
               <div className={css["filter-item__content"]}>
@@ -581,12 +564,7 @@ export function CatalogClientLayout({ children, ...props }) {
                 }}
               >
                 <span>{filter?.name}</span>
-                <div className={css["filter-item__select-arrow"]}>
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_URL}/svg/caret-down.svg`}
-                    alt="Arrow"
-                  />
-                </div>
+                <div className={css["filter-item__select-arrow"]}></div>
               </div>
               <div className={css["filter-item__content-wrapper"]}>
                 <div className={css["filter-item__content"]}>

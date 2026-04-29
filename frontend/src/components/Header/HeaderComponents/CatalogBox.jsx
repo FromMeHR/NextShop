@@ -104,11 +104,6 @@ export function CatalogBox() {
             {level > 0 && (
               <button onClick={handleBack} className={css["catalog-box-dropdown__mobile-back-btn"]}>
                 {level === 1 ? "Каталог товарів" : stack[stack.length - 2]?.name}
-                <img
-                  src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`}
-                  className={css["catalog-box-dropdown__mobile-back-btn-arrow"]}
-                  alt="Arrow"
-                />
               </button>
             )}
             <div className={css["catalog-box-dropdown__mobile-title"]}>{currentTitle}</div>
@@ -131,11 +126,7 @@ export function CatalogBox() {
                 ) : (
                   <>
                     <span className={css["catalog-item-span"]}>{cat.name}</span>
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`}
-                      className={css["catalog-item-arrow"]}
-                      alt="Arrow"
-                    />
+                    <div className={css["catalog-item-arrow"]}></div>
                   </>
                 )}
               </div>
@@ -164,11 +155,7 @@ export function CatalogBox() {
                   ) : (
                     <>
                       <span className={css["catalog-item-span"]}>{cat.name}</span>
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`}
-                        className={css["catalog-item-arrow"]}
-                        alt="Arrow"
-                      />
+                      <div className={css["catalog-item-arrow"]}></div>
                     </>
                   )}
                 </div>

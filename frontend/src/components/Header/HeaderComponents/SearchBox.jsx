@@ -39,12 +39,8 @@ export function SearchBox() {
           type="button"
           className={css["search__button"]}
           onClick={handleSearch}
-        >
-          <img
-            src={`${process.env.NEXT_PUBLIC_URL}/svg/search.svg`}
-            alt="Search icon"
-          />
-        </button>
+          aria-label="Шукати"
+        ></button>
       </div>
     </div>
   );

@@ -27,11 +27,7 @@ export function ScrollToTopButton() {
     <button
       className={`${css["btn_back-to-top"]} ${isVisible ? css["visible"] : ""}`}
       onClick={scrollToTop}
-    >
-      <img
-        src={`${process.env.NEXT_PUBLIC_URL}/svg/up.svg`}
-        alt="Back to top"
-      />
-    </button>
+      aria-label="На початок сторінки"
+    ></button>
   );
 }

@@ -56,12 +56,16 @@ export default async function Page({ params }) {
       const jsonLd = {
         "@context": "https://schema.org/",
         "@type": "Product",
+        "sku": product.code,
         "name": product.name,
         "image": [product.image],
         "description": generateProductShortInfo(product.attributes)
           .map((item) => `${item.name}: ${item.value}`)
           .join(". "),
-        "sku": product.code,
+        "brand": {
+          "@type": "Brand",
+          "name": product.main_attribute?.name || "Voltio"
+        },
         "offers": {
           "@type": "Offer",
           "availability": product.stock_status !== PRODUCT_STOCK_STATUS.OUT_OF_STOCK
@@ -71,6 +75,46 @@ export default async function Page({ params }) {
           "priceCurrency": "UAH",
           "url": `${process.env.NEXT_PUBLIC_URL}/product-detail/${product.slug}`,
           "itemCondition": "https://schema.org/NewCondition",
+          "seller": {
+            "@type": "Organization",
+            "name": "Voltio",
+          },
+          "shippingDetails": {
+            "@type": "OfferShippingDetails",
+            "shippingRate": {
+              "@type": "MonetaryAmount",
+              "value": 60,
+              "currency": "UAH"
+            },
+            "shippingDestination": {
+              "@type": "DefinedRegion",
+              "addressCountry": "UA"
+            },
+            "deliveryTime": {
+              "@type": "ShippingDeliveryTime",
+              "handlingTime": {
+                "@type": "QuantitativeValue",
+                "minValue": 0,
+                "maxValue": 1,
+                "unitCode": "d"
+              },
+              "transitTime": {
+                "@type": "QuantitativeValue",
+                "minValue": 1,
+                "maxValue": 3,
+                "unitCode": "d"
+              }
+            }
+          },
+          "hasMerchantReturnPolicy": {
+            "@type": "MerchantReturnPolicy",
+            "applicableCountry": "UA",
+            "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+            "merchantReturnDays": 14,
+            "returnMethod": "https://schema.org/ReturnByMail",
+            "returnFees": "https://schema.org/ReturnFeesCustomerResponsibility",
+            "refundType": "https://schema.org/FullRefund"
+          }
         }
       };
 

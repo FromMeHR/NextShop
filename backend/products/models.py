@@ -17,7 +17,7 @@ class Category(MPTTModel):
     parent = TreeForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, related_name="children")
 
     class MPTTMeta:
-        order_insertion_by = ["-id"]
+        pass
 
     class Meta:
         constraints = [
@@ -67,7 +67,7 @@ class ProductAttribute(MPTTModel):
     parent = TreeForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, related_name="children")
 
     class MPTTMeta:
-        order_insertion_by = ["-id"]
+        pass
 
     class Meta:
         constraints = [

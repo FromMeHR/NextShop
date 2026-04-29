@@ -20,11 +20,7 @@ export function AddToCartButton({ productCode }) {
       type="button"
       className={css["product-cart-button"]}
       onClick={handleAddToCart}
-    >
-      <img
-        src={`${process.env.NEXT_PUBLIC_URL}/svg/cart.svg`}
-        alt="Cart icon"
-      />
-    </button>
+      aria-label="Додати до кошика"
+    ></button>
   );
 }

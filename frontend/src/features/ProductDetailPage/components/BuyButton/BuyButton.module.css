@@ -37,16 +37,20 @@
     font-weight: 600;
 }
 
-.buy-now-button span img {
+.buy-now-button span::before {
     position: absolute;
+    content: "";
     top: 50%;
     left: 0;
-    translate: -50% -50%;
+    width: 24px;
+    height: 24px;
+    background: url("/svg/cart.svg") center / contain no-repeat;
     filter: brightness(0) invert(1);
+    transform: translate(-50%, -50%);
 }
 
-.buy-now-button:focus span img,
-.buy-now-button:active:focus span img {
+.buy-now-button:focus span::before,
+.buy-now-button:active:focus span::before {
     filter: none;
 }
 
