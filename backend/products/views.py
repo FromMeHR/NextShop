@@ -310,7 +310,7 @@ class ProductSitemapView(APIView):
         if start is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        products = Product.objects.only("slug").order_by("id")[start:end]
+        products = Product.objects.only("slug", "updated_at").order_by("id")[start:end]
         serializer = ProductSitemapSerializer(products, many=True)
         return Response(serializer.data)
 
@@ -331,7 +331,10 @@ class CategorySitemapView(APIView):
                 new_path = current_path_slugs + [node.slug]
                 children = getattr(node, "_cached_children", [])
                 if children:
-                    data.append({"full_slug": "/".join(new_path)})
+                    data.append({
+                        "full_slug": "/".join(new_path),
+                        "updated_at": node.updated_at
+                    })
                     traverse(children, new_path)
                 else:
                     pass
@@ -348,31 +351,38 @@ class CategoryFiltersSitemapView(APIView):
         roots = (
             ProductAttribute.objects.filter(level=0)
             .select_related("category")
-            .only("tree_id", "category__slug")
+            .only("tree_id", "category__slug", "category__updated_at")
         )
-        tree_to_category_map = {
-            root.tree_id: root.category.slug
-            for root in roots if root.category and root.category.slug
-        }
+
+        tree_to_cat_info = {}
+        unique_categories = {}
+        for root in roots:
+            if root.category and root.category.slug:
+                tree_to_cat_info[root.tree_id] = {
+                    "slug": root.category.slug,
+                    "updated_at": root.category.updated_at
+                }
+                unique_categories[root.category.slug] = root.category.updated_at
 
         all_entries = []
-        unique_category_slugs = sorted(list(set(tree_to_category_map.values())))
-        for cat_slug in unique_category_slugs:
+        for cat_slug in sorted(unique_categories.keys()):
             all_entries.append({
                 "category_slug": cat_slug,
-                "filter_slug": None
+                "filter_slug": None,
+                "updated_at": unique_categories[cat_slug]
             })
 
         attrs = ProductAttribute.objects.filter(
             level=3,
             parent__show_in_filters=True,
             products__isnull=False
-        ).only("slug", "tree_id").order_by("id").distinct()
+        ).only("slug", "tree_id", "updated_at").order_by("id").distinct()
         for attr in attrs:
-            category_slug = tree_to_category_map.get(attr.tree_id)
-            if category_slug:
+            cat_info = tree_to_cat_info.get(attr.tree_id)
+            if cat_info:
                 all_entries.append({
-                    "category_slug": category_slug,
-                    "filter_slug": attr.slug
+                    "category_slug": cat_info["slug"],
+                    "filter_slug": attr.slug,
+                    "updated_at": attr.updated_at
                 })
         return Response(all_entries[start:end])

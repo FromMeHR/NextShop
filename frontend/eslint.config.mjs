@@ -26,6 +26,7 @@ const eslintConfig = defineConfig([
       "react-hooks/refs": "off",
       "react-hooks/immutability": "off",
       "react-hooks/error-boundaries": "off",
+      "react-hooks/preserve-manual-memoization": "off",
       "max-len": [
         "warn",
         {

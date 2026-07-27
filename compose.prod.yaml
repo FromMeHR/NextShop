@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: Dockerfile.back
     container_name: back
-    restart: on-failure
+    restart: always
     command: gunicorn --workers 2 --log-level debug shop.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - static:/shop/app/public/static
@@ -44,6 +44,7 @@ services:
   nginx:
     image: nginx:stable-alpine
     container_name: nginx
+    restart: always
     volumes:
       - ./etc/nginx-prod.conf:/etc/nginx/nginx.conf
       - static:/shop/app/public/static
@@ -56,12 +57,12 @@ services:
       - shop_net
 
   redis:
-    image: redis:7
+    image: redis:8
     container_name: redis
     command: [
-      "redis-server", 
-      "--maxmemory", "1000mb", 
-      "--maxmemory-policy", "allkeys-lru", 
+      "redis-server",
+      "--maxmemory", "1000mb",
+      "--maxmemory-policy", "allkeys-lru",
       "--appendonly", "yes"
     ]
     restart: always
@@ -75,6 +76,7 @@ services:
       context: .
       dockerfile: Dockerfile.back
     container_name: celery_worker
+    restart: always
     command: ["celery", "-A", "shop", "worker", "-l", "INFO"]
     volumes:
       - static:/shop/app/public/static
@@ -90,6 +92,7 @@ services:
       context: .
       dockerfile: Dockerfile.back
     container_name: celery_beat
+    restart: always
     command: ["celery", "-A", "shop", "beat", "-l", "INFO"]
     volumes:
       - static:/shop/app/public/static

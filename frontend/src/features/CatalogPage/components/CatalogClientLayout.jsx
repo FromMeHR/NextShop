@@ -162,7 +162,7 @@ export function CatalogClientLayout({ children, ...props }) {
     } catch (error) {
       console.error("Failed to update filter counts", error);
     }
-  }, [currentCategory?.slug, minLimit, maxLimit]);
+  }, [currentCategory.slug, minLimit, maxLimit]);
 
   const debouncedUpdateCounts = useMemo(
     () => debounce((filters, prices, name) => {

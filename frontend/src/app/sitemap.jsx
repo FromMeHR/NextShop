@@ -27,10 +27,12 @@ export default async function sitemap(props) {
       );
       if (res.ok) {
         const products = await res.json();
-        return products.map((product) => ({
-          url: `${process.env.NEXT_PUBLIC_URL}/product-detail/${product.slug}`,
-          lastModified: new Date().toISOString().split("T")[0],
-          priority: 0.5,
+        return products.map((p) => ({
+          url: `${process.env.NEXT_PUBLIC_URL}/product-detail/${p.slug}`,
+          lastModified: p.updated_at
+            ? new Date(p.updated_at).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0],
+          priority: 0.6,
         }));
       }
     } catch (err) {
@@ -46,9 +48,11 @@ export default async function sitemap(props) {
       );
       if (res.ok) {
         const categories = await res.json();
-        return categories.map((cat) => ({
-          url: `${process.env.NEXT_PUBLIC_URL}/category/${cat.full_slug}`,
-          lastModified: new Date().toISOString().split("T")[0],
+        return categories.map((c) => ({
+          url: `${process.env.NEXT_PUBLIC_URL}/category/${c.full_slug}`,
+          lastModified: c.updated_at
+            ? new Date(c.updated_at).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0],
           priority: 0.8,
         }));
       }
@@ -65,16 +69,15 @@ export default async function sitemap(props) {
       );
       if (res.ok) {
         const filters = await res.json();
-        return filters.map((f) => {
-          const urlPath = f.filter_slug
-            ? `catalog/${f.category_slug}/filter/${f.filter_slug}`
-            : `catalog/${f.category_slug}`;
-          return {
-            url: `${process.env.NEXT_PUBLIC_URL}/${urlPath}`,
-            lastModified: new Date().toISOString().split("T")[0],
-            priority: 0.8,
-          };
-        });
+        return filters.map((f) => ({
+          url: `${process.env.NEXT_PUBLIC_URL}/catalog/${f.category_slug}${
+            f.filter_slug ? `/filter/${f.filter_slug}` : ""
+          }`,
+          lastModified: f.updated_at
+            ? new Date(f.updated_at).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0],
+          priority: 0.8,
+        }));
       }
     } catch (err) {
       console.error("Error fetching category filters for sitemap:", err.message);

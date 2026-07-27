@@ -15,17 +15,11 @@ function AuthGate({ children }) {
   const { isLoading } = useAuth();
 
   return (
-    <>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <CartProvider>
-          <BurgerMenuProvider>
-            <ModalProvider>{children}</ModalProvider>
-          </BurgerMenuProvider>
-        </CartProvider>
-      )}
-    </>
+    <CartProvider>
+      <BurgerMenuProvider>
+        <ModalProvider>{isLoading ? <Loader /> : children}</ModalProvider>
+      </BurgerMenuProvider>
+    </CartProvider>
   );
 }
 

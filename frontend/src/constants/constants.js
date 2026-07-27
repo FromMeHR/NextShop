@@ -15,6 +15,10 @@ export const PAGE_SIZE = {
 };
 export const DEFAULT_PAGE_SIZE = 16;
 
+export const ACCESS_TOKEN_COOKIE = "access_token";
+export const SHOW_AUTH_MODAL_COOKIE = "show_auth_modal";
+export const IS_AUTH_COOKIE = "is_auth";
+
 export const PRODUCT_STOCK_STATUS = {
   OUT_OF_STOCK: "out_of_stock",
   FEW_ITEMS_LEFT: "few_items_left",

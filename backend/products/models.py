@@ -15,6 +15,8 @@ class Category(MPTTModel):
         null=True
     )
     parent = TreeForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, related_name="children")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class MPTTMeta:
         pass
@@ -65,6 +67,8 @@ class ProductAttribute(MPTTModel):
         help_text="Відображати в коротких характеристиках товару"
     )
     parent = TreeForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, related_name="children")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class MPTTMeta:
         pass
@@ -174,6 +178,8 @@ class Product(models.Model):
         related_name="products",
         blank=True
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-id"]

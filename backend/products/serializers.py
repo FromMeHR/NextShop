@@ -203,4 +203,4 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 class ProductSitemapSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ["slug"]
+        fields = ["slug", "updated_at"]
