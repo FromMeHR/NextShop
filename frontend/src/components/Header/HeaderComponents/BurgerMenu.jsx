@@ -57,8 +57,8 @@ export function BurgerMenu() {
         </div>
         <div className={css["burger-phones"]}>
           <p>Контакти</p>
-          <Link href="tel:+380995544422">+380995544422</Link>
-          <Link href="tel:+380987654346">+380987654346</Link>
+          <Link href="tel:+380999999999">+380999999999</Link>
+          <Link href="tel:+380955555555">+380955555555</Link>
         </div>
       </div>
     </>

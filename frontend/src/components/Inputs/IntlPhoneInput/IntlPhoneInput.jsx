@@ -242,6 +242,7 @@ class PhoneInputEngine extends React.Component {
     );
 
     this.state = {
+      isMounted: false,
       showDropdown: props.showDropdown,
 
       formattedNumber,
@@ -284,6 +285,7 @@ class PhoneInputEngine extends React.Component {
   };
 
   componentDidMount() {
+    this.setState({ isMounted: true });
     if (this.props.onMount)
       this.props.onMount(
         this.state.inputNumberField,
@@ -1123,7 +1125,7 @@ class PhoneInputEngine extends React.Component {
       );
     });
 
-    return ReactDOM.createPortal(
+    return this.state.isMounted && ReactDOM.createPortal(
       <ul
         ref={(el) => (this.dropdownRef = el)}
         className={classNames({

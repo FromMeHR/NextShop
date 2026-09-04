@@ -262,17 +262,8 @@
     height: 24px;
     cursor: pointer;
     border: none;
-    background: transparent;
-}
-
-.cart-page__product-btn_delete::before {
-    position: absolute;
-    content: "";
-    width: 24px;
-    height: 24px;
     background: url("/svg/delete.svg") center / contain no-repeat;
     filter: brightness(0) invert(0);
-    transform: translate(-50%, -50%);
 }
 
 .modal-close-button {
@@ -360,12 +351,19 @@
     .side-modal .modal-dialog {
         top: 0;
         margin-top: 0;
+        right: -100%;
+        width: 100%;
+        opacity: 0;
+        transform: translateX(0);
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
     }
 
     .side-modal.show .modal-dialog {
-        right: 0;
+        right: -100%;
         max-height: 100%;
         max-width: 100%;
+        opacity: 1;
+        transform: translateX(-100%);
     }
 
     .modal-content {
@@ -409,7 +407,7 @@
     .product-counter {
         margin: 0;
     }
-    
+
     .cart-total {
         flex-wrap: wrap;
     }
@@ -417,7 +415,7 @@
     .cart-total__column {
         flex-basis: 100%;
     }
-    
+
     .cart-total__btn {
         margin-top: 10px;
     }

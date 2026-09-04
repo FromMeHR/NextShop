@@ -1,4 +1,6 @@
 import { SearchPage } from "../../../features/SearchPage/SearchPage";
+import { defineServerPageSize } from "../../../utils/defineServerPageSize";
+import { headers } from "next/headers";
 import DOMPurify from "isomorphic-dompurify";
 
 export async function generateMetadata({ params }) {
@@ -12,5 +14,7 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const { query } = await params;
   const searchString = DOMPurify.sanitize(decodeURIComponent(query.join("/")));
-  return <SearchPage query={searchString} />;
+  const ua = (await headers()).get("user-agent") || "";
+  const pageSize = defineServerPageSize(ua);
+  return <SearchPage query={searchString} pageSize={pageSize} />;
 }

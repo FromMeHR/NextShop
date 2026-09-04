@@ -7,16 +7,31 @@ import useSWR from "swr";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [cookies, setCookie, removeCookie] = useCookies([IS_AUTH_COOKIE]);
-  const isAuth = Boolean(cookies.is_auth);
+  const [isAuth, setIsAuth] = useState(false);
 
-  const { data, error, mutate } = useSWR(
+  useEffect(() => {
+    setIsAuth(Boolean(cookies[IS_AUTH_COOKIE]));
+  }, [cookies]);
+
+  const {
+    data: user,
+    error,
+    mutate,
+    isLoading: isSwrLoading,
+  } = useSWR(
     isAuth ? `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/users/me/` : null,
     fetchWithAuth,
     { revalidateOnFocus: true, shouldRetryOnError: false }
   );
+
+  useEffect(() => {
+    if (error) {
+      setIsAuth(false);
+      removeCookie(IS_AUTH_COOKIE, { path: "/", sameSite: "lax" });
+      mutate(null, false);
+    }
+  }, [error, mutate, removeCookie]);
 
   const login = () => {
     setCookie(IS_AUTH_COOKIE, "1", {
@@ -24,6 +39,7 @@ export const AuthProvider = ({ children }) => {
       maxAge: 60 * 60 * 24 * 30,
       sameSite: "lax",
     });
+    setIsAuth(true);
   };
 
   const logout = async () => {
@@ -32,29 +48,19 @@ export const AuthProvider = ({ children }) => {
         `${process.env.NEXT_PUBLIC_BASE_API_URL}/api/auth/jwt/logout/`,
         { method: "POST" }
       );
-      setUser(null);
-      removeCookie(IS_AUTH_COOKIE, { path: "/", sameSite: "lax" });
     } catch (error) {
       console.error("Logout failed:", error);
+    } finally {
+      setIsAuth(false);
+      removeCookie(IS_AUTH_COOKIE, { path: "/", sameSite: "lax" });
+      mutate(null, false);
     }
   };
 
-  useEffect(() => {
-    if (data) {
-      setUser(data);
-    }
-    if (error) {
-      setUser(null);
-      removeCookie(IS_AUTH_COOKIE, { path: "/", sameSite: "lax" });
-    }
-    setIsLoading(isAuth ? (!data && !error) : false);
-  }, [data, error, isAuth, removeCookie]);
-
   const value = {
-    user,
-    setUser,
+    user: user || null,
     isAuth,
-    isLoading,
+    isLoading: isAuth ? isSwrLoading : false,
     login,
     logout,
     mutate,

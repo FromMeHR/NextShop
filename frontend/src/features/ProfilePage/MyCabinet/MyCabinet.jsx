@@ -18,7 +18,7 @@ import css from "./MyCabinet.module.css";
 export function MyCabinet() {
   const [activeEditUser, setActiveEditUser] = useState(false);
   const [activeEditPassword, setActiveEditPassword] = useState(false);
-  const { user, setUser } = useAuth();
+  const { user, mutate } = useAuth();
 
   const {
     minutes: minutesEditUser,
@@ -108,7 +108,7 @@ export function MyCabinet() {
         }
       );
       toast.success("Акаунт успішно оновлено.");
-      setUser(response);
+      mutate(response, false);
       setActiveEditUser(false);
     } catch (error) {
       if (error.response?.status === 429) {

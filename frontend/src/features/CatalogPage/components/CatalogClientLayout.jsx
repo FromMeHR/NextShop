@@ -51,6 +51,11 @@ export function CatalogClientLayout({ children, ...props }) {
   const filtersColRef = useRef(null);
   const lastClickedFilterRef = useRef(null);
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     setApplyBtnPos({ visible: false });
     setSelectedFilters(urlFilters || []);
@@ -417,7 +422,7 @@ export function CatalogClientLayout({ children, ...props }) {
             }`}
           ></div>
         </div>
-        {ReactDOM.createPortal(
+        {isMounted && ReactDOM.createPortal(
           <div
             className={`${css["search-results__dropdown"]} ${isDropdownOrderingOpen ? css["open"] : ""}`}
             ref={dropdownOrderingRef}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useBodyScrollLock } from "../../../hooks/useBodyScrollLock";
 import { useCategories } from "../../../hooks/useCategories";
 import Link from "next/link";
@@ -16,7 +16,6 @@ export function CatalogBox() {
   const [stack, setStack] = useState([]);
   const dropdownRef = useRef(null);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const currentTitle = level === 0 ? "Каталог товарів" : stack[stack.length - 1]?.name;
 
@@ -29,7 +28,7 @@ export function CatalogBox() {
   useEffect(() => {
     setIsOpenDropdown(false);
     resetCatalog();
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Product } from "../../components/Product/Product";
 import { Pagination } from "../../components/Pagination/Pagination";
@@ -8,7 +8,6 @@ import { useDropdownPosition } from "../../hooks/useDropdownPosition";
 import { Loader } from "../../components/Loader/Loader";
 import { Breadcrumbs } from "../../components/Breadcrumbs/Breadcrumbs";
 import { Scrollbar } from "../../components/Scrollbar/Scrollbar";
-import { defineClientPageSize } from "../../utils/defineClientPageSize";
 import axios from "axios";
 import useSWR from "swr";
 import Link from "next/link";
@@ -20,19 +19,23 @@ const fetcher = async (url) => {
   return response.data;
 };
 
-export function SearchPage({ query }) {
+export function SearchPage({ query, pageSize }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const pageNumber = Number(searchParams.get("page")) || 1;
   const currentOrdering = searchParams.get("ordering") || "-popularity";
-  const pageSize = useMemo(() => defineClientPageSize(window.innerWidth), []);
   const [scrollStatus, setScrollStatus] = useState({
     canScrollLeft: false,
     canScrollRight: false
   });
   const scrollContainer = useRef(null);
   const targetScrollLeft = useRef(0);
+
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL;
   const { data, isLoading } = useSWR(
@@ -228,7 +231,7 @@ export function SearchPage({ query }) {
                     }`}
                   ></div>
                 </div>
-                {ReactDOM.createPortal(
+                {isMounted && ReactDOM.createPortal(
                   <div
                     className={`${css["search-results__dropdown"]} ${isDropdownOrderingOpen ? css["open"] : ""}`}
                     ref={dropdownOrderingRef}

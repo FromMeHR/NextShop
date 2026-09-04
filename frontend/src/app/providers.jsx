@@ -8,20 +8,6 @@ import { CartProvider } from "../context/CartContext";
 import { CategoriesProvider } from "../context/CategoriesContext";
 import { BurgerMenuProvider } from "../context/BurgerMenuContext";
 import { ModalProvider } from "../context/ModalContext";
-import { useAuth } from "../hooks/useAuth";
-import { Loader } from "../components/Loader/Loader";
-
-function AuthGate({ children }) {
-  const { isLoading } = useAuth();
-
-  return (
-    <CartProvider>
-      <BurgerMenuProvider>
-        <ModalProvider>{isLoading ? <Loader /> : children}</ModalProvider>
-      </BurgerMenuProvider>
-    </CartProvider>
-  );
-}
 
 export function Providers({ children, initialCategories }) {
   return (
@@ -29,7 +15,11 @@ export function Providers({ children, initialCategories }) {
       <CookiesProvider>
         <CategoriesProvider initialCategories={initialCategories}>
           <AuthProvider>
-            <AuthGate>{children}</AuthGate>
+            <CartProvider>
+              <BurgerMenuProvider>
+                <ModalProvider>{children}</ModalProvider>
+              </BurgerMenuProvider>
+            </CartProvider>
           </AuthProvider>
         </CategoriesProvider>
       </CookiesProvider>

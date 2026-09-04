@@ -65,7 +65,7 @@ export default async function RootLayout({ children }) {
       },
       "contactPoint": {
         "@type": "ContactPoint",
-        "telephone": "+380995544422",
+        "telephone": "+380999999999",
         "contactType": "customer service"
       }
     }

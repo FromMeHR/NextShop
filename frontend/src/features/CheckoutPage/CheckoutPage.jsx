@@ -69,6 +69,11 @@ export function CheckoutPage() {
     autoStart: false,
   });
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const errorMessageTemplates = {
     requiredContact: "Заповніть правильно ваші контактні дані",
     requiredDelivery: "Заповніть правильно спосіб доставки",
@@ -814,7 +819,7 @@ export function CheckoutPage() {
                               }`}
                             ></div>
                           </div>
-                          {ReactDOM.createPortal(
+                          {isMounted && ReactDOM.createPortal(
                             <div
                               className={`${css["checkout__dropdown"]} ${
                                 dropdownCityPosition === "above"
@@ -996,7 +1001,7 @@ export function CheckoutPage() {
                                                     }`}
                                                   ></div>
                                                 </div>
-                                                {ReactDOM.createPortal(
+                                                {isMounted && ReactDOM.createPortal(
                                                   <div
                                                     className={`${css["checkout__dropdown"]} ${
                                                       dropdownWarehousePosition === "above"
@@ -1142,7 +1147,7 @@ export function CheckoutPage() {
                                                   ></div>
                                                   <label className={css["select-street-label"]}>Вулиця</label>
                                                 </div>
-                                                {ReactDOM.createPortal(
+                                                {isMounted && ReactDOM.createPortal(
                                                   <div
                                                     className={`${css["checkout__dropdown"]} ${
                                                       dropdownStreetPosition === "above"
